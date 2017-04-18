@@ -70,7 +70,7 @@ namespace QUTIL{
 
 
 //    typedef itk::ImageFileReader<FloatImageType> ReaderTypeYK;
-    bool QPointF_Compare(QPointF& ptData1, QPointF& ptData2);
+    bool QPointF_Compare(const QPointF& ptData1, const QPointF& ptData2);
 
     void ResampleFloatImg(FloatImageType::Pointer& spFloatInput, FloatImageType::Pointer& spFloatOutput, VEC3D& newSpacing);
 
