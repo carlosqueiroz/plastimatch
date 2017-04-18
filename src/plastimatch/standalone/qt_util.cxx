@@ -17,7 +17,7 @@
 #include <QMessageBox>
 #include "itk_resample.h" //plm
 
-bool QUTIL::QPointF_Compare(QPointF& ptData1, QPointF& ptData2)
+bool QUTIL::QPointF_Compare(const QPointF& ptData1, const QPointF& ptData2)
 {
     //return (ptData1.x() > ptData2.x()); //ASCENDING
     return (ptData1.x() < ptData2.x()); //DESCENDING
