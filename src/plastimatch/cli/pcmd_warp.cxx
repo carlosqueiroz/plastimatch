@@ -62,7 +62,10 @@ parse_fn (
     parser->add_long_option ("", "input-dose-mc", 
         "input an monte carlo volume", 1, "");
     parser->add_long_option ("", "dif", 
-        "dif file (used by dij warper)", 1, "");
+        "dif file (used by dij warper). If the dif file does not contain dose "
+        "origin the dij header will provide all the necessary information."
+        "Useful to overwrite the Dij header values and force a resampling.",
+        1, "");
 
     /* Output files */
     parser->add_long_option ("", "output-img", 
@@ -404,13 +407,8 @@ do_command_warp (int argc, char* argv[])
 
     /* Dij matrices are a special case */
     if (parms.output_dij_fn != "") {
-        if (parms.dif_in_fn != "")
-        {
             warp_dij_main (&parms);
             return;
-        } else {
-            print_and_exit ("Sorry, you need to specify --dif for dij warping.\n");
-        }
     }
 
     /* What is the input file type? */
