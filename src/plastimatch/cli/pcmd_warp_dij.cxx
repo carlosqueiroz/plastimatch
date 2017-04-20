@@ -3,6 +3,7 @@
    ----------------------------------------------------------------------- */
 /*  Warp one or more dij matrices based on a vector field */
 #include "plmcli_config.h"
+#include "pcmd_warp_dij.h"
 #include <fstream>
 #include <math.h>
 #include <time.h>
@@ -13,58 +14,76 @@
 #include "itkVectorLinearInterpolateImageFunction.h"
 
 #include "itk_image_create.h"
+#include "itk_image_load.h"
 #include "itk_image_save.h"
 #include "itk_image_type.h"
 #include "itk_warp.h"
 #include "logfile.h"
 #include "pcmd_warp.h"
+#include "plm_file_format.h"
 #include "plm_image_header.h"
 #include "print_and_exit.h"
 #include "string_util.h"
 #include "warp_parms.h"
 #include "xform.h"
 
-typedef unsigned short ushort;
-typedef unsigned long ulong;
 
-class Dij_header {
-public:
-    plm_long dose_dim[3];
-    float dose_origin[3];
-    float dose_spacing[3];
-public:
-    Dij_header () {
-        for (int d = 0; d < 3; d++) {
-            dose_dim[d] = 0;
-            dose_origin[d] = 0.;
-            dose_spacing[d] = 0.;
-        }
+Dij_header::Dij_header () {
+    for (int d = 0; d < 3; d++) {
+        dose_dim[d] = 0;
+        dose_origin[d] = 0.;
+        dose_spacing[d] = 0.;
     }
-};
+}
+void Dij_header::load_from_dif(const char* dif_in) {
+    /* This converts from IEC coordinats to DICOM coordinates 
+    during read */
+    load_dif (this, dif_in);
+}
+void Dij_header::load_from_dij(const Dij_Matrix& dij) {
+    /* This converts from IEC coordinats to DICOM coordinates 
+    during read */
+    dose_dim[0] = dij.dose_cube_size[0];
+    dose_dim[1] = dij.dose_cube_size[2];
+    dose_dim[2] = dij.dose_cube_size[1];
+    dose_spacing[0] = dij.voxel_size_dx;
+    dose_spacing[1] = dij.voxel_size_dz;
+    dose_spacing[2] = dij.voxel_size_dy;
+}
+void Dij_header::load_from_img(const char* fixed_in) {
+    Plm_file_format file_type = plm_file_format_deduce (fixed_in);
+    Plm_image::Pointer pli = plm_image_load (fixed_in, file_type);
+    if (!pli)
+        print_and_exit ("Error loading fixed image: %s\n", fixed_in);
+    Plm_image_header pih;
+    pih.set_from_plm_image (pli);
 
-typedef struct __Pencil_Beam Pencil_Beam;
-struct __Pencil_Beam {
-    float energy;
-    float spot_x;
-    float spot_y;
-    int nvox;
-    ushort* vox;
-};
+    OriginType temp_origin = pih.GetOrigin();
+    SpacingType temp_spacing = pih.GetSpacing();
+    SizeType temp_size = pih.GetSize();
+    for (int i = 0; i < 3; i++)
+    {
+        dose_origin[i] = temp_origin[i];
+        dose_spacing[i] = temp_spacing[i];
+        dose_dim[i] = temp_size[i]/dose_spacing[i];
+    }
+}
+void Dij_header::load_user_origin(const float origin[3]) {
+    dose_origin[0] = origin[0];
+    dose_origin[1] = origin[1];
+    dose_origin[2] = origin[2];
+}
+void Dij_header::load_user_spacing(const float spacing[3]) {
+    dose_spacing[0] = spacing[0];
+    dose_spacing[1] = spacing[1];
+    dose_spacing[2] = spacing[2];
+}
+void Dij_header::load_user_dim(const plm_long dim[3]) {
+    dose_dim[0] = dim[0];
+    dose_dim[1] = dim[1];
+    dose_dim[2] = dim[2];
+}
 
-typedef struct __Dij_Matrix Dij_Matrix;
-struct __Dij_Matrix {
-    float gantry_angle;
-    float table_angle;
-    float collimator_angle;
-    float spot_spacing_dx;
-    float spot_spacing_dy;
-    float voxel_size_dx;
-    float voxel_size_dy;
-    float voxel_size_dz;
-    int dose_cube_size[3];
-    int num_pencil_beams;
-    float absolute_dose_coefficient;
-};
 
 void
 dij_parse_error (void)
@@ -360,11 +379,11 @@ warp_pencil_beam (
 void
 convert_vector_field (
     Xform::Pointer& xf,
-    Dij_header* dijh,
     Warp_parms *parms)
 {
     int i;
     FILE *fp_in, *fp_out;
+    Dij_header dijh;
     Dij_Matrix dij_matrix;
     Pencil_Beam pb;
 
@@ -384,12 +403,40 @@ convert_vector_field (
     /* Load the header */
     read_dij_header (&dij_matrix, fp_in);
     printf ("Found %d pencil beams\n", dij_matrix.num_pencil_beams);
-    write_dij_header (&dij_matrix, fp_out);
+
+    /* Set image dimensions */
+    /* The preference ranges from the more to the less automatic
+       In descending preference: manually supplied user parameters,
+       user supplied DIF file, fixed image and Dij header. User
+       parameters can overwrite a single quantities */
+    if (!parms->dif_in_fn.empty()) {
+        /* if given a dif file, use the parameters from it */
+        lprintf ("Loading dif...\n");
+        dijh.load_from_dif(parms->dif_in_fn.c_str());
+    }
+    else if (!parms->fixed_img_fn.empty())
+    {
+        /* if given, use the parameters from user-supplied fixed image */
+        lprintf ("Loading fixed image...\n");
+        dijh.load_from_img(parms->fixed_img_fn.c_str());
+    }
+    else
+    {
+        dijh.load_from_dij(dij_matrix);
+    }
+
+    if (parms->m_have_dim)
+        dijh.load_user_dim(parms->m_dim);
+    if (parms->m_have_origin)
+        dijh.load_user_origin(parms->m_origin);
+    if (parms->m_have_spacing)
+        dijh.load_user_spacing(parms->m_spacing);
+
 
     /* Create a new image to hold the input_image (gets re-used 
        for each pencil beam) */
-    FloatImageType::Pointer pb_img = make_dose_image (
-        dijh, &dij_matrix);
+    FloatImageType::Pointer pb_img = make_dose_image (&dijh, &dij_matrix);
+    write_dij_header (&dij_matrix, fp_out);
 
     /* Resample vector field to match dose image */
     printf ("Resampling vector field (please be patient)\n");
@@ -407,7 +454,7 @@ convert_vector_field (
             itk_image_save (pb_img, fn);
         }
         FloatImageType::Pointer warped_pb_img 
-            = warp_pencil_beam (vf, pb_img, &dij_matrix, dijh, &pb);
+            = warp_pencil_beam (vf, pb_img, &dij_matrix, &dijh, &pb);
         if (parms->output_dij_dose_volumes) {
             std::string fn = string_format ("PBw_%03d.nrrd", i);
             itk_image_save (warped_pb_img, fn);
@@ -426,11 +473,5 @@ warp_dij_main (Warp_parms* parms)
 {
     lprintf ("Loading xf...\n");
     Xform::Pointer xf = xform_load (parms->xf_in_fn);
-
-    lprintf ("Loading dif...\n");
-    Dij_header dijh;
-    load_dif (&dijh, parms->dif_in_fn.c_str());
-
-    convert_vector_field (xf, &dijh, 
-        parms);
+    convert_vector_field (xf, parms);
 }
