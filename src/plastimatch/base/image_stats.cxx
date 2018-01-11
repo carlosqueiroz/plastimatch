@@ -54,7 +54,7 @@ image_stats_print (const Volume::Pointer& t)
 }
 #endif
 
-template<> void
+template<> PLMBASE_API void
 image_stats_print (const Plm_image::Pointer& t)
 {
     switch (t->m_type) {

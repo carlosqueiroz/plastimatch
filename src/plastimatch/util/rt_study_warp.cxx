@@ -31,8 +31,10 @@ load_input_files (Rt_study *rt_study, Plm_file_format file_type,
 {
     if (parms->input_fn != "") {
         rt_study->load (parms->input_fn.c_str(), file_type);
-        lprintf (">> After rt_study->load: ");
-        image_stats_print (rt_study->get_dose());
+        if (rt_study->get_dose()) {
+            lprintf (">> After rt_study->load: ");
+            image_stats_print (rt_study->get_dose());
+        }
     }
 
     if (parms->input_cxt_fn != "") {
