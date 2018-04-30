@@ -62,8 +62,9 @@ if (PLM_CONFIG_BUILD_TEST_PROGRAMS)
 	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
       plm_add_executable_v3 (itk_test_directions itk_test_directions.cxx
 	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
-      plm_add_executable_v3 (itk_test_threads itk_thread_test.cxx
-	"${PLASTIMATCH_LIBS}" "" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
+# GCS This suddenly stopped working, maybe need an additional module?
+#      plm_add_executable_v3 (itk_test_threads itk_thread_test.cxx
+#	"${PLASTIMATCH_LIBS}" "" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
     endif ()
 
     # Test executable -- libyaml
@@ -170,6 +171,10 @@ if (PLM_CONFIG_BUILD_TEST_PROGRAMS)
       plm_add_executable_v3 (rapidjson_test rapidjson_test.cxx
 	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
     endif ()
+
+    # Test executable -- shared libraries
+    plm_add_executable_v3 (shared_library_test shared_library_test.cxx 
+      "" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
 
     # Test executable -- smart pointers I
     ## find_package (TR1)

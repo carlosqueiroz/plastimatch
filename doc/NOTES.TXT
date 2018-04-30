@@ -35,11 +35,14 @@ This is used as:
     ->
     if (!delayload_libplmcuda()) { exit (0); }
     void* lib = dlopen_ex ("libplmcuda.so");
-    CUDA_selectgpu_t* sym = (CUDA_selectgpu_t*) dlsym (lib, "CUDA_selectgpu");
+    CUDA_selectgpu_t* CUDA_selectgpu = (CUDA_selectgpu_t*) dlsym (lib, "CUDA_selectgpu");
     CUDA_selectgpu (parms->gpuid);
     if (lib != NULL) {
         dlclose (lib);
     }
+    or ->
+    if (!delayload_libplmcuda()) { exit (0); }
+    CUDA_selectgpu (parms->gpuid);
 
 ******************************************************************************
 Thoughts on operations of two images

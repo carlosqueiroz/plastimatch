@@ -16,52 +16,45 @@
     #pragma comment(lib, "user32")
 #endif
 
-// Note: if lib contains a null pointer here
-//       (see above note), this will return a
-//       null function pointer.  Be careful pls.
-#if _WIN32
-    #define LOAD_SYMBOL(sym, lib)                  \
-        ;
-#else
-    #define LOAD_SYMBOL(sym, lib)                  \
-        sym##_##t* sym = (sym##_##t*) dlsym (lib, #sym);
-#endif
+#define DELAYLOAD_WRAP(f, ...)                             \
+    f (__VA_ARGS__); typedef f##_t(__VA_ARGS__);
 
-// JAS 2012.03.29
-// ------------------------------------------------------------
 // Now that plastimatch is officially C++, we can now safely
 // define this macro, which reduces programmer error.  This
 // should be used instead of LOAD_LIBRARY
 #if _WIN32
-    #define LOAD_LIBRARY_SAFE(lib)                 \
-        if (!delayload_##lib()) { exit (0); }      \
-        ;
+    #define LOAD_LIBRARY_SAFE(lib)                              \
+        void* lib = delayload_cuda (#lib ".dll");
 #else
-    #define LOAD_LIBRARY_SAFE(lib)                 \
-        if (!delayload_##lib()) { exit (0); }      \
-        void* lib = dlopen_ex (#lib".so");
+    #define LOAD_LIBRARY_SAFE(lib)                              \
+        void* lib = delayload_cuda ("lib" #lib ".so");
 #endif
 
-// JAS 2010.12.09
+// Note: if lib contains a null pointer here
+//       (see above note), this will return a
+//       null function pointer.  Be careful pls.
+#if _WIN32
+    #define LOAD_SYMBOL(f, lib)                  \
+        ;
+#else
+    #define LOAD_SYMBOL(f, lib)                  \
+        f##_t* sym = 0;                          \
+        if (lib) sym = dlsym (lib, #sym);
+#endif
+
 // Despite what the man pages say, dlclose()ing NULL
 // was resulting in segfaults!  So, now we check 1st.
-#if !defined(_WIN32) && defined(PLM_USE_GPU_PLUGINS)
-    #define UNLOAD_LIBRARY(lib)                    \
-        if (lib != NULL) {                         \
-            dlclose (lib);                         \
-        }
-#else
+#if _WIN32
     #define UNLOAD_LIBRARY(lib)                    \
         ;
+#else
+    #define UNLOAD_LIBRARY(lib)                    \
+        if (lib) {                                 \
+            dlclose (lib);                         \
+        }
 #endif
 
-#define DELAYLOAD_WRAP(f, ...)                     \
-    f (__VA_ARGS__); typedef f##_t(__VA_ARGS__);
-
-PLMSYS_C_API int delayload_libplmcuda (void);
-PLMSYS_C_API int delayload_libplmreconstructcuda (void);
-PLMSYS_C_API int delayload_libplmregistercuda (void);
-PLMSYS_C_API int delayload_libplmopencl (void);
-PLMSYS_C_API void* dlopen_ex (const char* lib);
+PLMSYS_C_API bool check_library (const char *);
+PLMSYS_C_API void* delayload_cuda (const char *);
 
 #endif

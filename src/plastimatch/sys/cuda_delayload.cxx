@@ -110,10 +110,30 @@ void* dlopen_ex (const char* lib)
 }
 #endif
 
+bool
+check_library (const char *library_name)
+{
+#if _WIN32
+    HINSTANCE handle;
+    handle = LoadLibrary (library_name);
+    if (handle != NULL) {
+        FreeLibrary (handle);
+        return true;
+    }
+    return false;
+#else
+    void *handle = dlopen (library_name, RTLD_LAZY);
+    if (handle) {
+        dlclose (handle);
+        return true;
+    }
+    return false;
+#endif
+}
 
 // Note: We need special cases for Windows and POSIX compliant OSes
-static int 
-delayload_cuda_internal (const char* windows_name, const char* unix_name)
+void *
+delayload_cuda (const char* library_name)
 {
 #if defined (_WIN32)
     // Windows
@@ -133,11 +153,9 @@ delayload_cuda_internal (const char* windows_name, const char* unix_name)
     // the documentation and install the version of the toolkit that was used
     // to build the plastimatch CUDA plugin (plmcuda.dll) OR compile from
     // source.
-    if (   !find_lib ("nvcuda.dll")     /* CUDA Driver */
-#if defined (PLM_USE_GPU_PLUGINS)
-        || !find_lib (windows_name)     /* PLM CUDA Plugin */
-#endif
-       ) {
+    if (   !check_library ("nvcuda.dll")     /* CUDA Driver */
+        || !check_library (library_name)     /* PLM CUDA Plugin */
+    ) {
         printf ("Failed to load CUDA runtime!\n");
         printf ("For GPU acceleration, please install:\n");
         printf ("* the plastimatch GPU plugin\n");
@@ -147,7 +165,7 @@ delayload_cuda_internal (const char* windows_name, const char* unix_name)
         return 0;
     } else {
         // success
-        return 1;
+        return (void*) 1;
     }
 #elif defined (APPLE)
 
@@ -156,7 +174,7 @@ delayload_cuda_internal (const char* windows_name, const char* unix_name)
     printf ("Plastimatch with BUILD_SHARED_LIBS enabled. Sorry.\n\n");
     return 0;
 #endif
-    return 1;
+    return (void*) 1;
 #else
     // NOT Windows (most likely a POSIX compliant OS though...)
     //
@@ -170,12 +188,10 @@ delayload_cuda_internal (const char* windows_name, const char* unix_name)
     // libcudart.so -> libcudart.so.3
     // libcudart.so.3 -> libcudart.so.3.0.14
     //
-    if (    !find_lib ("libcuda.so")         /* CUDA Driver */
-         || !find_lib ("libcudart.so")       /* CUDA RunTime */
-#if defined (PLM_USE_GPU_PLUGINS)
-         || !find_lib (unix_name)            /* PLM CUDA Plugin */
-#endif
-       ) {
+    if (    !check_library ("libcuda.so")         /* CUDA Driver */
+        || !check_library ("libcudart.so")       /* CUDA RunTime */
+        || !check_library (library_name)            /* PLM CUDA Plugin */
+    ) {
         printf ("Failed to load CUDA runtime!\n");
         printf ("For GPU acceleration, please install:\n");
         printf ("* the plastimatch GPU plugin\n");
@@ -183,65 +199,8 @@ delayload_cuda_internal (const char* windows_name, const char* unix_name)
         printf ("Visit http://www.plastimatch.org/contents.html for more information.\n");
         printf ("OR email <plastimatch@googlegroups.com> for support.\n\n");
         return 0;
-    } else {
-        // success
-        return 1;
     }
+
+    return dlopen_ex (library_name);
 #endif
-}
-
-int 
-delayload_libplmcuda (void)
-{
-    return delayload_cuda_internal ("plmcuda.dll", "libplmcuda.so");
-}
-
-int 
-delayload_libplmreconstructcuda (void)
-{
-    return delayload_cuda_internal (
-        "plmreconstructcuda.dll", "libplmreconstructcuda.so");
-}
-
-int 
-delayload_libplmregistercuda (void)
-{
-    return delayload_cuda_internal (
-        "plmregistercuda.dll", "libplmregistercuda.so");
-}
-
-
-int 
-delayload_libplmopencl (void)
-{
-#if defined (_WIN32)
-    if (!find_lib ("opencl.dll")) {
-        printf ("Failed to load GPU Plugins (err: OpenCL)\n");
-        printf ("Visit http://www.plastimatch.org/contents.html for more information.\n");
-        printf ("OR email <plastimatch@googlegroups.com> for support.\n\n");
-        return 0;
-    } else {
-        // success
-        return 1;
-    }
-#elif defined (APPLE)
-
-#if defined (PLM_USE_GPU_PLUGINS)
-    printf ("OpenCL support of OS X is currently not available when building\n");
-    printf ("Plastimatch with BUILD_SHARED_LIBS enabled. Sorry.\n\n");
-    return 0;
-#endif
-    return 1;
-#else
-    if (!find_lib ("libOpenCL.so")) {
-        printf ("Failed to load GPU Plugins! (err: OpenCL)\n");
-        printf ("Visit http://www.plastimatch.org/contents.html for more information.\n");
-        printf ("OR email <plastimatch@googlegroups.com> for support.\n\n");
-        return 0;
-    } else {
-        // success
-        return 1;
-    }
-#endif
-
 }
