@@ -48,7 +48,7 @@ Rt_dij::dump (const std::string& dir) const
         fprintf (fp, "%f %f %f\n", r->xpos, r->ypos, r->energy);
         std::list<Rt_dij_dose>::const_iterator c = r->dose.begin();
         while (c != r->dose.end()) {
-            fprintf (fp, "%d %f\n", c->index, c->dose);
+            fprintf (fp, "%lu %f\n", c->index, c->dose);
             c++;
         }
         fclose (fp);

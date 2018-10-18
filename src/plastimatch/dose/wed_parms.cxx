@@ -281,7 +281,7 @@ Wed_Parms::set_key_val (
             }
         }
         else if (!strcmp (key, "resolution")) {
-            if (sscanf (val, "%i %i", 
+            if (sscanf (val, "%li %li", 
                     &(this->ires[0]), 
                     &(this->ires[1])) != 2)
             {

@@ -1382,7 +1382,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
         if (buf.find ("[Energy]") != std::string::npos && energy_number != 0 && line_number != ap->get_dim(1))
         {
             printf("***WARNING*** the number of beamlet line doesn't correspond to the aperture size\n");
-            printf("beamlet line number expected: %d, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
+            printf("beamlet line number expected: %ld, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
         }
 
         if (buf.find ("[Energy]") != std::string::npos)
@@ -1433,7 +1433,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
         if (beamlet_number != ap->get_dim(0))
         {
             printf("***WARNING*** the number of beamlets doesn't correspond to the aperture size\n");
-            printf("line %d: beamlet number expected: %d, beamlet number detected: %d.\n", line_number, ap->get_dim(0), beamlet_number);
+            printf("line %d: beamlet number expected: %ld, beamlet number detected: %d.\n", line_number, ap->get_dim(0), beamlet_number);
         }
         line_number++;
     }
@@ -1442,7 +1442,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
     if (energy_number != 0 && line_number != ap->get_dim(1))
     {
         printf("***WARNING*** the number of beamlet line doesn't correspond to the aperture size\n");
-        printf("beamlet line number expected: %d, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
+        printf("beamlet line number expected: %ld, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
     }
 }
 
@@ -1466,7 +1466,7 @@ Rt_mebs::compute_particle_number_matrix_from_target_active (
         || wepl_max.size() != rpl_vol->get_aperture()->get_dim(0) * rpl_vol->get_aperture()->get_dim(1))
     {
         printf("ERROR: the aperture size doesn't correspond to the min and max depth maps of the target.\n");
-        printf("Aperture size: %d, min depth map size: %d, max depth map size: %d.\n", rpl_vol->get_aperture()->get_dim(0) * rpl_vol->get_aperture()->get_dim(1), (int) wepl_min.size(), (int) wepl_max.size());
+        printf("Aperture size: %ld, min depth map size: %d, max depth map size: %d.\n", rpl_vol->get_aperture()->get_dim(0) * rpl_vol->get_aperture()->get_dim(1), (int) wepl_min.size(), (int) wepl_max.size());
     }
 
     for (size_t i = 0; i < wepl_max.size(); i++)

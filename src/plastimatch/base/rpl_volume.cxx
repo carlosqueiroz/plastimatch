@@ -1468,7 +1468,7 @@ Rpl_volume::apply_beam_modifiers ()
     /* For each ray in aperture */
     const plm_long *ires = d_ptr->proj_vol->get_image_dim();
 
-    printf ("ires = %d %d\n", ires[0], ires[1]);
+    printf ("ires = %ld %ld\n", ires[0], ires[1]);
     printf ("proj_vol dim = %d %d %d\n", (int) proj_vol->dim[0], 
         (int) proj_vol->dim[1], (int) proj_vol->dim[2]);
 
