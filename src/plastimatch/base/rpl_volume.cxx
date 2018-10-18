@@ -1625,7 +1625,7 @@ float compute_PrSTPR_from_HU(float CT_HU)
 }
 
 float 
-compute_PrSTPR_Schneider_weq_from_HU (float CT_HU) // From Schneider's paper: Phys. Med. Biol.41 (1996) 111–124
+compute_PrSTPR_Schneider_weq_from_HU (float CT_HU) // From Schneider's paper: Phys. Med. Biol.41 (1996) 111-124
 {
     if (CT_HU <= -1000)
     {
@@ -1698,7 +1698,7 @@ float compute_PrWER_from_HU(float CT_HU)
     return compute_PrSTPR_from_HU(CT_HU) / compute_density_from_HU(CT_HU);
 }
 
-float compute_density_from_HU (float CT_HU) // from Schneider's paper: Phys. Med. Biol.41 (1996) 111–124
+float compute_density_from_HU (float CT_HU) // from Schneider's paper: Phys. Med. Biol.41 (1996) 111-124
 {
     if(CT_HU <= -1000)
     {
