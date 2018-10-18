@@ -1364,10 +1364,10 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
     char sep[] = " ";
     char* token;
 
-    int beamlet_number = 0;
-    int line_number = 0;
-    int energy_number = 0;
-    int idx = 0;
+    plm_long beamlet_number = 0;
+    plm_long line_number = 0;
+    plm_long energy_number = 0;
+    plm_long idx = 0;
     double part_number = 0;
     double energy;
 
@@ -1382,7 +1382,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
         if (buf.find ("[Energy]") != std::string::npos && energy_number != 0 && line_number != ap->get_dim(1))
         {
             printf("***WARNING*** the number of beamlet line doesn't correspond to the aperture size\n");
-            printf("beamlet line number expected: %ld, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
+            printf("beamlet line number expected: %ld, beamlet line detected: %ld.\n", ap->get_dim(1), line_number);
         }
 
         if (buf.find ("[Energy]") != std::string::npos)
@@ -1433,7 +1433,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
         if (beamlet_number != ap->get_dim(0))
         {
             printf("***WARNING*** the number of beamlets doesn't correspond to the aperture size\n");
-            printf("line %d: beamlet number expected: %ld, beamlet number detected: %d.\n", line_number, ap->get_dim(0), beamlet_number);
+            printf("line %ld: beamlet number expected: %ld, beamlet number detected: %ld.\n", line_number, ap->get_dim(0), beamlet_number);
         }
         line_number++;
     }
@@ -1442,7 +1442,7 @@ Rt_mebs::load_beamlet_map (Aperture::Pointer& ap)
     if (energy_number != 0 && line_number != ap->get_dim(1))
     {
         printf("***WARNING*** the number of beamlet line doesn't correspond to the aperture size\n");
-        printf("beamlet line number expected: %ld, beamlet line detected: %d.\n", ap->get_dim(1), line_number);
+        printf("beamlet line number expected: %ld, beamlet line detected: %ld.\n", ap->get_dim(1), line_number);
     }
 }
 
