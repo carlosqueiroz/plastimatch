@@ -338,7 +338,11 @@ private:
   mutable double m_SumOfSquaredChange;
 
   /** Mutex lock to protect modification to metric. */
+#if (ITK_VERSION_MAJOR >= 5)
+  mutable std::mutex m_MetricCalculationLock;
+#elif
   mutable SimpleFastMutexLock m_MetricCalculationLock;
+#endif
   MaskPointer m_MovingMask;
   MaskPointer m_FixedMask;
   };

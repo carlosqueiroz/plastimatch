@@ -304,7 +304,7 @@ save_output (
         logfile_printf ("Warping...\n");
         Plm_image::Pointer moving_image = regd->get_moving_image();
         plm_warp (im_warped, vfp, xf_out, &pih, moving_image,
-            default_value, false, 0, 1);
+            default_value, 0, 1);
 
         if (img_out_fn[0]) {
             logfile_printf ("Saving image...\n");
@@ -575,7 +575,7 @@ Registration::run_main_thread ()
 }
 
 static 
-ITK_THREAD_RETURN_TYPE
+itk::ITK_THREAD_RETURN_TYPE
 registration_main_thread (void* param)
 {
     itk::MultiThreader::ThreadInfoStruct *info 
@@ -586,7 +586,11 @@ registration_main_thread (void* param)
     reg->run_main_thread ();
     printf ("** Registration worker thread finished.\n");
 
-    return ITK_THREAD_RETURN_VALUE;
+#if (ITK_VERSION_MAJOR >= 5)
+    return itk::ITK_THREAD_RETURN_DEFAULT_VALUE;
+#elif
+    return itk::ITK_THREAD_RETURN_VALUE;
+#endif
 }
 
 void 

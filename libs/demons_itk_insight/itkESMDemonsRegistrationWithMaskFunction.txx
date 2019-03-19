@@ -546,7 +546,11 @@ ESMDemonsRegistrationWithMaskFunction<TFixedImage, TMovingImage,
 {
   GlobalDataStruct *globalData = (GlobalDataStruct *)gd;
 
+#if (ITK_VERSION_MAJOR >= 5)
+  m_MetricCalculationLock.lock();
+#elif
   m_MetricCalculationLock.Lock();
+#endif
   m_SumOfSquaredDifference += globalData->m_SumOfSquaredDifference;
   m_NumberOfPixelsProcessed += globalData->m_NumberOfPixelsProcessed;
   m_SumOfSquaredChange += globalData->m_SumOfSquaredChange;
@@ -557,7 +561,11 @@ ESMDemonsRegistrationWithMaskFunction<TFixedImage, TMovingImage,
     m_RMSChange = vcl_sqrt( m_SumOfSquaredChange
       / static_cast<double>( m_NumberOfPixelsProcessed ) );
     }
+#if (ITK_VERSION_MAJOR >= 5)
+  m_MetricCalculationLock.unlock();
+#elif
   m_MetricCalculationLock.Unlock();
+#endif
 
   delete globalData;
 }

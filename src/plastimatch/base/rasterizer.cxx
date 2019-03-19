@@ -225,8 +225,33 @@ Rasterizer::process_next (
                 }
                 /* GCS FIX: This is inefficient, due to undesirable construct 
                    and destruct of itk::VariableLengthVector of each pixel */
+#if (ITK_VERSION_MAJOR >= 5)
                 UCharVecImageType::IndexType idx = {{0, 0, slice_no}};
                 size_t k = 0;
+                idx.GetIndex();
+                for (idx.m_InternalArray[1] = 0; 
+                     idx.m_InternalArray[1] < this->dim[1]; 
+                     idx.m_InternalArray[1]++) {
+                    for (idx.m_InternalArray[0] = 0; 
+                         idx.m_InternalArray[0] < this->dim[0]; 
+                         idx.m_InternalArray[0]++) {
+                        if (this->acc_img[k]) {
+                            itk::VariableLengthVector<unsigned char> v 
+                                = ss_img->GetPixel (idx);
+                            if (this->xor_overlapping) {
+                                v[uchar_no] ^= bit_mask;
+                            } else {
+                                v[uchar_no] |= bit_mask;
+                            }
+                            ss_img->SetPixel (idx, v);
+                        }
+                        k++;
+                    }
+                }
+#elif
+                UCharVecImageType::IndexType idx = {{0, 0, slice_no}};
+                size_t k = 0;
+                idx.GetIndex();
                 for (idx.m_Index[1] = 0; 
                      idx.m_Index[1] < this->dim[1]; 
                      idx.m_Index[1]++) {
@@ -246,6 +271,7 @@ Rasterizer::process_next (
                         k++;
                     }
                 }
+#endif
             }
             else {
                 uint32_t* ss_img = 0;

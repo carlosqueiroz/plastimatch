@@ -25,23 +25,23 @@ if (NOT ITK_VERSION)
     "${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH}")
 endif ()
 if (${ITK_VERSION} VERSION_LESS "3.16.0")
-  message (FATAL_ERROR 
+  message (FATAL_ERROR
     "Fatal Error. ITK must be version 3.16.0 or higher")
 endif ()
 if (${ITK_VERSION_MAJOR} VERSION_EQUAL "3")
   if (NOT ITK_USE_REVIEW)
-    message (FATAL_ERROR 
+    message (FATAL_ERROR
       "Fatal Error. ITK must be compiled with ITK_USE_REVIEW set to ON")
   endif ()
   set (ITK_LIBRARIES ${ITK_LIBRARIES} ITKIOReview)
 elseif (${ITK_VERSION_MAJOR} VERSION_EQUAL "4")
   if (${ITK_VERSION} VERSION_LESS "4.1")
-    message (FATAL_ERROR 
+    message (FATAL_ERROR
       "Fatal Error. ITK 4 must be 4.1 or greater")
   endif ()
-else ()
-  message (AUTHOR_WARNING
-    "Warning. ITK version greater than 4.X is not tested")
+elseif (NOT ${ITK_VERSION_MAJOR} VERSION_EQUAL "5")
+  message (FATAL_ERROR
+    "Fatal Error. ITK version should be 3.X, 4.X, or 5.X")
 endif ()
 message (STATUS "ITK_VERSION = ${ITK_VERSION} found")
 
@@ -53,7 +53,7 @@ elseif (${ITK_VERSION} VERSION_LESS "4.1")
   set (ITK_BASE "${ITK_LIBRARY_DIRS}")
 else ()
   # At some point in time (presumably around ITK 4.1), ITK stopped
-  # creating the variable ITK_LIBRARY_DIRS.  Therefore, we infer from the 
+  # creating the variable ITK_LIBRARY_DIRS.  Therefore, we infer from the
   # configuration filename.
   # Remove filename
   string (REGEX REPLACE "/[^/]*$" "" ITK_LIBRARY_DIRS_41
