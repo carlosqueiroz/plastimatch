@@ -420,58 +420,6 @@ sb_set (NKIDECOMPRESS_INCLUDE_DIR "${PLM_SOURCE_DIR}/libs/nkidecompress")
 add_subdirectory (libs/nkidecompress)
 
 ##-----------------------------------------------------------------------------
-##  Special CUDA processing
-##-----------------------------------------------------------------------------
-if (PLM_CONFIG_ENABLE_CUDA)
-  find_package (CUDA_wrap)
-  set (CUDA_FOUND ${CUDA_FOUND} CACHE BOOL "Did we find cuda?")
-  if (CUDA_FOUND)
-    cuda_include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-  endif ()
-else ()
-  set (CUDA_FOUND false)
-endif ()
-
-##-----------------------------------------------------------------------------
-##  Thrust
-##-----------------------------------------------------------------------------
-find_package (Thrust)
-
-##-----------------------------------------------------------------------------
-## JAS 10.28.2010
-## nvcc automatically passed the flag -malign-double to gcc when compiling .cu
-## files.  This can be a problem when structs are shared between
-## .c & .cu files on 32-bit machines.  So, we pass -malign-double to gcc
-## for .c files as well so that everybody is using the same alignment.
-## -malign-double is automatically passed to gcc for 64-bit architectures.
-##
-## GCS 2010-10-30
-## -malign-double should only be enabled for 32-bit machines.  gcc 4.1.2
-## gives an error if it is used on x86_64.
-##
-## GCS 2011-07-21
-## -malign-double is not compatible with ITK.  Need a fix soon...
-##
-## JAS 2011-07-23
-## I have disabled -malign-double passing to gcc/g++ compiled objects and
-## have taken to manually byte aligning structures that are passed to
-## nvcc compiled objects.  (See double_align8 typedef in bspline.h)
-## Hopefully this will solve the problem.
-##-----------------------------------------------------------------------------
-#if (CUDA_FOUND AND CMAKE_COMPILER_IS_GNUCC AND MACHINE_IS_32_BIT)
-#  if (CMAKE_C_FLAGS)
-#    set (CMAKE_C_FLAGS "-malign-double")
-#  else ()
-#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -malign-double")
-#  endif ()
-#  if (CMAKE_CXX_FLAGS)
-#    set (CMAKE_CXX_FLAGS "-malign-double")
-#  else ()
-#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -malign-double")
-#  endif ()
-#endif ()
-
-##-----------------------------------------------------------------------------
 ##  Doxygen
 ##-----------------------------------------------------------------------------
 find_package (Doxygen)
