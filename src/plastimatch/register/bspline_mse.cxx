@@ -1953,3 +1953,110 @@ bspline_score_mse (
     }
 #endif
 }
+float
+li_value (
+    float f1[3],           /* Input:  Fraction of upper voxel */
+    float f2[3],           /* Input:  Fraction of lower voxel */
+    plm_long mvf,          /* Input:  Index of lower-left voxel in 8-group */
+    float *m_img,          /* Input:  Pointer to raw data */
+    Volume *moving         /* Input:  Volume (for dimensions) */
+)
+{
+    float m_x1y1z1, m_x2y1z1, m_x1y2z1, m_x2y2z1;
+    float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
+    float m_val;
+
+    m_x1y1z1 = f1[0] * f1[1] * f1[2] * m_img[mvf];
+    m_x2y1z1 = f2[0] * f1[1] * f1[2] * m_img[mvf+1];
+    m_x1y2z1 = f1[0] * f2[1] * f1[2] * m_img[mvf+moving->dim[0]];
+    m_x2y2z1 = f2[0] * f2[1] * f1[2] * m_img[mvf+moving->dim[0]+1];
+    m_x1y1z2 = f1[0] * f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]];
+    m_x2y1z2 = f2[0] * f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
+    m_x1y2z2 = f1[0] * f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
+    m_x2y2z2 = f2[0] * f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
+    m_val = m_x1y1z1 + m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
+	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2;
+
+    return m_val;
+}
+
+float
+li_value_dx (
+    float f1[3],           /* Input:  Fraction of upper voxel */
+    float f2[3],           /* Input:  Fraction of lower voxel */
+    float inv_rx,          /* Input:  1 / voxel spacing in x direction */ 
+    plm_long mvf,          /* Input:  Index of lower-left voxel in 8-group */
+    float *m_img,          /* Input:  Pointer to raw data */
+    Volume *moving         /* Input:  Volume (for dimensions) */
+)
+{
+    float m_x1y1z1, m_x2y1z1, m_x1y2z1, m_x2y2z1;
+    float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
+    float m_val;
+
+    m_x1y1z1 = f1[1] * f1[2] * m_img[mvf];
+    m_x2y1z1 = f1[1] * f1[2] * m_img[mvf+1];
+    m_x1y2z1 = f2[1] * f1[2] * m_img[mvf+moving->dim[0]];
+    m_x2y2z1 = f2[1] * f1[2] * m_img[mvf+moving->dim[0]+1];
+    m_x1y1z2 = f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]];
+    m_x2y1z2 = f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
+    m_x1y2z2 = f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
+    m_x2y2z2 = f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
+    m_val = inv_rx * (-m_x1y1z1 + m_x2y1z1 - m_x1y2z1 + m_x2y2z1 
+	    - m_x1y1z2 + m_x2y1z2 - m_x1y2z2 + m_x2y2z2);
+    return m_val;
+}
+
+float
+li_value_dy (
+    float f1[3],           /* Input:  Fraction of upper voxel */
+    float f2[3],           /* Input:  Fraction of lower voxel */
+    float inv_ry,          /* Input:  1 / voxel spacing in y direction */ 
+    plm_long mvf,          /* Input:  Index of lower-left voxel in 8-group */
+    float *m_img,          /* Input:  Pointer to raw data */
+    Volume *moving         /* Input:  Volume (for dimensions) */
+)
+{
+    float m_x1y1z1, m_x2y1z1, m_x1y2z1, m_x2y2z1;
+    float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
+    float m_val;
+
+    m_x1y1z1 = f1[0] * f1[2] * m_img[mvf];
+    m_x2y1z1 = f2[0] * f1[2] * m_img[mvf+1];
+    m_x1y2z1 = f1[0] * f1[2] * m_img[mvf+moving->dim[0]];
+    m_x2y2z1 = f2[0] * f1[2] * m_img[mvf+moving->dim[0]+1];
+    m_x1y1z2 = f1[0] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]];
+    m_x2y1z2 = f2[0] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
+    m_x1y2z2 = f1[0] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
+    m_x2y2z2 = f2[0] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
+    m_val = inv_ry * (- m_x1y1z1 - m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
+	    - m_x1y1z2 - m_x2y1z2 + m_x1y2z2 + m_x2y2z2);
+    return m_val;
+}
+
+float
+li_value_dz (
+    float f1[3],           /* Input:  Fraction of upper voxel */
+    float f2[3],           /* Input:  Fraction of lower voxel */
+    float inv_rz,          /* Input:  1 / voxel spacing in z direction */
+    plm_long mvf,          /* Input:  Index of lower-left voxel in 8-group */
+    float *m_img,          /* Input:  Pointer to raw data */
+    Volume *moving         /* Input:  Volume (for dimensions) */
+)
+{
+    float m_x1y1z1, m_x2y1z1, m_x1y2z1, m_x2y2z1;
+    float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
+    float m_val;
+
+    m_x1y1z1 = f1[0] * f1[1] * m_img[mvf];
+    m_x2y1z1 = f2[0] * f1[1] * m_img[mvf+1];
+    m_x1y2z1 = f1[0] * f2[1] * m_img[mvf+moving->dim[0]];
+    m_x2y2z1 = f2[0] * f2[1] * m_img[mvf+moving->dim[0]+1];
+    m_x1y1z2 = f1[0] * f1[1] * m_img[mvf+moving->dim[1]*moving->dim[0]];
+    m_x2y1z2 = f2[0] * f1[1] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
+    m_x1y2z2 = f1[0] * f2[1] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
+    m_x2y2z2 = f2[0] * f2[1] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
+    m_val = inv_rz * (- m_x1y1z1 - m_x2y1z1 - m_x1y2z1 - m_x2y2z1 
+	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2);
+    return m_val;
+}

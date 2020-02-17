@@ -29,4 +29,39 @@ bspline_score_normalize (
 
 PLMREGISTER_API void bspline_score_mse (Bspline_optimize *bod);
 
+PLMREGISTER_API float li_value (
+    float f1[3],
+    float f2[3],
+    plm_long mvf, 
+    float *m_img,
+    Volume *moving
+);
+
+PLMREGISTER_API float li_value_dx (
+    float f1[3],
+    float f2[3],
+    float rx,
+    plm_long mvf, 
+    float *m_img,
+    Volume *moving
+);
+
+PLMREGISTER_API float li_value_dy (
+    float f1[3],
+    float f2[3],
+    float ry,
+    plm_long mvf, 
+    float *m_img,
+    Volume *moving
+);
+
+PLMREGISTER_API float li_value_dz (
+    float f1[3],
+    float f2[3],
+    float rz,
+    plm_long mvf, 
+    float *m_img,
+    Volume *moving
+);
+
 #endif

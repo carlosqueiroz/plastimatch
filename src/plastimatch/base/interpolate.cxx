@@ -131,7 +131,7 @@ li_2d (
     li (&ijk_f[0], &li_frac_1[0], &li_frac_2[0], ijk[0], dim[0]);
     li (&ijk_f[1], &li_frac_1[1], &li_frac_2[1], ijk[1], dim[1]);
 }
-
+#if (COMMENTOUT)
 float
 li_value (
     float f1[3],           /* Input:  Fraction of upper voxel */
@@ -173,7 +173,6 @@ li_value_dx (
     float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
     float m_val;
 
-<<<<<<< HEAD
     m_x1y1z1 = f1[1] * f1[2] * m_img[mvf];
     m_x2y1z1 = f1[1] * f1[2] * m_img[mvf+1];
     m_x1y2z1 = f2[1] * f1[2] * m_img[mvf+moving->dim[0]];
@@ -184,19 +183,6 @@ li_value_dx (
     m_x2y2z2 = f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
     m_val = inv_rx * (-m_x1y1z1 + m_x2y1z1 - m_x1y2z1 + m_x2y2z1 
 	    - m_x1y1z2 + m_x2y1z2 - m_x1y2z2 + m_x2y2z2);
-=======
-    m_x1y1z1 = -inv_rx * f1[1] * f1[2] * m_img[mvf];
-    m_x2y1z1 = inv_rx * f1[1] * f1[2] * m_img[mvf+1];
-    m_x1y2z1 = -inv_rx * f2[1] * f1[2] * m_img[mvf+moving->dim[0]];
-    m_x2y2z1 = inv_rx * f2[1] * f1[2] * m_img[mvf+moving->dim[0]+1];
-    m_x1y1z2 = -inv_rx * f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]];
-    m_x2y1z2 = inv_rx * f1[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
-    m_x1y2z2 = -inv_rx * f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
-    m_x2y2z2 = inv_rx * f2[1] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
-    m_val = m_x1y1z1 + m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
-	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2;
->>>>>>> master
-
     return m_val;
 }
 
@@ -214,7 +200,6 @@ li_value_dy (
     float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
     float m_val;
 
-<<<<<<< HEAD
     m_x1y1z1 = f1[0] * f1[2] * m_img[mvf];
     m_x2y1z1 = f2[0] * f1[2] * m_img[mvf+1];
     m_x1y2z1 = f1[0] * f1[2] * m_img[mvf+moving->dim[0]];
@@ -225,19 +210,6 @@ li_value_dy (
     m_x2y2z2 = f2[0] * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
     m_val = inv_ry * (- m_x1y1z1 - m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
 	    - m_x1y1z2 - m_x2y1z2 + m_x1y2z2 + m_x2y2z2);
-=======
-    m_x1y1z1 = -f1[0] * inv_ry * f1[2] * m_img[mvf];
-    m_x2y1z1 = -f2[0] * inv_ry * f1[2] * m_img[mvf+1];
-    m_x1y2z1 = f1[0] * inv_ry * f1[2] * m_img[mvf+moving->dim[0]];
-    m_x2y2z1 = f2[0] * inv_ry * f1[2] * m_img[mvf+moving->dim[0]+1];
-    m_x1y1z2 = -f1[0] * inv_ry * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]];
-    m_x2y1z2 = -f2[0] * inv_ry * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
-    m_x1y2z2 = f1[0] * inv_ry * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
-    m_x2y2z2 = f2[0] * inv_ry * f2[2] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
-    m_val = m_x1y1z1 + m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
-	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2;
->>>>>>> master
-
     return m_val;
 }
 
@@ -255,7 +227,6 @@ li_value_dz (
     float m_x1y1z2, m_x2y1z2, m_x1y2z2, m_x2y2z2;
     float m_val;
 
-<<<<<<< HEAD
     m_x1y1z1 = f1[0] * f1[1] * m_img[mvf];
     m_x2y1z1 = f2[0] * f1[1] * m_img[mvf+1];
     m_x1y2z1 = f1[0] * f2[1] * m_img[mvf+moving->dim[0]];
@@ -266,18 +237,6 @@ li_value_dz (
     m_x2y2z2 = f2[0] * f2[1] * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
     m_val = inv_rz * (- m_x1y1z1 - m_x2y1z1 - m_x1y2z1 - m_x2y2z1 
 	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2);
-=======
-    m_x1y1z1 = -f1[0] * f1[1] * inv_rz * m_img[mvf];
-    m_x2y1z1 = -f2[0] * f1[1] * inv_rz * m_img[mvf+1];
-    m_x1y2z1 = -f1[0] * f2[1] * inv_rz * m_img[mvf+moving->dim[0]];
-    m_x2y2z1 = -f2[0] * f2[1] * inv_rz * m_img[mvf+moving->dim[0]+1];
-    m_x1y1z2 = f1[0] * f1[1] * inv_rz * m_img[mvf+moving->dim[1]*moving->dim[0]];
-    m_x2y1z2 = f2[0] * f1[1] * inv_rz * m_img[mvf+moving->dim[1]*moving->dim[0]+1];
-    m_x1y2z2 = f1[0] * f2[1] * inv_rz * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]];
-    m_x2y2z2 = f2[0] * f2[1] * inv_rz * m_img[mvf+moving->dim[1]*moving->dim[0]+moving->dim[0]+1];
-    m_val = m_x1y1z1 + m_x2y1z1 + m_x1y2z1 + m_x2y2z1 
-	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2;
->>>>>>> master
-
     return m_val;
 }
+#endif (COMMENTOUT)

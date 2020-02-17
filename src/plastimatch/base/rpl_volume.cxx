@@ -28,7 +28,7 @@
 #include "volume_limit.h"
 #include "volume_macros.h"
 #include "print_and_exit.h"
-
+#include "../register/bspline_mse.h"
 //#define VERBOSE 1
 
 #if VERBOSE

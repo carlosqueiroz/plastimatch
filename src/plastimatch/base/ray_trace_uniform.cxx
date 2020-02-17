@@ -14,7 +14,7 @@
 #include "ray_trace.h"
 #include "volume.h"
 #include "volume_limit.h"
-
+#include "../register/bspline_mse.h"
 void
 ray_trace_uniform (
     Volume* vol,                  // INPUT: CT Volume

@@ -45,6 +45,7 @@ PLMBASE_C_API void li_2d (
     const plm_long *dim
 );
 
+#if (COMMENTOUT)
 PLMBASE_C_API float li_value (
     float f1[3],
     float f2[3],
@@ -79,4 +80,5 @@ PLMBASE_C_API float li_value_dz (
     float *m_img,
     Volume *moving
 );
+#endif (COMMENTOUT)
 #endif
