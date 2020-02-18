@@ -1059,18 +1059,18 @@ bspline_score_o_mse (
                         m_img, moving
                     );
 
-                m_x = li_value_dx ( 
+                m_x = li_value_dx_inline ( 
                         li_1, li_2, inv_rx, 
                         mvf,
                         m_img, moving
                     );
 		
-		m_y = li_value_dy ( 
+		m_y = li_value_dy_inline ( 
                         li_1, li_2, inv_ry, 
                         mvf,
                         m_img, moving
                     );
-		m_z = li_value_dz ( 
+		m_z = li_value_dz_inline ( 
                         li_1, li_2, inv_rz, 
                         mvf,
                         m_img, moving
@@ -1304,19 +1304,19 @@ bspline_score_p_mse (
                         m_img, moving
                     );
 		    
-		    m_x = li_value_dx ( 
+		    m_x = li_value_dx_inline ( 
                         li_1, li_2, inv_rx, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_y = li_value_dy ( 
+		    m_y = li_value_dy_inline ( 
                         li_1, li_2, inv_ry, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_z = li_value_dz ( 
+		    m_z = li_value_dz_inline ( 
                         li_1, li_2, inv_rz, 
 			idx_moving_floor,
                         m_img, moving
@@ -1539,19 +1539,19 @@ bspline_score_q_mse (
                         m_img, moving
                     );
 		    
-		    m_x = li_value_dx ( 
+		    m_x = li_value_dx_inline ( 
                         li_1, li_2, inv_rx, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_y = li_value_dy ( 
+		    m_y = li_value_dy_inline ( 
                         li_1, li_2, inv_ry, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_z = li_value_dz ( 
+		    m_z = li_value_dz_inline ( 
                         li_1, li_2, inv_rz, 
 			idx_moving_floor,
                         m_img, moving
@@ -1783,19 +1783,19 @@ bspline_score_r_mse (
                         m_img, moving
                     );
 		    
-		    m_x = li_value_dx ( 
+		    m_x = li_value_dx_inline ( 
                         li_1, li_2, inv_rx, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_y = li_value_dy ( 
+		    m_y = li_value_dy_inline ( 
                         li_1, li_2, inv_ry, 
                         idx_moving_floor,
                         m_img, moving
                     );
 		    
-		    m_z = li_value_dz ( 
+		    m_z = li_value_dz_inline ( 
                         li_1, li_2, inv_rz, 
 			idx_moving_floor,
                         m_img, moving
@@ -1954,7 +1954,7 @@ bspline_score_mse (
 #endif
 }
 float
-li_value (
+li_value_inline (
     float f1[3],           /* Input:  Fraction of upper voxel */
     float f2[3],           /* Input:  Fraction of lower voxel */
     plm_long mvf,          /* Input:  Index of lower-left voxel in 8-group */
@@ -1981,7 +1981,7 @@ li_value (
 }
 
 float
-li_value_dx (
+li_value_dx_inline (
     float f1[3],           /* Input:  Fraction of upper voxel */
     float f2[3],           /* Input:  Fraction of lower voxel */
     float inv_rx,          /* Input:  1 / voxel spacing in x direction */ 
@@ -2008,7 +2008,7 @@ li_value_dx (
 }
 
 float
-li_value_dy (
+li_value_dy_inline (
     float f1[3],           /* Input:  Fraction of upper voxel */
     float f2[3],           /* Input:  Fraction of lower voxel */
     float inv_ry,          /* Input:  1 / voxel spacing in y direction */ 
@@ -2035,7 +2035,7 @@ li_value_dy (
 }
 
 float
-li_value_dz (
+li_value_dz_inline (
     float f1[3],           /* Input:  Fraction of upper voxel */
     float f2[3],           /* Input:  Fraction of lower voxel */
     float inv_rz,          /* Input:  1 / voxel spacing in z direction */

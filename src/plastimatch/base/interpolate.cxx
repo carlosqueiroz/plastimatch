@@ -131,7 +131,6 @@ li_2d (
     li (&ijk_f[0], &li_frac_1[0], &li_frac_2[0], ijk[0], dim[0]);
     li (&ijk_f[1], &li_frac_1[1], &li_frac_2[1], ijk[1], dim[1]);
 }
-#if (COMMENTOUT)
 float
 li_value (
     float f1[3],           /* Input:  Fraction of upper voxel */
@@ -239,4 +238,3 @@ li_value_dz (
 	    + m_x1y1z2 + m_x2y1z2 + m_x1y2z2 + m_x2y2z2);
     return m_val;
 }
-#endif (COMMENTOUT)
