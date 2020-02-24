@@ -209,6 +209,14 @@ Registration_parms::set_key_value (
         if (section_process) goto key_not_allowed_in_section_process;
         shared->fixed_stiffness_enable = string_value_true (val);
     }
+    else if (key == "fixed_structure") {
+        if (section_process) goto key_not_allowed_in_section_process;
+        shared->metric[index].fixed_struct_fn = val;
+    }
+    else if (key == "moving_structure") {
+        if (section_process) goto key_not_allowed_in_section_process;
+        shared->metric[index].moving_struct_fn = val;
+    }
     else if (key == "legacy_subsampling") {
         if (section_process) goto key_not_allowed_in_section_process;
         shared->legacy_subsampling = string_value_true (val);

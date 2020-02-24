@@ -21,6 +21,8 @@ public:
     std::string moving_fn;
     std::string fixed_roi_fn;
     std::string moving_roi_fn;
+    std::string fixed_struct_fn;
+    std::string moving_struct_fn;
 public:
     Plm_return_code set_metric_type (const std::string& val);
 };
