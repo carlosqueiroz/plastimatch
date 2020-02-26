@@ -93,6 +93,7 @@ public:
         const std::string& section,
         const std::string& key, 
         const std::string& index, 
+        const std::string& member, 
         const std::string& val);
 };
 
@@ -101,6 +102,7 @@ Mabs_parms_parser::set_key_value (
     const std::string& section,
     const std::string& key, 
     const std::string& index, 
+    const std::string& member, 
     const std::string& val)
 {
     /* [CONVERT] */

@@ -229,7 +229,7 @@ implementation::
   fixed=image_1.mha
   moving=image_2.mha
   img_out=warped_2.mha
-  xform_out=bspline_coefficients.txt
+  xform_out=vector_field.nrrd
 
   [STAGE]
   xform=vf

@@ -58,6 +58,7 @@ public:
         const std::string& section,
         const std::string& key, 
         const std::string& index, 
+        const std::string& member, 
         const std::string& val);
     Plm_return_code parse_command_file (const char* options_fn);
     void set_job_paths (void);

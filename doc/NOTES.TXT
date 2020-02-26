@@ -1,4 +1,14 @@
 ******************************************************************************
+New syntax for multi-metric registration
+
+[STAGE]
+metric[0]=mse
+metric[0].fixed=1.nrrd
+metric[0].moving=2.nrrd
+metric[0].bspline_lut_strategy=3D
+
+
+******************************************************************************
 DRR, WED, BSTV = beam specific target volume
 
 DRR pro

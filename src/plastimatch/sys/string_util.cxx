@@ -456,11 +456,13 @@ split_key_val (
     return true;
 }
 
+/* Member is not parsed unless there is an index */
 bool
 split_array_index (
     const std::string& s, 
     std::string& array, 
-    std::string& index)
+    std::string& index,
+    std::string& member)
 {
     size_t start_loc = s.find ('[');
     size_t end_loc = s.find (']');
@@ -469,6 +471,7 @@ split_array_index (
     {
         array = string_trim (s);
         index = "";
+        member = "";
         return true;
     }
     if (start_loc != std::string::npos
@@ -477,10 +480,17 @@ split_array_index (
     {
         array = string_trim (s.substr (0, start_loc));
         index = string_trim (s.substr (start_loc + 1, end_loc - start_loc - 1));
+        size_t dot_loc = s.find ('.');
+        if (dot_loc != std::string::npos && dot_loc > end_loc) {
+            member = string_trim (s.substr (dot_loc + 1));
+        } else {
+            member = "";
+        }
         return true;
     }
     array = string_trim (s);
     index = "";
+    member = "";
     return false;
 }
 

@@ -54,6 +54,6 @@ PLMSYS_API std::vector<std::string> string_split (const std::string &s, char del
 PLMSYS_API bool split_key_val (const std::string& s, 
     std::string& key, std::string& val, char delim = '=');
 PLMSYS_API bool split_array_index (const std::string& s, 
-    std::string& array, std::string& index);
+    std::string& array, std::string& index, std::string& member);
 
 #endif

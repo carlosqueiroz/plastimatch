@@ -92,18 +92,19 @@ Parameter_parser::parse_config_string (
             continue;
         }
 
-        /* Handle key[index]=value */
+        /* Handle key[index].member=value */
         std::string array;
         std::string index;
-        if (!split_array_index (key, array, index)) {
+        std::string member;
+        if (!split_array_index (key, array, index, member)) {
             lprintf ("Parse error: %s\n", buf_ori.c_str());
             return PLM_ERROR;
         }
         if (index == "") {
             index = default_index;
         }
-        
-        Plm_return_code rc = this->set_key_value (section, array, index, val);
+
+        Plm_return_code rc = this->set_key_value (section, array, index, member, val);
         if (rc != PLM_SUCCESS) {
             lprintf ("Parse error: %s\n", buf_ori.c_str());
             return PLM_ERROR;

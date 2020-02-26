@@ -28,6 +28,7 @@ public:
         const std::string& section,
         const std::string& key, 
         const std::string& index, 
+        const std::string& member, 
         const std::string& val);
 
 public:

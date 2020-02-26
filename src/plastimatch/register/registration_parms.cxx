@@ -89,9 +89,10 @@ public:
         const std::string& section,
         const std::string& key, 
         const std::string& index, 
+        const std::string& member,
         const std::string& val)
     {
-        return this->rp->set_key_value (section, key, index, val);
+        return this->rp->set_key_value (section, key, index, member, val);
     }
 };
 
@@ -114,6 +115,7 @@ Registration_parms::set_key_value (
     const std::string& section,
     const std::string& key,
     const std::string& index,
+    const std::string& member,
     const std::string& val)
 {
     int rc;
@@ -458,8 +460,10 @@ Registration_parms::set_key_value (
     }
     else if (key == "metric" || key == "smetric") {
         if (!section_stage) goto key_only_allowed_in_section_stage;
-        if (shared->metric[index].set_metric_type (val) != PLM_SUCCESS) {
-            goto error_exit;
+        if (member == "") {
+            if (shared->metric[index].set_metric_type (val) != PLM_SUCCESS) {
+                goto error_exit;
+            }
         }
     }
     else if (key == "metric_lambda" || key == "smetric_lambda") {

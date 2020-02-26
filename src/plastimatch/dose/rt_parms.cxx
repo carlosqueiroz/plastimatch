@@ -135,9 +135,10 @@ public:
         const std::string& section,
         const std::string& key,
         const std::string& index, 
+        const std::string& member, 
         const std::string& val)
     {
-        return this->rp->set_key_value (section, key, index, val);
+        return this->rp->set_key_value (section, key, member, val);
     }
 };
 

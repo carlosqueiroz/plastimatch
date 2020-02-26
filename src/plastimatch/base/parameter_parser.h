@@ -29,6 +29,7 @@ public:
         const std::string& section, 
         const std::string& key, 
         const std::string& index, 
+        const std::string& member, 
         const std::string& val) = 0;
 
     /*! \brief Key regularization convert the key field to lowercase and 
