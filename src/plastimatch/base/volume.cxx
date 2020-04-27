@@ -214,6 +214,17 @@ Volume::create (
 	vh.get_direction_cosines(), vox_type, vox_planes);
 }
 
+void 
+Volume::create_empty (
+    const Volume_header& vh, 
+    enum Volume_pixel_type vox_type, 
+    int vox_planes
+)
+{
+    this->create (vh.get_dim(), vh.get_origin(), vh.get_spacing(), 
+	vh.get_direction_cosines(), vox_type, vox_planes);
+}
+
 const float*
 Volume::get_origin () const
 {

@@ -103,6 +103,12 @@ public:
         enum Volume_pixel_type vox_type, 
         int vox_planes = 1
     );
+    /*! \brief Initialize but do not allocate memory for the image GCS FIX HACK */
+    void create_empty (
+        const Volume_header& vh, 
+        enum Volume_pixel_type vox_type, 
+        int vox_planes = 1
+    );
     /*! \brief Make a copy of the volume */
     Volume::Pointer clone ();
 

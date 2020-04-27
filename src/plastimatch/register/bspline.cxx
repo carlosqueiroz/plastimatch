@@ -56,6 +56,7 @@
 #include "print_and_exit.h"
 #include "string_util.h"
 #include "volume.h"
+#include "volume_header.h"
 #include "volume_macros.h"
 
 
@@ -69,7 +70,7 @@ void bspline_score_pd (Bspline_optimize *bod)
     Bspline_xform *bxf = bod->get_bspline_xform ();
     Bspline_score *ssd = &bst->ssd;
     
-    Volume *fixed_image  = bst->fixed;
+    //Volume *fixed_image  = bst->fixed;
     Volume *moving_image = bst->moving;
     Volume *moving_grad = bst->moving_grad;
 
@@ -106,6 +107,10 @@ void bspline_score_pd (Bspline_optimize *bod)
     int idx;
     float *moving_value;
 
+    Volume_header fixed_vh;
+    fixed_vh.set_from_bxf (bxf);
+    Volume::Pointer fixed_image = Volume::New (fixed_vh, PT_FLOAT, 1);
+    
     /* Compute interpolation fractions */
     li_clamp_3d (mijk, mijk_f, mijk_r, li_1, li_2, moving_image);
     mvf = volume_index(moving_image->dim, mijk_f);	

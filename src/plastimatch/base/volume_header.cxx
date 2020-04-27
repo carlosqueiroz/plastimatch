@@ -160,7 +160,9 @@ Volume_header::get_spacing () const
 void
 Volume_header::set_direction_cosines (const float direction_cosines[9])
 {
-    d_ptr->m_direction_cosines.set (direction_cosines);
+    if (direction_cosines) {
+        d_ptr->m_direction_cosines.set (direction_cosines);
+    }
 }
 
 void

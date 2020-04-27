@@ -1,7 +1,7 @@
 [GLOBAL]
 fixed[0]=@PLM_BUILD_TESTING_DIR@/sphere-2.mha
 moving[0]=@PLM_BUILD_TESTING_DIR@/rect-3.mha
-fixed[1]=@PLM_BUILD_TESTING_DIR@/plm-convert-prefix-fcsv/sphere-3.fcsv
+fixed[1]=@PLM_BUILD_TESTING_DIR@/plm-convert-prefix-fcsv/sphere-7.fcsv
 moving[1]=@PLM_BUILD_TESTING_DIR@/plm-dmap-b.mha
 
 vf_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-vf.nrrd
