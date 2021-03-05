@@ -6,7 +6,7 @@ pages:
   script:
     - apk update && apk add doxygen && apk add texlive && apk add ghostscript
     - doxygen src/plastimatch/Doxyfile
-    - mkdir -p public/doxygen
+    - mkdir -p public
     - mv html/ public/doxygen
     - ls public/doxygen
     - pip install -U sphinx
