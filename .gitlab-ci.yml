@@ -8,6 +8,7 @@ pages:
     - doxygen src/plastimatch/Doxyfile
     - mkdir -p public/doxygen
     - mv html/ public/doxygen
+    - ls public/doxygen
   artifacts:
     paths:
       - public
