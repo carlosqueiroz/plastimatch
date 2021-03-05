@@ -4,7 +4,7 @@ image: python:alpine
 
 pages:
   script:
-    - apk update && apk add doxygen && apk add texlive && apk add ghostscript && apk add texlive-dvi
+    - apk update && apk add doxygen ghostscript texlive texlive-dvi texmf-dist-latexextra
     - doxygen src/plastimatch/Doxyfile
     - mkdir -p public
     - mv html/ public/doxygen
