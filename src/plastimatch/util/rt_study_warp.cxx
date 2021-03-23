@@ -241,6 +241,9 @@ rt_study_warp (Rt_study *rt_study, Plm_file_format file_type, Warp_parms *parms)
         lprintf ("Loading RDD\n");
         rt_study->load_rdd (parms->referenced_dicom_dir.c_str());
         lprintf ("Loading RDD complete\n");
+
+        /* Print debugging information */
+        rt_study->get_rt_study_metadata()->print();
     }
 
     /* Set user-supplied metadata also prior to loading files,

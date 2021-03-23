@@ -271,6 +271,7 @@ add_custom_target (speedtest
 ##   gw-lung-a         Synthetic lung, tumor position -5, in gw dir
 ##   gw-lung-b         Synthetic lung, tumor position 0, in gw dir
 ##   gw-lung-c         Synthetic lung, tumor position +5, in gw dir
+##   pat-1             DICOM data with patient name and patient id
 ##   ptv-1             rect PTV target for dose calculation
 ##   ptv-2             rect PTV target for dose calculation, smaller geometry
 ##   rect-1            Inverted rect, centered
@@ -443,6 +444,11 @@ plm_add_test (
   "gw-lung-c"
   ${PLM_PLASTIMATCH_PATH}/plastimatch
   "synth;--output;${PLM_BUILD_TESTING_DIR}/gw/lung-c.mha;--pattern;lung;--lung-tumor-pos;5"
+  )
+plm_add_test (
+  "pat-1"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "synth;--pattern;rect;--dim;30 30 30;--background;-1000;--foreground;0;--rect-size;20 20 20;--origin;-150 -150 -150;--spacing;10 10 10;--output-dicom;${PLM_BUILD_TESTING_DIR}/pat-1-dicom;--filenames-without-uids;--patient-id;PATIENT-ID;--patient-name;NAME^PATIENT;--series-description;Series Description Here"
   )
 plm_add_test (
   "ptv-1"

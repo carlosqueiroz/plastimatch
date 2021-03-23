@@ -462,6 +462,33 @@ The command line usage is given as follows::
   --xor-contours            overlapping contours should be xor'd
                              instead of or'd
 
+About referenced-ct
+^^^^^^^^^^^^^^^^^^^
+The referenced-ct option allows you to (a) create a dicom object which refers
+to existing objects and (b) copy metadata.  The first function, referring to
+existing objects, uses the following logic to determine how references are made.
+
+* If the input objects contain a RTSTRUCT but not an Image (CT),
+  the Frame Of Reference UID (0020,0052), 
+  the Series Instance UID (0020,000e)
+  within the RT Referenced Series Sequence (3006,0014),
+  the Referenced SOP Instance UIDs (0008,1155),
+  and the Referenced Frame Of Reference UID (3006,0024)
+  are all set to UIDs of the Image of the referenced-ct.
+* If the input objects contain a RTDOSE but not a RTSTRUCT,
+  the Referenced Structure Set Sequence (0008,1155) is set to the 
+  UID of the RTSTRUCT of the referenced-ct.
+* If the input objects contain a RTDOSE but not a RTPLAN, 
+  the Referenced Structure Set Sequence (0008,1155) is set to the 
+  UID of the RTPLAN of the referenced-ct.
+
+For the second function, the following data are copied from the referenced-ct.
+They are copied from the Image.
+
+* Patient Name (0010,0010)
+* Patient ID (0010,0020)
+
+
 Examples
 ^^^^^^^^
 The first example demonstrates how to convert

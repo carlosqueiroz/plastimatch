@@ -392,15 +392,9 @@ Dcmtk_rt_study::load_directory (void)
 	referenced_uid = d_ptr->ds_rtss->get_referenced_uid ();
     }
 
-    /* Load image */
-    if (d_ptr->ds_image) {
-        d_ptr->ds_image->set_rt_study_metadata (d_ptr->rt_study_metadata);
-        this->image_load ();
-    }
-
-    /* Load rtss */
-    if (d_ptr->ds_rtss) {
-        this->rtss_load ();
+    /* Load plan */
+    if (d_ptr->ds_rtplan) {
+        this->rtplan_load();
     }
 
     /* Load dose */
@@ -408,8 +402,14 @@ Dcmtk_rt_study::load_directory (void)
         this->rtdose_load ();
     }
 
-    /* Load plan */
-    if (d_ptr->ds_rtplan) {
-        this->rtplan_load();
+    /* Load rtss */
+    if (d_ptr->ds_rtss) {
+        this->rtss_load ();
+    }
+
+    /* Load image */
+    if (d_ptr->ds_image) {
+        d_ptr->ds_image->set_rt_study_metadata (d_ptr->rt_study_metadata);
+        this->image_load ();
     }
 }

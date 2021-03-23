@@ -72,10 +72,19 @@ Dcmtk_rt_study::rtss_load (void)
         print_and_exit ("Oops.\n");
     }
 
-    /* FIX: load metadata such as patient name, etc. */
+    /* Store metadata such as patient name, etc. */
     if (d_ptr->rt_study_metadata) {
         d_ptr->rt_study_metadata->set_rtstruct_instance_uid (
 	    ds_rtss->get_cstr (DCM_SOPInstanceUID));
+
+        const Dcmtk_file::Pointer& df = ds_rtss->get_dcmtk_file();
+        Metadata::Pointer& study_metadata
+            = d_ptr->rt_study_metadata->get_study_metadata ();
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientName);
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientID);
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientSex);
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientPosition);
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_StudyID);
     }
 
     /* ReferencedFrameOfReferenceSequence */

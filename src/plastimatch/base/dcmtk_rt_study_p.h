@@ -29,7 +29,7 @@ public:
     char study_uid[100];
     std::vector<Dcmtk_slice_data>* slice_data;
 
-    /*! The m_smap is used during loading to map filenames to series UIDs */
+    /*! The m_smap is used during loading.  It maps filenames to series UIDs. */
     Dcmtk_series_map m_smap;
     Dcmtk_series *ds_image;
     Dcmtk_series *ds_rtdose;

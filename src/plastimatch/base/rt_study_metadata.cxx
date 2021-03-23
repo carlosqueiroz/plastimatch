@@ -4,6 +4,7 @@
 #include "plm_config.h"
 
 #include "dicom_util.h"
+#include "logfile.h"
 #include "plm_image.h"
 #include "plm_image_header.h"
 #include "plm_uid_prefix.h"
@@ -397,9 +398,6 @@ Rt_study_metadata::set_patient_sex (const std::string& sex)
     set_patient_sex (sex.c_str());
 }
 
-
-
-
 const Plm_image_header*
 Rt_study_metadata::get_image_header () const
 {
@@ -682,4 +680,36 @@ Rt_study_metadata::generate_new_study_uids ()
 {
     set_study_uid (dicom_uid (PLM_UID_PREFIX));
     set_frame_of_reference_uid (dicom_uid (PLM_UID_PREFIX));
+}
+
+void
+Rt_study_metadata::print () const
+{
+    lprintf ("date_string: %s\n", d_ptr->date_string.c_str());
+    lprintf ("description_string: %s\n", d_ptr->description_string.c_str());
+    lprintf ("referring_physician_name_string: %s\n",
+        d_ptr->referring_physician_name_string.c_str());
+    lprintf ("accession_number_string: %s\n", d_ptr->accession_number_string.c_str());
+    lprintf ("time_string: %s\n", d_ptr->time_string.c_str());
+    lprintf ("study_id_string: %s\n", d_ptr->study_id_string.c_str());
+    lprintf ("position_reference_indicator_string: %s\n",
+        d_ptr->position_reference_indicator_string.c_str());
+    lprintf ("ct_series_uid: %s\n", d_ptr->ct_series_uid.c_str());
+    lprintf ("dose_instance_uid: %s\n", d_ptr->dose_instance_uid.c_str());
+    lprintf ("dose_series_uid: %s\n", d_ptr->dose_series_uid.c_str());
+    lprintf ("plan_instance_uid: %s\n", d_ptr->plan_instance_uid.c_str());
+    lprintf ("rtstruct_instance_uid: %s\n", d_ptr->rtstruct_instance_uid.c_str());
+    lprintf ("rtstruct_series_uid: %s\n", d_ptr->rtstruct_series_uid.c_str());
+    lprintf ("study_metadata:\n");
+    d_ptr->study_metadata->print_metadata();
+    lprintf ("image_metadata:\n");
+    d_ptr->image_metadata->print_metadata();
+    lprintf ("rtstruct_metadata:\n");
+    d_ptr->rtstruct_metadata->print_metadata();
+    lprintf ("dose_metadata:\n");
+    d_ptr->dose_metadata->print_metadata();
+    lprintf ("rtplan_metadata:\n");
+    d_ptr->rtplan_metadata->print_metadata();
+    lprintf ("sro_metadata:\n");
+    d_ptr->sro_metadata->print_metadata();
 }

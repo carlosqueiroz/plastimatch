@@ -36,6 +36,7 @@ public:
 
 public:
     const std::list<Dcmtk_file::Pointer>& get_flist () const;
+    const Dcmtk_file::Pointer& get_dcmtk_file () const;
     const char* get_cstr (const DcmTagKey& tag_key) const;
     bool get_int16_array (const DcmTagKey& tag_key, 
         const int16_t** val, unsigned long* count) const;

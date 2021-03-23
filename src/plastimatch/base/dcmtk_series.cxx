@@ -47,6 +47,12 @@ Dcmtk_series::get_flist () const
     return d_ptr->m_flist;
 }
 
+const Dcmtk_file::Pointer&
+Dcmtk_series::get_dcmtk_file () const
+{
+    return d_ptr->m_flist.front();
+}
+
 const char*
 Dcmtk_series::get_cstr (const DcmTagKey& tag_key) const
 {

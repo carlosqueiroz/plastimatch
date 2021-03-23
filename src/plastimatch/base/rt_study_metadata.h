@@ -155,6 +155,7 @@ public:
     void generate_new_rtstruct_instance_uid ();
     void generate_new_series_uids ();
     void generate_new_study_uids ();
+    void print () const;
 };
 
 #endif
