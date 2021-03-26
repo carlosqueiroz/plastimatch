@@ -1,0 +1,28 @@
+Introduction
+------------
+This is part 3 of the style guide.  It concerns the use of certain C++ features.
+
+RVO and NRVO
+------------
+When RVO and NRVO are possible, they should be used.  This means that 
+any function that uses return by value must either return unnamed values
+or return a single named value.
+
+F f () {
+  if (a) {
+    return F(1);
+  } else {
+    return F(2);
+  }
+}
+
+
+Copy elision
+------------
+When copy elision is possible, it should be used.  This means that functions
+which pass by value
+
+
+References
+----------
+https://en.cppreference.com/w/cpp/language/copy_elision

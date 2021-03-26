@@ -38,10 +38,7 @@ Supported hosts:
 Unsupported:
   CentOS 7                          CMake version too old: 2.8.12.2
 
-
-Support for gcc 4.8.4 gcc/libstdc++ are here:
-  https://gcc.gnu.org/gcc-4.8/cxx0x_status.html
-  https://gcc.gnu.org/onlinedocs/gcc-4.8.4/libstdc++/manual/manual/status.html
+Plastimatch >= 1.9.3 may use all C++11 features.
 
 Files
 -----
