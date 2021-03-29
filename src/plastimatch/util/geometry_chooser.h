@@ -54,6 +54,8 @@ public:
     void set_fixed_image (const std::string& image_fn);
     /*! \brief Set the fixed image as an ITK image. */
     template<class T> void set_fixed_image (const T& image);
+    /*! \brief Set the fixed image as a Plm_image_header */
+    void set_fixed_image (const Plm_image_header pih);
     /*! \brief Set the image dimension (number of voxels) manually. */
     void set_dim (const plm_long dim[3]);
     /*! \brief Set the image origin manually. */

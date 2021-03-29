@@ -10,6 +10,7 @@
 #include "logfile.h"
 #include "pcmd_xf_convert.h"
 #include "plm_clp.h"
+#include "plm_image_header.h"
 #include "print_and_exit.h"
 #include "rt_study.h"
 #include "rt_study_metadata.h"
@@ -95,12 +96,15 @@ do_xf_convert (Xf_convert_parms *parms)
             xfc->m_grid_spac[d] = parms->m_grid_spacing[d];
         }
     }
-    if (xf_in->get_type() == XFORM_GPUIT_BSPLINE) {
-        Bspline_xform* bxf = xf_in->get_gpuit_bsp();
-    }
 
     /* Set volume header as needed */
-    parms->geometry_chooser.set_fixed_image (parms->fixed_fn);
+    if (parms->fixed_fn != "") {
+        parms->geometry_chooser.set_fixed_image (parms->fixed_fn);
+    } else if (xf_in->get_type() == XFORM_GPUIT_BSPLINE) {
+        Bspline_xform* bxf = xf_in->get_gpuit_bsp();
+        parms->geometry_chooser.set_fixed_image (
+            bxf->get_plm_image_header());
+    }
     if (parms->m_have_dim) {
         parms->geometry_chooser.set_dim (parms->m_vh.get_dim());
     }

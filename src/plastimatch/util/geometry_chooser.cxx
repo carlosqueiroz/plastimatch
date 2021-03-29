@@ -123,6 +123,13 @@ Geometry_chooser::set_fixed_image (
 }
 
 void 
+Geometry_chooser::set_fixed_image (const Plm_image_header pih)
+{
+    d_ptr->pih_fix = pih;
+    d_ptr->have_pih_fix = true;
+}
+
+void 
 Geometry_chooser::set_dim (const plm_long dim[3])
 {
     d_ptr->pih_manual.set_dim (dim);

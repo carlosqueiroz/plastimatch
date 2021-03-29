@@ -353,7 +353,7 @@ Xform::load (const char* fn)
     } else if (plm_strcmp (buf,"ObjectType = MGH_XFORM") == 0) {
         xform_legacy_load (this, fp);
         fclose(fp);
-    } else if (plm_strcmp(buf,"MGH_GPUIT_BSP <experimental>")==0) {
+    } else if (plm_strcmp(buf,"MGH_GPUIT_BSP <experimental>") == 0) {
         fclose (fp);
         load_gpuit_bsp (this, fn);
     } else {

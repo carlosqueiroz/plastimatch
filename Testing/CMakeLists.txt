@@ -5034,6 +5034,7 @@ set_tests_properties (plm-warp-i-check-1 PROPERTIES DEPENDS plm-warp-i-stats-1)
 ## plm-xf-convert-f    itk rigid to dicom rigid (exported dicom images)
 ## plm-xf-convert-g    vector field to dicom deformable (referenced dicom)
 ## plm-xf-convert-h    itk rigid to vector field (fixed reference)
+## plm-xf-convert-i    plm bspline to vf (no 
 ## -------------------------------------------------------------------------
 plm_add_test (
   "plm-xf-convert-a" 
@@ -5152,6 +5153,26 @@ plmtest_check_interval (
 set_tests_properties (plm-xf-convert-h PROPERTIES DEPENDS "rect-3")
 set_tests_properties (plm-xf-convert-h-stats PROPERTIES DEPENDS "plm-xf-convert-h")
 set_tests_properties (plm-xf-convert-h-check PROPERTIES DEPENDS "plm-xf-convert-h-stats")
+
+plm_add_test (
+  "plm-xf-convert-i" 
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "xf-convert;--input;${PLM_TESTING_DATA_DIR}/xf-bspline-1.txt;--output;${PLM_BUILD_TESTING_DIR}/plm-xf-convert-i-vf.nrrd;--output-type;vf"
+  )
+plm_add_test (
+  "plm-xf-convert-i-stats"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "stats;${PLM_BUILD_TESTING_DIR}/plm-xf-convert-i-vf.nrrd"
+  )
+plmtest_check_interval (
+  "plm-xf-convert-i-check"
+  "${PLM_BUILD_TESTING_DIR}/plm-xf-convert-i-stats.stdout.txt"
+  "Min: *([-0-9.]*)"
+  "7.155"
+  "7.165"
+  )
+set_tests_properties (plm-xf-convert-i-stats PROPERTIES DEPENDS "plm-xf-convert-i")
+set_tests_properties (plm-xf-convert-i-check PROPERTIES DEPENDS "plm-xf-convert-i-stats")
 
 ## -------------------------------------------------------------------------
 ## xf-invert

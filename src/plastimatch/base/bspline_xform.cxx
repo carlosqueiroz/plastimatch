@@ -18,6 +18,7 @@
 #include "file_util.h"
 #include "interpolate_macros.h"
 #include "logfile.h"
+#include "plm_image_header.h"
 #include "plm_math.h"
 #include "print_and_exit.h"
 #include "string_util.h"
@@ -647,6 +648,13 @@ void
 Bspline_xform::get_volume_header (Volume_header *vh)
 {
     vh->set (this->img_dim, this->img_origin, this->img_spacing, 
+        this->dc.get_matrix());
+}
+
+Plm_image_header
+Bspline_xform::get_plm_image_header ()
+{
+    return Plm_image_header (this->img_dim, this->img_origin, this->img_spacing, 
         this->dc.get_matrix());
 }
 

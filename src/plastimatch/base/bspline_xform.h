@@ -87,6 +87,7 @@ public:
      */
     void jitter_if_zero ();
     void get_volume_header (Volume_header *vh);
+    Plm_image_header get_plm_image_header ();
     void log_header ();
 protected:
     /** Allocate and initialize coefficients and LUTs
