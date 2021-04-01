@@ -37,7 +37,6 @@ void
 Rtplan::clear(void)
 {
     this->number_of_fractions_planned = 0;
-    this->patient_position = "HFS";
     this->snout_id = "";
     this->general_accessory_id = "";
     this->general_accessory_code = "";
@@ -53,6 +52,7 @@ Rtplan::clear(void)
     this->number_of_fraction_pattern_digits_per_day = "";
     this->repeat_fraction_cycle_length = "";
     this->fraction_pattern = "";
+    /* RT (Ion) Tolerance Tables */
     this->tolerance_table_label = "";
     this->tolerance_gantry_angle = "";
     this->tolerance_patient_support_angle = "";
@@ -62,6 +62,12 @@ Rtplan::clear(void)
     this->tolerance_table_top_pitch = "";
     this->tolerance_table_top_roll = "";
     this->tolerance_snout_position = "";
+    /* RT Patient Setup */
+    this->patient_position = "HFS";
+    this->patient_setup_label = "";
+    this->fixation_device_type = "";
+    this->fixation_device_label = "";
+    this->fixation_device_description = "";
     for (size_t i = 0; i < this->beamlist.size(); i++) {
         delete this->beamlist[i];
     }

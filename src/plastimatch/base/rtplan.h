@@ -22,7 +22,6 @@ public:
     SMART_POINTER_SUPPORT(Rtplan);
 public:
     size_t number_of_fractions_planned;
-    std::string patient_position;
     std::string snout_id;
     std::string general_accessory_id;
     std::string general_accessory_code;
@@ -43,6 +42,7 @@ public:
     std::string number_of_fraction_pattern_digits_per_day;
     std::string repeat_fraction_cycle_length;
     std::string fraction_pattern;
+    /* RT (Ion) Tolerance Tables */
     std::string tolerance_table_label;
     std::string tolerance_gantry_angle;
     std::string tolerance_patient_support_angle;
@@ -52,6 +52,12 @@ public:
     std::string tolerance_table_top_pitch;
     std::string tolerance_table_top_roll;
     std::string tolerance_snout_position;
+    /* RT Patient Setup */
+    std::string patient_position;
+    std::string patient_setup_label;
+    std::string fixation_device_type;
+    std::string fixation_device_label;
+    std::string fixation_device_description;
     std::vector<Rtplan_beam*> beamlist;
 public:
     Rtplan();

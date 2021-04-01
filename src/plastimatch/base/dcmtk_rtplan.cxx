@@ -330,7 +330,16 @@ Dcmtk_rt_study::rtplan_save (const char *dicom_dir)
         DCM_PatientSetupSequence, ps_item, -2);
     dcmtk_put (ps_item, DCM_PatientSetupNumber, 1);
     dcmtk_put (ps_item, DCM_PatientPosition, rtplan->patient_position);
-    
+    dcmtk_put (ps_item, DCM_PatientSetupLabel, rtplan->patient_setup_label);
+    DcmItem *psfds_item = 0;
+    dataset->findOrCreateSequenceItem (
+        DCM_FixationDeviceSequence, psfds_item, -2);
+    dcmtk_put (psfds_item, DCM_FixationDeviceType, rtplan->fixation_device_type);
+    dcmtk_put (psfds_item, DCM_FixationDeviceLabel, rtplan->fixation_device_label);
+    dcmtk_put (psfds_item, DCM_FixationDeviceDescription, rtplan->fixation_device_description);
+
+    dcmtk_put (psfds_item, DCM_PatientPosition, rtplan->patient_position);
+        
     /* RT fraction scheme module */
     DcmItem *fgs_item = 0;
     dataset->findOrCreateSequenceItem (

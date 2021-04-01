@@ -8,7 +8,8 @@ $overwrite_study = 1;
 $dob_empty = 0;
 $sex_empty = 0;
 
-$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/EMH-01-02";
+$dicom_dir = "/PHShome/gcs6/shared/ben-1/tmp";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/GBDAY_01";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/TNW-01-02";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommissSRS_BB";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_pg_hfs";
@@ -16,6 +17,7 @@ $dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/EMH-01-02";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_07";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_tt000_v2";
 
 $new_name = "";
 $new_id = "";
@@ -59,21 +61,35 @@ $new_series_description = "";
 # $new_id = "LPcom_07";
 # $new_birth_date = "20180101";
 # $new_sex = "O";
+#$new_name = "LPcom_08^PBS";
+#$new_id = "LPcom_08";
+#$new_birth_date = "20180101";
+#$new_sex = "O";
 # $new_name = "GBDAY_01^PBS";
 # $new_id = "GBDAY_01";
 # $new_birth_date = "20200101";
 # $new_sex = "M";
+# $new_name = "GBDAY_02^PBS";
+# $new_id = "GBDAY_02";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
+$new_name = "LPcommis_tt_000_v2^PBS";
+$new_id = "LPcom_tt000_v2";
+$new_birth_date = "20190101";
+$new_sex = "O";
 
 
+$new_series_description = "Repainting";
 #$new_series_description = "SACRUM COPY";
 #$new_series_description = "HFP Non-zero ISO";
 #$new_series_description = "2020-06-29 Mock CSI";
 #$new_series_description = "Medcom phantom";
 #$new_series_description = "Morning QA 60 Fx";
+#$new_series_description = "Morning QA 30 Fx";
 #$new_series_description = "HFP SRS 270-360";
 #$new_series_description = "HFP SRS 180-270";
 #$new_series_description = "2020-04-28 MUd";
-$new_series_description = "Rewrite UIDs";
+#$new_series_description = "Rewrite UIDs";
 
 $new_patient_position = "";
 $new_image_orientation = "";
