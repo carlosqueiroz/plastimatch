@@ -30,6 +30,8 @@ public:
     /* C.8.8.1 */
     static void set_rt_series (DcmDataset *dataset, 
         const Metadata::Pointer& meta, const char* modality);
+    /* C.12.1 */
+    static void set_sop_common (DcmDataset *dataset);
 };
 
 #endif

@@ -520,9 +520,10 @@ dcmtk_save_slice (const Rt_study_metadata::Pointer rsm, Dcmtk_slice_data *dsd)
         image_metadata = rsm->get_image_metadata ();
     }
 
-    /* Patient, and General Study modules */
+    /* Add entries for common modules */
     Dcmtk_module::set_patient (dataset, image_metadata);
     Dcmtk_module::set_general_study (dataset, rsm);
+    Dcmtk_module::set_sop_common (dataset);
     
     /* Get modality */
     std::string modality = "CT";

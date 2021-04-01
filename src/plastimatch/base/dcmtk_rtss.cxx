@@ -10,6 +10,7 @@
 
 #include "dcmtk_file.h"
 #include "dcmtk_metadata.h"
+#include "dcmtk_module.h"
 #include "dcmtk_rt_study.h"
 #include "dcmtk_rt_study_p.h"
 #include "dcmtk_series.h"
@@ -273,6 +274,11 @@ Dcmtk_rt_study::rtss_save (const char *dicom_dir)
     DcmFileFormat fileformat;
     DcmDataset *dataset = fileformat.getDataset();
 
+    /* Add entries for common modules */
+    Dcmtk_module::set_sop_common (dataset);
+    
+    /* GCS FIX, remove below code, use common modules instead */
+
     /* ----------------------------------------------------------------- */
     /*     Part 1  -- General header                                     */
     /* ----------------------------------------------------------------- */
@@ -308,12 +314,6 @@ Dcmtk_rt_study::rtss_save (const char *dicom_dir)
     dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_PatientSex, "O");
     dataset->putAndInsertString (DCM_SoftwareVersions,
         PLASTIMATCH_VERSION_STRING);
-
-#if defined (commentout)
-    /* GCS FIX */
-    /* PatientPosition */
-    // gf->InsertValEntry (xxx, 0x0018, 0x5100);
-#endif
 
     dataset->putAndInsertString (DCM_StudyInstanceUID, 
         d_ptr->rt_study_metadata->get_study_uid().c_str());

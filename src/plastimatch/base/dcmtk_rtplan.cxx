@@ -240,10 +240,11 @@ Dcmtk_rt_study::rtplan_save (const char *dicom_dir)
     DcmFileFormat fileformat;
     DcmDataset *dataset = fileformat.getDataset();
 
-    /* Patient module, general study module, RT series module */
+    /* Add entries for common modules */
     Dcmtk_module::set_patient (dataset, rsm->get_study_metadata ());
     Dcmtk_module::set_general_study (dataset, rsm);
     Dcmtk_module::set_rt_series (dataset, rtplan_metadata, "RTPLAN");
+    Dcmtk_module::set_sop_common (dataset);
 
     /* Frame of reference module */
     dataset->putAndInsertString (DCM_FrameOfReferenceUID, 

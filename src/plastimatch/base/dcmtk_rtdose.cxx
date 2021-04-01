@@ -314,9 +314,10 @@ Dcmtk_rt_study::dose_save (const char *dicom_dir)
     DcmDataset *dataset = fileformat.getDataset();
     DcmItem *dcm_item = 0;
 
-    /* Patient module, general study module */
+    /* Add entries for common modules */
     Dcmtk_module::set_patient (dataset, rsm->get_study_metadata ());
     Dcmtk_module::set_general_study (dataset, rsm);
+    Dcmtk_module::set_sop_common (dataset);
 
     /* RT series module */
     Dcmtk_module::set_rt_series (dataset, dose_metadata, "RTDOSE");

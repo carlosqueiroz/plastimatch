@@ -61,9 +61,11 @@ Dcmtk_module::set_general_series (
     dcmtk_copy_from_metadata (dataset, meta, DCM_SeriesDescription, "");
     dcmtk_copy_from_metadata (dataset, meta, DCM_OperatorsName, "");
     dcmtk_copy_from_metadata (dataset, meta, DCM_PatientPosition, "HFS");
+}
 
-    /* This is item is in the SOP Common module, but doesn't seem worthwhile 
-       to make another function for it. */
+void
+Dcmtk_module::set_sop_common (DcmDataset *dataset)
+{
     dataset->putAndInsertString (DCM_SpecificCharacterSet, "ISO_IR 192");
 }
 

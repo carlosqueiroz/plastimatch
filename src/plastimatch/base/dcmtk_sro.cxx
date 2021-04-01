@@ -49,8 +49,9 @@ Dcmtk_sro::save (
     Metadata::Pointer study_meta = rsm_fixed->get_study_metadata ();
     Metadata::Pointer sro_meta = rsm_fixed->get_sro_metadata ();
 
-    /* Patient module */
+    /* Add entries for common modules */
     Dcmtk_module::set_patient (dataset, study_meta);
+    Dcmtk_module::set_sop_common (dataset);
 
     /* General Study module */
     Dcmtk_module::set_general_study (dataset, rsm_fixed);
