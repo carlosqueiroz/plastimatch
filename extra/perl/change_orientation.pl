@@ -1,14 +1,18 @@
 #!/usr/bin/perl
 
 use File::Copy qw(copy move);
+use File::Find;
 
 $push_to_mim = 0;
 $overwrite_for = 1;
 $overwrite_study = 1;
+$keep_referenced_uid = 0;
+#$keep_referenced_uid = 1;
 $dob_empty = 0;
 $sex_empty = 0;
 
-$dicom_dir = "/PHShome/gcs6/shared/ben-1/tmp";
+$dicom_dir = "/PHShome/gcs6/shared/ben-1/2";
+#$dicom_dir = "/PHShome/gcs6/shared/ben-1/tmp";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/GBDAY_01";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/TNW-01-02";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommissSRS_BB";
@@ -73,13 +77,14 @@ $new_series_description = "";
 # $new_id = "GBDAY_02";
 # $new_birth_date = "20200101";
 # $new_sex = "M";
-$new_name = "LPcommis_tt_000_v2^PBS";
-$new_id = "LPcom_tt000_v2";
-$new_birth_date = "20190101";
-$new_sex = "O";
+# $new_name = "LPcommis_tt_000_v2^PBS";
+# $new_id = "LPcom_tt000_v2";
+# $new_birth_date = "20190101";
+# $new_sex = "O";
 
 
-$new_series_description = "Repainting";
+$new_series_description = "HFP nz ISO 101.5";
+#$new_series_description = "Empty Cantilev";
 #$new_series_description = "SACRUM COPY";
 #$new_series_description = "HFP Non-zero ISO";
 #$new_series_description = "2020-06-29 Mock CSI";
@@ -194,6 +199,10 @@ sub process_file {
 	    or $key eq "0020,000e" or $key eq "0020,0052" or $key eq "0008,1155"
 	    or $key eq "3006,0024") {
 	    $value = get_value ($_);
+	    if ($key eq "0008,1155" and $keep_referenced_uid) {
+		print FOUT $_;
+		next;
+	    }
 	    if (($key eq "0020,0052" or $key eq "3006,0024") and $overwrite_for) {
 		print FOUT "($key) UI [$overwrite_for_uid]\n";
 		next;
@@ -304,12 +313,13 @@ sub process_file {
 }
 
 @dcm_files = ();
-opendir (DIR, $dicom_dir);
-while ($fn = readdir (DIR)) {
-    next if $fn =~ /^\./;
-    push @dcm_files, "$dicom_dir/$fn";
+
+sub wanted {
+    next if -d $File::Find::name;
+    push @dcm_files, $File::Find::name;
 }
-close (DIR);
+
+find(\&wanted, $dicom_dir);
 
 for my $dcm_file (@dcm_files) {
     process_file ($dcm_file);
