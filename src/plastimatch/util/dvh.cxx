@@ -39,17 +39,23 @@ Dvh::~Dvh () {
 }
 
 void
+Dvh::set_dicom_input (
+    const char* dicom_dir)
+{
+    d_ptr->rts.load_dicom_dir (dicom_dir);
+}
+
+void
 Dvh::set_structure_set_image (
     const char* ss_image_fn, const char *ss_list_fn)
 {
-    d_ptr->rtss = new Segmentation;
-    d_ptr->rtss->load (ss_image_fn, ss_list_fn);
+    d_ptr->rts.load_ss_img (ss_image_fn, ss_list_fn);
 }
 
 void 
 Dvh::set_dose_image (const char* image_fn)
 {
-    d_ptr->dose = plm_image_load_native (image_fn);
+    d_ptr->rts.load_dose_img (image_fn);
 }
 
 void 
@@ -79,21 +85,25 @@ Dvh::run ()
     float ss_ori[3];
     plm_long ss_dim[3];
 
-    FloatImageType::Pointer dose_img = d_ptr->dose->itk_float ();
-    UCharVecImageType::Pointer ss_img = d_ptr->rtss->get_ss_img_uchar_vec ();
-
-    /* GCS HACK: This should go into rtss.cxx */
-    Rtss *ss_list;
-    if (d_ptr->rtss->have_structure_set()) {
-        ss_list = d_ptr->rtss->get_structure_set_raw();
-    } else {
-        ss_list = new Rtss;
-        int num_structures = ss_img->GetVectorLength() * 8;
-        for (int i = 0; i < num_structures; i++) {
-            ss_list->add_structure ("Unknown Structure", 
-                "255 255 0", i+1, i);
-        }
+    if (!d_ptr->rts.have_dose()) {
+        print_and_exit ("Error.  No dose was loaded.\n");
     }
+    if (!d_ptr->rts.have_segmentation()) {
+        print_and_exit ("Error.  No segmentation was loaded.\n");
+    }
+    FloatImageType::Pointer dose_img = d_ptr->rts.get_dose()->itk_float ();
+
+    d_ptr->rts.get_segmentation()->convert_to_uchar_vec();
+    UCharVecImageType::Pointer ss_img = d_ptr->rts.get_segmentation()->get_ss_img_uchar_vec();
+
+    /* GCS FIX: Resample dose to size of structure set */
+    
+    
+    
+#if defined (commentout)  //This doesn't yet compile
+    
+    FloatImageType::Pointer dose_img = d_ptr->rts.get_dose()->itk_float ();
+    UCharVecImageType::Pointer ss_img = d_ptr->rts.rtss->get_ss_img_uchar_vec ();
 
     /* Create histogram */
     std::cout << "Creating Histogram..." << std::endl;
@@ -241,6 +251,7 @@ Dvh::run ()
         }
         d_ptr->output_string += "\n";
     }
+#endif
 }
 
 void

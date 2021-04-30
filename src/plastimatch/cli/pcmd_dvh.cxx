@@ -54,6 +54,8 @@ parse_fn (
         "structure set list file containing names and colors", 1, "");
     parser->add_long_option ("", "input-dose", 
         "dose image file", 1, "");
+    parser->add_long_option ("", "input", 
+        "DICOM directory containing structures and dose", 1, "");
 
     /* Parameters */
     parser->add_long_option ("", "dose-units", 
@@ -83,21 +85,23 @@ parse_fn (
     parser->check_default_options ();
 
     /* Check that input file were given */
-    if (!parser->have_option ("input-dose"))
-    {
-	throw (dlib::error ("Error.  You must specify an input dose "
-                " with --input-dose"));
-    }
-    if (!parser->have_option ("input-ss-img"))
-    {
-	throw (dlib::error ("Error.  You must specify an input structure "
-                "set with --input-ss-img image"));
+    if (!parser->have_option ("input")) {
+        if (!parser->have_option ("input-dose"))
+        {
+            throw (dlib::error ("Error.  You must specify an input dose "
+                    " with either --input or --input-dose"));
+        }
+        if (!parser->have_option ("input-ss-img"))
+        {
+            throw (dlib::error ("Error.  You must specify an input structure "
+                    "set with either --input or --input-ss-img"));
+        }
     }
 
     /* Check that an output file was given */
     if (!parser->have_option ("output-csv"))
     {
-	throw (dlib::error (
+        throw (dlib::error (
                 "Error.  You must specify an output file with --output-csv"));
     }
 
