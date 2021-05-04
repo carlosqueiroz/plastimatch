@@ -6,21 +6,25 @@ use File::Find;
 $push_to_mim = 0;
 $overwrite_for = 1;
 $overwrite_study = 1;
-$keep_referenced_uid = 0;
-#$keep_referenced_uid = 1;
 $dob_empty = 0;
 $sex_empty = 0;
 
-$dicom_dir = "/PHShome/gcs6/shared/ben-1/2";
-#$dicom_dir = "/PHShome/gcs6/shared/ben-1/tmp";
+# Set to 1 if you are only converting a plan object, to keep the
+# existing referenced structure set
+$keep_referenced_uid = 0;
+#$keep_referenced_uid = 1;
+
+#$dicom_dir = "/PHShome/gcs6/shared/ben-1/GBMON_SOBP1-3";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_H2Oart";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommis_mornqa";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/GBDAY_01";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/TNW-01-02";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommissSRS_BB";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_pg_hfs";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_01";
+$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_05";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
-#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
-#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_07";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_08";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_tt000_v2";
 
 $new_name = "";
@@ -69,6 +73,10 @@ $new_series_description = "";
 #$new_id = "LPcom_08";
 #$new_birth_date = "20180101";
 #$new_sex = "O";
+# $new_name = "LPcom_09^PBS";
+# $new_id = "LPcom_09";
+# $new_birth_date = "20180101";
+# $new_sex = "O";
 # $new_name = "GBDAY_01^PBS";
 # $new_id = "GBDAY_01";
 # $new_birth_date = "20200101";
@@ -81,10 +89,37 @@ $new_series_description = "";
 # $new_id = "LPcom_tt000_v2";
 # $new_birth_date = "20190101";
 # $new_sex = "O";
+# $new_name = "GBMON_SOBP1^PBS";
+# $new_id = "GBMON_SOBP1";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
+# $new_name = "GBMON_FF1^PBS";
+# $new_id = "GBMON_FF1";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
+# $new_name = "GBMON_RANGE1^PBS";
+# $new_id = "GBMON_RANGE1";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
+# $new_name = "GBMON_GAMMA1^PBS";
+# $new_id = "GBMON_GAMMA1";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
+# $new_name = "GBMON_REF1^PBS";
+# $new_id = "GBMON_REF1";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
 
 
-$new_series_description = "HFP nz ISO 101.5";
+#$new_series_description = "Monthly Ref";
+#$new_series_description = "Monthly Gamma";
+#$new_series_description = "Monthly RU";
+#$new_series_description = "Monthly DU";
+#$new_series_description = "Monthly Zebra";
+#$new_series_description = "HFP nz ISO 101.5";
 #$new_series_description = "Empty Cantilev";
+#$new_series_description = "Non Cantilev";
+#$new_series_description = "Cantilev";
 #$new_series_description = "SACRUM COPY";
 #$new_series_description = "HFP Non-zero ISO";
 #$new_series_description = "2020-06-29 Mock CSI";
@@ -181,6 +216,8 @@ sub process_file {
     open FOUT, ">$dump_out";
     $sop_instance_uid = "";
     $coalescing_image_comments = 0;
+
+    print FOUT "(0008,0005) CS [ISO_IR 100]\n";
     while (<FIN>) {
 	if (/^\s*\(([^)]*)\)/) {
 	    $key = $1;
@@ -220,6 +257,10 @@ sub process_file {
 		$sop_instance_uid = $uid_map{$value};
 	    }
 	    print FOUT "($key) UI [$uid_map{$value}]\n";
+	    next;
+	}
+	if ($key eq "0008,0005") {
+	    #print FOUT "($key) CS [ISO_IR 100]\n";
 	    next;
 	}
 	if ($key eq "0008,103e" and $new_series_description ne "") {

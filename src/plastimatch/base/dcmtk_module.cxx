@@ -66,7 +66,9 @@ Dcmtk_module::set_general_series (
 void
 Dcmtk_module::set_sop_common (DcmDataset *dataset)
 {
-    dataset->putAndInsertString (DCM_SpecificCharacterSet, "ISO_IR 192");
+    // ProTom TDCS requires this to be ASCII
+    // dataset->putAndInsertString (DCM_SpecificCharacterSet, "ISO_IR 192");
+    dataset->putAndInsertString (DCM_SpecificCharacterSet, "ISO_IR 100");
 }
 
 void
