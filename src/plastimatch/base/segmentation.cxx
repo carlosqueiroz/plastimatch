@@ -96,6 +96,8 @@ Segmentation::load (const char *ss_img, const char *ss_list)
         d_ptr->m_ss_img = plm_image_load_native (ss_img);
     }
 
+    /* GCS FIX: Verify it is a uchar vec */
+
     /* Load ss_list */
     if (d_ptr->m_rtss) {
         d_ptr->m_rtss.reset();
@@ -103,6 +105,13 @@ Segmentation::load (const char *ss_img, const char *ss_list)
     if (ss_list && file_exists (ss_list)) {
         lprintf ("Trying to load ss_list: %s\n", ss_list);
         d_ptr->m_rtss.reset (ss_list_load (0, ss_list));
+    } else {
+        d_ptr->m_rtss.reset (new Rtss);
+        int num_structures = d_ptr->m_ss_img->itk_uchar_vec()->GetVectorLength() * 8;
+        for (int i = 0; i < num_structures; i++) {
+            d_ptr->m_rtss->add_structure ("Unknown Structure", 
+                "255 255 0", i+1, i);
+        }
     }
 
     if (d_ptr->m_rtss) {
