@@ -48,7 +48,6 @@ add_cms_contournames (Rtss *rtss, const char *filename)
             "could not read version (%s)\n", line.c_str());
     }
     if (xio_version == 0x00061027) {
-	printf ("Version 00061027 found.\n");
 	skip_lines = 5;
     }
 
@@ -67,20 +66,10 @@ add_cms_contournames (Rtss *rtss, const char *filename)
 	rc = sscanf (line.c_str(), "%d,", &structure_id);
 
 	if (rc != 1) {
-	    if (xio_version == 0x00061027) {
-		/* This XiO version seems to write corrupted contourfiles 
-		   when editing files created with previous versions. 
-		   We'll assume that everything went ok.  */
-		break;
-	    }
-	    /* GCS 2010-12-27: It's not only that version which does this.
-	       What happens it that XiO leaves garbage at the end of the 
-	       file.  The better way to handle this is probably to count 
-	       the number of structures and then stop. */
-#if defined (commentout)
-	    print_and_exit ("Error parsing contournames: "
-                "contour id not found (%s)\n", line2->data);
-#endif
+	    /* GCS 2010-12-27 / 2021-05-04: XiO leaves garbage at the end of the 
+	       file when editing files created in a previous version.
+               Seems to be OK to simply stop. */
+            break;
 	}
 
 	/* Xio structures can be zero.  This is possibly not tolerated 
@@ -142,15 +131,18 @@ add_cms_structure (
 	rc = sscanf (buf, "%d", &structure_id);
 	if (rc != 1) {
 	    print_and_exit ("Error parsing file %s (structure_id)\n", 
-			    filename);
+                filename);
 	}
-	
+            
 	/* Xio structures can be zero.  This is possibly not tolerated 
 	   by dicom.  So we modify before inserting into the cxt. */
 	structure_id ++;
+        /* GCS 2021-05-04.  Instead of crapping out, let's omit these. */
+#if defined (commentout)
 	if (structure_id <= 0) {
 	    print_and_exit ("Error, structure_id was less than zero\n");
 	}
+#endif
 
 	/* Can this happen? */
 	if (num_points == 0) {
@@ -158,20 +150,21 @@ add_cms_structure (
 	}
 
 	/* Look up the cxt structure for this id */
-	curr_structure = rtss->find_structure_by_id (structure_id);
-	if (!curr_structure) {
-	    print_and_exit ("Couldn't reference structure with id %d\n", 
-			    structure_id);
-	}
+        if (structure_id > 0) {
+            curr_structure = rtss->find_structure_by_id (structure_id);
+            if (!curr_structure) {
+                print_and_exit ("Couldn't reference structure with id %d\n", 
+                    structure_id);
+            }
 
-	printf ("[%f %d %d]\n", z_loc, structure_id, num_points);
-	curr_polyline = curr_structure->add_polyline ();
-	curr_polyline->slice_no = -1;
-	curr_polyline->num_vertices = num_points;
-	curr_polyline->x = (float*) malloc (num_points * sizeof(float));
-	curr_polyline->y = (float*) malloc (num_points * sizeof(float));
-	curr_polyline->z = (float*) malloc (num_points * sizeof(float));
-
+            printf ("[%f %d %d]\n", z_loc, structure_id, num_points);
+            curr_polyline = curr_structure->add_polyline ();
+            curr_polyline->slice_no = -1;
+            curr_polyline->num_vertices = num_points;
+            curr_polyline->x = (float*) malloc (num_points * sizeof(float));
+            curr_polyline->y = (float*) malloc (num_points * sizeof(float));
+            curr_polyline->z = (float*) malloc (num_points * sizeof(float));
+        }
 	point_idx = 0;
 	remaining_points = num_points;
 	while (remaining_points > 0) {
@@ -193,24 +186,27 @@ add_cms_structure (
 		rc = sscanf (&buf[line_loc], "%f, %f,%n", &x, &y, &this_loc);
 		if (rc != 2) {
 		    print_and_exit ("Error parsing file %s (points) %s\n", 
-				    filename, &buf[line_loc]);
+                        filename, &buf[line_loc]);
 		}
 
-        /* GCS 2014-10-16.  As reported by Thomas Botticello 
-           and others, the XiO structures are off by 1/2 pixel.
-           This adjustment must be done before coourdinate 
-           transformation xio to dicom (e.g. prone).
-        */
-        /* ND 2014-12-18 intent to provide final fix for this 
-            NOTE: There is an inherent residual error that cannot be fixed due 
-            to XiO's rounding of values at the time of import.
-        */
-		curr_polyline->x[point_idx] = x 
-                    - 0.5 * studyset.ct_pixel_spacing[0];
-		curr_polyline->y[point_idx] = -y
-                    - 0.5 * studyset.ct_pixel_spacing[1];
-		curr_polyline->z[point_idx] = z_loc;
-		point_idx ++;
+                /* GCS 2014-10-16.  As reported by Thomas Botticello 
+                   and others, the XiO structures are off by 1/2 pixel.
+                   This adjustment must be done before coourdinate 
+                   transformation xio to dicom (e.g. prone).
+                */
+                /* ND 2014-12-18 intent to provide final fix for this 
+                   NOTE: There is an inherent residual error that cannot be fixed due 
+                   to XiO's rounding of values at the time of import.
+                */
+                /* GCS 2021-05-04.  Only add structures with ID > 0 */
+                if (structure_id > 0) {
+                    curr_polyline->x[point_idx] = x 
+                        - 0.5 * studyset.ct_pixel_spacing[0];
+                    curr_polyline->y[point_idx] = -y
+                        - 0.5 * studyset.ct_pixel_spacing[1];
+                    curr_polyline->z[point_idx] = z_loc;
+                    point_idx ++;
+                }
 		line_loc += this_loc;
 	    }
 	    remaining_points -= line_points;
@@ -296,8 +292,6 @@ xio_structures_save (
 {
     FILE *fp;
     std::string fn;
-
-    printf ("X_S_S: output_dir = %s\n", output_dir);
 
     if (!cxt->have_geometry) {
 	print_and_exit ("Sorry, can't output xio format without ct geometry\n");
