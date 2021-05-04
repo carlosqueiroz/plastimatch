@@ -669,7 +669,7 @@ Plm_image_header::get_image_extent (float extent[3]) const
 
 /* Return true if the two headers are the same, within tolerance */
 bool
-Plm_image_header::compare (Plm_image_header *pli1, Plm_image_header *pli2,
+Plm_image_header::compare (const Plm_image_header *pli1, const Plm_image_header *pli2,
     float threshold)
 {
     int d;
@@ -688,6 +688,13 @@ Plm_image_header::compare (Plm_image_header *pli1, Plm_image_header *pli2,
     /* GCS FIX: check direction cosines */
 
     return true;
+}
+
+bool
+Plm_image_header::compare (const Plm_image_header& pli1, const Plm_image_header& pli2,
+    float threshold)
+{
+    return compare (&pli1, &pli2, threshold);
 }
 
 /* Explicit instantiations */

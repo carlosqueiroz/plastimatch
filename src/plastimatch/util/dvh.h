@@ -63,8 +63,8 @@ public:
 
     /*! \name Inputs */
     ///@{
-    /*! \brief Set the input directory containing the DICOM data. */
-    void set_dicom_input (const char* dicom_dir);
+    /*! \brief Set the input directory containing the DICOM or Rt_study data. */
+    void set_input (const std::string& dicom_dir);
     /*! \brief Set the structure set image.  The image will be loaded
       from the specified filename, and an optional file containing the 
       image list will be loaded. */

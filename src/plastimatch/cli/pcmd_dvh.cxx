@@ -12,6 +12,7 @@ public:
     std::string input_ss_img_fn;
     std::string input_ss_list_fn;
     std::string input_dose_fn;
+    std::string input;
     std::string output_csv_fn;
     Dvh::Dvh_units dose_units;
     Dvh::Dvh_normalization normalization;
@@ -55,7 +56,7 @@ parse_fn (
     parser->add_long_option ("", "input-dose", 
         "dose image file", 1, "");
     parser->add_long_option ("", "input", 
-        "DICOM directory containing structures and dose", 1, "");
+        "DICOM or Rt_study directory containing structures and dose", 1, "");
 
     /* Parameters */
     parser->add_long_option ("", "dose-units", 
@@ -106,6 +107,7 @@ parse_fn (
     }
 
     /* Copy values into output struct */
+    parms->input = parser->get_string("input");
     parms->input_ss_img_fn = parser->get_string("input-ss-img");
     if (parser->have_option ("input-ss-list")) {
         parms->input_ss_list_fn = parser->get_string("input-ss-list");
@@ -143,12 +145,18 @@ do_command_dvh (int argc, char *argv[])
     plm_clp_parse (&parms, &parse_fn, &usage_fn, argc, argv, 1);
 
     Dvh dvh;
-    dvh.set_structure_set_image (
-        parms.input_ss_img_fn.c_str(), 
-        parms.input_ss_list_fn.c_str());
-    dvh.set_dose_image (
-        parms.input_dose_fn.c_str());
-    dvh.set_dose_units (parms.dose_units);
+    
+    if (parms.input != "") {
+        dvh.set_input (parms.input);
+    } else {
+        dvh.set_structure_set_image (
+            parms.input_ss_img_fn.c_str(), 
+            parms.input_ss_list_fn.c_str());
+        dvh.set_dose_image (
+            parms.input_dose_fn.c_str());
+        dvh.set_dose_units (parms.dose_units);
+    }
+    
     dvh.set_dvh_parameters (
         parms.normalization,
         parms.histogram_type, 

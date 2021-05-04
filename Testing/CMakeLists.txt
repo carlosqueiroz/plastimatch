@@ -2655,6 +2655,7 @@ set_tests_properties (plm-dmap-c PROPERTIES DEPENDS "rect-4")
 ## -------------------------------------------------------------------------
 ## plm-dvh-a  ss-img, without ss-list
 ## plm-dvh-b  ss-img, with ss-list
+## plm-dvh-c  DICOM input
 ## -------------------------------------------------------------------------
 plm_add_test (
   "plm-dvh-a"
@@ -2697,6 +2698,27 @@ plmtest_check_interval ("plm-dvh-b-check-2"
 set_tests_properties (plm-dvh-b PROPERTIES DEPENDS "rect-1")
 set_tests_properties (plm-dvh-b-check-1 PROPERTIES DEPENDS "plm-dvh-b")
 set_tests_properties (plm-dvh-b-check-2 PROPERTIES DEPENDS "plm-dvh-b")
+
+plm_add_test (
+  "plm-dvh-c"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "dvh;--input;${PLM_BUILD_TESTING_DIR}/rect-1-dicom;--output-csv;${PLM_BUILD_TESTING_DIR}/plm-dvh-c.csv"
+  )
+plmtest_check_interval ("plm-dvh-c-check-1"
+  "${PLM_BUILD_TESTING_DIR}/plm-dvh-c.csv"
+  "^15,([-0-9.]*)"
+  "0.780"
+  "0.783"
+  )
+plmtest_check_interval ("plm-dvh-c-check-2"
+  "${PLM_BUILD_TESTING_DIR}/plm-dvh-c.csv"
+  "^15.5,([-0-9.]*)"
+  "0.0"
+  "0.001"
+  )
+set_tests_properties (plm-dvh-c PROPERTIES DEPENDS "rect-1")
+set_tests_properties (plm-dvh-c-check-1 PROPERTIES DEPENDS "plm-dvh-c")
+set_tests_properties (plm-dvh-c-check-2 PROPERTIES DEPENDS "plm-dvh-c")
 
 ## -------------------------------------------------------------------------
 ## plastimatch fill/mask

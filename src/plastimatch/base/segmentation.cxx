@@ -914,7 +914,9 @@ Segmentation::warp (
 bool
 Segmentation::have_ss_img ()
 {
-    return (bool) d_ptr->m_ss_img;
+    /* GCS 2021-05-04.  Hope this is ok... */
+    // return (bool) d_ptr->m_ss_img;
+    return d_ptr->m_ss_img_valid;
 }
 
 void
@@ -939,7 +941,9 @@ Segmentation::get_ss_img ()
 bool
 Segmentation::have_structure_set ()
 {
-    return (bool) d_ptr->m_rtss;
+    /* GCS 2021-05-04.  Hope this is ok... */
+    //return (bool) d_ptr->m_rtss;
+    return d_ptr->m_rtss_valid;
 }
 
 Rtss::Pointer&

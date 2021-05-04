@@ -39,10 +39,10 @@ Dvh::~Dvh () {
 }
 
 void
-Dvh::set_dicom_input (
-    const char* dicom_dir)
+Dvh::set_input (
+    const std::string& input_dir)
 {
-    d_ptr->rts.load_dicom_dir (dicom_dir);
+    d_ptr->rts.load (input_dir);
 }
 
 void
@@ -93,28 +93,32 @@ Dvh::run ()
     }
     FloatImageType::Pointer dose_img = d_ptr->rts.get_dose()->itk_float ();
 
-    d_ptr->rts.get_segmentation()->convert_to_uchar_vec();
-    UCharVecImageType::Pointer ss_img = d_ptr->rts.get_segmentation()->get_ss_img_uchar_vec();
+    /* Convert polyline segmentation into image format */
+    Segmentation::Pointer seg = d_ptr->rts.get_segmentation();
+    if (!seg->have_ss_img()) {
+        Plm_image_header pih;
+        seg->find_rasterization_geometry (&pih);
+        seg->rasterize (&pih, false, true);
+    }
+    UCharVecImageType::Pointer ss_img = seg->get_ss_img_uchar_vec();
+    Rtss::Pointer rtss = seg->get_structure_set();
 
-    /* GCS FIX: Resample dose to size of structure set */
-    
-    
-    
-#if defined (commentout)  //This doesn't yet compile
-    
-    FloatImageType::Pointer dose_img = d_ptr->rts.get_dose()->itk_float ();
-    UCharVecImageType::Pointer ss_img = d_ptr->rts.rtss->get_ss_img_uchar_vec ();
+    /* Resample dose to size of structure set */
+    if (!Plm_image_header::compare (Plm_image_header(dose_img), Plm_image_header(ss_img)))
+    {
+        dose_img = resample_image (dose_img, Plm_image_header(ss_img), 0, true);
+    }
 
     /* Create histogram */
     std::cout << "Creating Histogram..." << std::endl;
     printf ("Your Histogram will have %d bins and will be %f Gy large\n",
         d_ptr->num_bins, d_ptr->bin_width);
-    hist = (int*) malloc (sizeof(int) * ss_list->num_structures 
+    hist = (int*) malloc (sizeof(int) * rtss->num_structures 
         * d_ptr->num_bins);
-    memset (hist, 0, sizeof(int) * ss_list->num_structures 
+    memset (hist, 0, sizeof(int) * rtss->num_structures 
         * d_ptr->num_bins);
-    struct_vox = (int*) malloc (sizeof(int) * ss_list->num_structures);
-    memset (struct_vox, 0, sizeof(int) * ss_list->num_structures);
+    struct_vox = (int*) malloc (sizeof(int) * rtss->num_structures);
+    memset (struct_vox, 0, sizeof(int) * rtss->num_structures);
    
     /* Is voxel size the same? */
     std::cout << "checking voxel size..." << std::endl;
@@ -191,8 +195,8 @@ Dvh::run ()
             bin = d_ptr->num_bins - 1;
         }
 
-        for (size_t sno = 0; sno < ss_list->num_structures; sno++) {
-            Rtss_roi *curr_structure = ss_list->slist[sno];
+        for (size_t sno = 0; sno < rtss->num_structures; sno++) {
+            Rtss_roi *curr_structure = rtss->slist[sno];
                     
             /* Is this pixel in the current structure? */
             int curr_bit = curr_structure->bit;
@@ -209,34 +213,34 @@ Dvh::run ()
             /* If so, update histogram & structure size */
             if (in_struct) {
                 struct_vox[sno] ++;
-                hist[bin*ss_list->num_structures + sno] ++;
+                hist[bin*rtss->num_structures + sno] ++;
             }
         }
     }
 
     /* Convert histogram to cumulative histogram */
     if (d_ptr->histogram_type == DVH_CUMULATIVE_HISTOGRAM) {
-        for (size_t sno = 0; sno < ss_list->num_structures; sno++) {
+        for (size_t sno = 0; sno < rtss->num_structures; sno++) {
             int cum = 0;
             for (bin = d_ptr->num_bins - 1; bin >= 0; bin--) {
-                cum = cum + hist[bin*ss_list->num_structures + sno];
-                hist[bin*ss_list->num_structures + sno] = cum;
+                cum = cum + hist[bin*rtss->num_structures + sno];
+                hist[bin*rtss->num_structures + sno] = cum;
             }
         }
     }
 
     /* Create output string */
     d_ptr->output_string = "Dose (Gy)";
-    for (size_t sno = 0; sno < ss_list->num_structures; sno++) {
-        Rtss_roi *curr_structure = ss_list->slist[sno];
+    for (size_t sno = 0; sno < rtss->num_structures; sno++) {
+        Rtss_roi *curr_structure = rtss->slist[sno];
         d_ptr->output_string += ",";
         d_ptr->output_string += curr_structure->name.c_str();
     }
     d_ptr->output_string += "\n";
     for (plm_long bin = 0; bin < d_ptr->num_bins; bin++) {
         d_ptr->output_string += make_string (bin * d_ptr->bin_width);
-        for (size_t sno = 0; sno < ss_list->num_structures; sno++) {
-            int val = hist[bin*ss_list->num_structures + sno];
+        for (size_t sno = 0; sno < rtss->num_structures; sno++) {
+            int val = hist[bin*rtss->num_structures + sno];
             d_ptr->output_string += ",";
             if (struct_vox[sno] == 0) {
                 d_ptr->output_string += "0";
@@ -251,7 +255,6 @@ Dvh::run ()
         }
         d_ptr->output_string += "\n";
     }
-#endif
 }
 
 void

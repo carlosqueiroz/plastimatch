@@ -128,7 +128,9 @@ public:
     /*! \brief Return true if the two headers are the same. 
       Tolerance on origin and spacing can be specified 
       using the threshold parameter */
-    static bool compare (Plm_image_header *pli1, Plm_image_header *pli2, 
+    static bool compare (const Plm_image_header *pli1, const Plm_image_header *pli2, 
+        float threshold = 1e-5);
+    static bool compare (const Plm_image_header& pli1, const Plm_image_header& pli2, 
         float threshold = 1e-5);
 
     FloatPoint3DType get_index (const FloatPoint3DType& pos) const;
