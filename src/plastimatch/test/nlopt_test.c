@@ -38,6 +38,7 @@ main (int argc, char* argv[])
     double lb[2] = { -HUGE_VAL, 0 }, ub[2] = { HUGE_VAL, HUGE_VAL }; /* lower and upper bounds */
     double minf; /* the minimum objective value, upon return */
 
+    // This API is deprecated
     if (nlopt_minimize_constrained(NLOPT_LD_MMA, 2, myfunc, NULL,
 	    2, myconstraint, data, sizeof(my_constraint_data),
 	    lb, ub, x, &minf,
@@ -47,5 +48,7 @@ main (int argc, char* argv[])
     else {
 	printf("found minimum at f(%g,%g) = %g\n", x[0], x[1], minf);
     }
+#if defined (commentout)
+#endif
     return 0;
 }

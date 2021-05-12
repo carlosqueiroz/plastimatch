@@ -6,13 +6,14 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
-#include "itkCenteredTransformInitializer.h"
 #include "itkImageMaskSpatialObject.h"
 #include <itkImageMomentsCalculator.h>
 #include "itkLinearInterpolateImageFunction.h"
-#include "itkMutualInformationImageToImageMetric.h"
-#include "itkNormalizedMutualInformationHistogramImageToImageMetric.h"
-#include "itkRegularStepGradientDescentOptimizer.h"
+#if PLM_CONFIG_ITKV4_REGISTRATION
+#include "itkJointHistogramMutualInformationImageToImageMetricv4.h"
+#include "itkMattesMutualInformationImageToImageMetricv4.h"
+#include "itkMeanSquaresImageToImageMetricv4.h"
+#else
 #if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)    \
     && defined (PLM_CONFIG_USE_PATCHED_ITK)
 #include "plm_OptMattesMutualInformationImageToImageMetric.h"
@@ -23,6 +24,9 @@
 #else
 #include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkMeanSquaresImageToImageMetric.h"
+#endif
+#include "itkMutualInformationImageToImageMetric.h"
+#include "itkNormalizedMutualInformationHistogramImageToImageMetric.h"
 #endif
 
 #include "compiler_warnings.h"
@@ -43,6 +47,19 @@
 #include "stage_parms.h"
 #include "xform.h"
 
+#if PLM_CONFIG_ITKV4_REGISTRATION
+//using MetricType = itk::ImageToImageMetricv4 < FloatImageType, FloatImageType >;
+using MetricType = itk::ObjectToObjectMetricBaseTemplate< double >;
+using ImageMetricType = itk::ImageToImageMetricv4<
+    FloatImageType, FloatImageType, FloatImageType, double>;
+using MSEMetricType = itk::MeanSquaresImageToImageMetricv4<
+    FloatImageType, FloatImageType >;
+using MIMetricType = itk::JointHistogramMutualInformationImageToImageMetricv4<
+    FloatImageType, FloatImageType >;
+using MattesMIMetricType = itk::MattesMutualInformationImageToImageMetricv4 <
+    FloatImageType, FloatImageType >;
+#else
+typedef itk::ImageToImageMetric < FloatImageType, FloatImageType > MetricType;
 typedef itk::MeanSquaresImageToImageMetric <
     FloatImageType, FloatImageType > MSEMetricType;
 typedef itk::MutualInformationImageToImageMetric <
@@ -57,8 +74,8 @@ typedef itk::plm_MattesMutualInformationImageToImageMetric <
 typedef itk::MattesMutualInformationImageToImageMetric <
     FloatImageType, FloatImageType > MattesMIMetricType;
 #endif
-typedef itk::ImageToImageMetric < 
-    FloatImageType, FloatImageType > MetricType;
+#endif
+
 typedef itk::ImageMaskSpatialObject< 3 > Mask_SOType;
 typedef itk::LinearInterpolateImageFunction <
     FloatImageType, double >InterpolatorType;
@@ -122,8 +139,19 @@ Itk_registration_private::evaluate_initial_transform ()
     double value = DBL_MAX;
     MetricType *metric = registration->GetMetric();
     try {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        // GCS: The below doesn't work because SetParameters() has non-const
+        // input type
+#if defined (commentout)
+        metric->SetParameters (registration->GetInitialTransform()->GetParameters());
+        value = metric->GetValue ();
+#endif
+        // GCS: Can I just do the below??
+        value = metric->GetValue ();
+#else
         value = metric->GetValue (
             registration->GetInitialTransformParameters());
+#endif
     }
     catch (itk::ExceptionObject & err) {
         if (itk_unnecessary_exception (err)) {
@@ -164,10 +192,14 @@ Itk_registration_private::set_best_xform ()
 {
     switch (stage->xform_type) {
     case STAGE_TRANSFORM_TRANSLATION:
+        printf ("\n  :: ");
+        std::cout << registration->GetTransform()->GetParameters() << "\n";
         xf_best->set_trn (
             registration->GetTransform()->GetParameters());
         break;
     case STAGE_TRANSFORM_VERSOR:
+        printf ("\n  :: ");
+        std::cout << registration->GetTransform()->GetParameters() << "\n";
         xf_best->set_vrs (
             registration->GetTransform()->GetParameters());
         break;
@@ -183,7 +215,8 @@ Itk_registration_private::set_best_xform ()
         xf_best->set_similarity (
             registration->GetTransform()->GetParameters());
         break;
-    case STAGE_TRANSFORM_BSPLINE: {
+    case STAGE_TRANSFORM_BSPLINE:
+    {
         /* GCS FIX: The B-spline method still gives the last xform, 
            not the best xform  */
 #if defined (commentout)
@@ -235,8 +268,12 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
             normalized to a mean of zero and unit variance.  We
             will follow this empirical rule in this example. */
         MIMetricType::Pointer metric = MIMetricType::New();
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        // This metric does not exist in v4
+#else
         metric->SetFixedImageStandardDeviation(  0.4 );
         metric->SetMovingImageStandardDeviation( 0.4 );
+#endif
         registration->SetMetric(metric);
     }
     break;
@@ -257,9 +294,13 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
         MattesMIMetricType::Pointer metric = MattesMIMetricType::New();
         metric->SetNumberOfHistogramBins(
             stage->mi_hist_fixed_bins);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        // This is done in the Registration class in v4
+#else
         metric->SetNumberOfSpatialSamples (
             this->compute_num_samples (fixed_ss));
-
+#endif
+        
 #if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)    \
     && defined (PLM_CONFIG_USE_PATCHED_ITK)
         /* Setting maxVal and minVal for MI calculation 
@@ -276,6 +317,9 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
     break;
     case SIMILARITY_METRIC_NMI:
     {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        // This does not exist in ITK v4 Registration
+#else
         NMIMetricType::Pointer metric = NMIMetricType::New();
 
         //NMIMetricType::HistogramSizeType hist;
@@ -289,8 +333,8 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
 
         /* Apparently sampling is not implemented in ITK 3 
            unless optimized registration methods are specified. */
-#if ITK_VERSION_MAJOR >= 4                                        \
-    || (defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)          \
+#if ITK_VERSION_MAJOR >= 4                                      \
+    || (defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)        \
         && defined (PLM_CONFIG_USE_PATCHED_ITK))
         metric->SetNumberOfSpatialSamples (
             this->compute_num_samples (fixed_ss));
@@ -307,6 +351,7 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
 #endif
 
         registration->SetMetric(metric);
+#endif
     }
     break;
     default:
@@ -323,13 +368,25 @@ Itk_registration_private::set_roi_images ()
         Mask_SOType::Pointer roi_so = Mask_SOType::New();
         roi_so->SetImage(regd->get_fixed_roi()->itk_uchar());
         roi_so->Update();
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        ImageMetricType * metric = dynamic_cast<ImageMetricType *>(
+            registration->GetMetric());
+        metric->SetFixedImageMask (roi_so);
+#else
         registration->GetMetric()->SetFixedImageMask (roi_so);
+#endif
     }
     if (shared->moving_roi_enable && regd->get_moving_roi()) {
         Mask_SOType::Pointer roi_so = Mask_SOType::New();
         roi_so->SetImage(regd->get_moving_roi()->itk_uchar());
         roi_so->Update();
+#if PLM_CONFIG_ITKV4_REGISTRATION
+        ImageMetricType * metric = dynamic_cast<ImageMetricType *>(
+            registration->GetMetric());
+        metric->SetMovingImageMask (roi_so);
+#else
         registration->GetMetric()->SetMovingImageMask (roi_so);
+#endif
     }
 }
 
@@ -374,7 +431,12 @@ set_fixed_image_region_new_unfinished (
 
     valid_region.SetIndex (valid_index);
     valid_region.SetSize (valid_size);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    // GCS TODO.  I suspect this will need to be refactored.  Why is this option
+    // not available to plastimatch implementations??
+#else
     registration->SetFixedImageRegion (valid_region);
+#endif
 }
 
 void
@@ -382,8 +444,17 @@ Itk_registration_private::set_fixed_image_region ()
 {
     /* GCS 2013-07-19.  The automatic region setting appears to be buggy 
        let's comment it out until it can be fixed. */
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    // The entire fixed image should be the default, no?
+#if defined (commentout)
+    ImageMetricType * metric = dynamic_cast<ImageMetricType *>(
+        registration->GetMetric());
+    metric->SetVirtualDomainFromImage(registration->GetFixedImage());
+#endif
+#else
     registration->SetFixedImageRegion (
-       registration->GetFixedImage()->GetLargestPossibleRegion());
+        registration->GetFixedImage()->GetLargestPossibleRegion());
+#endif
 
 #if defined (commentout)
     int use_magic_value = 0;
@@ -543,7 +614,11 @@ set_transform_translation (
     Plm_image_header pih;
     pih.set_from_itk_image (registration->GetFixedImage());
     xform_to_trn (xf_out, xf_in, &pih);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_trn());
+#else
     registration->SetTransform (xf_out->get_trn());
+#endif
 }
 
 static void
@@ -556,10 +631,11 @@ set_transform_versor (
     Plm_image_header pih;
     pih.set_from_itk_image (registration->GetFixedImage());
     xform_to_vrs (xf_out, xf_in, &pih);
-
-//    GCS WIP
-//    xf_out->get_vrs()
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_vrs());
+#else
     registration->SetTransform (xf_out->get_vrs());
+#endif
 }
 
 static void
@@ -572,7 +648,11 @@ set_transform_quaternion (
     Plm_image_header pih;
     pih.set_from_itk_image (registration->GetFixedImage());
     xform_to_quat (xf_out, xf_in, &pih);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_quat());
+#else
     registration->SetTransform (xf_out->get_quat());
+#endif
 }
 
 static void
@@ -585,7 +665,11 @@ set_transform_affine (
     Plm_image_header pih;
     pih.set_from_itk_image (registration->GetFixedImage());
     xform_to_aff (xf_out, xf_in, &pih);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_aff());
+#else
     registration->SetTransform (xf_out->get_aff());
+#endif
 }
 
 void
@@ -598,7 +682,11 @@ set_transform_similarity (
     Plm_image_header pih;
     pih.set_from_itk_image (registration->GetFixedImage());
     xform_to_similarity (xf_out, xf_in, &pih);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_similarity());
+#else
     registration->SetTransform (xf_out->get_similarity());
+#endif
 }
 
 static void
@@ -615,7 +703,11 @@ set_transform_bspline (
     /* GCS FIX: Need to set ROI from registration->GetFixedImageRegion(), */
     xform_to_itk_bsp (xf_out, xf_in, &pih, stage->grid_spac);
 
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->SetInitialTransform (xf_out->get_itk_bsp());
+#else
     registration->SetTransform (xf_out->get_itk_bsp());
+#endif
 }
 
 void
@@ -651,8 +743,14 @@ Itk_registration_private::set_transform ()
         print_and_exit ("Error: unknown case in set_transform()\n");
         break;
     }
+
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    // GCS, the below line of code looks unnecessary, possibly a workaround
+    // for an old ITK bug
+#else
     registration->SetInitialTransformParameters (
         registration->GetTransform()->GetParameters());
+#endif
 
     if (stage->xform_type != STAGE_TRANSFORM_BSPLINE) {
         std::stringstream ss;
@@ -719,8 +817,36 @@ itk_registration_stage (
     irp.set_transform ();           // must be after set_fixed_image_region
     irp.set_optimization ();
 
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    constexpr unsigned int numberOfLevels = 1;
+
+    RegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
+    shrinkFactorsPerLevel.SetSize(1);
+    shrinkFactorsPerLevel[0] = 1;
+
+    RegistrationType::SmoothingSigmasArrayType smoothingSigmasPerLevel;
+    smoothingSigmasPerLevel.SetSize(1);
+    smoothingSigmasPerLevel[0] = 0;
+
+    irp.registration->SetNumberOfLevels(numberOfLevels);
+    irp.registration->SetSmoothingSigmasPerLevel(smoothingSigmasPerLevel);
+    irp.registration->SetShrinkFactorsPerLevel(shrinkFactorsPerLevel);
+#endif
+  
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    // Linear interpolation is the default
+#if defined (commentout)
+    InterpolatorType::Pointer fixed_interpolator = InterpolatorType::New();
+    InterpolatorType::Pointer moving_interpolator = InterpolatorType::New();
+    ImageMetricType * metric = dynamic_cast<ImageMetricType *>(
+        irp.registration->GetMetric());
+    metric->SetFixedInterpolator (fixed_interpolator);
+    metric->SetMovingInterpolator (moving_interpolator);
+#endif
+#else
     InterpolatorType::Pointer interpolator = InterpolatorType::New();
     irp.registration->SetInterpolator (interpolator);
+#endif
     irp.set_observer ();
 
     try {

@@ -66,6 +66,8 @@ if (PLM_CONFIG_BUILD_TEST_PROGRAMS)
 	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
       plm_add_executable_v3 (itk_test_threads itk_thread_test.cxx
 	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
+      plm_add_executable_v3 (itk_registration_v4 itk_registration_v4.cxx
+	"" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
     endif ()
 
     # Test executable -- libyaml
@@ -107,7 +109,7 @@ if (PLM_CONFIG_BUILD_TEST_PROGRAMS)
 
     # Test executable -- nlopt
     if (NLOPT_FOUND)
-      set (NLOPT_TEST_LIBS ${GPUIT_LIBRARIES} ${NLOPT_LIBRARIES})
+      set (NLOPT_TEST_LIBS ${GPUIT_LIBRARIES} ${nlopt_LIBRARIES})
       plm_add_executable_v3 (nlopt_test nlopt_test.c
 	"" "${NLOPT_TEST_LIBS}" "${OPENMP_LDFLAGS}" ${INSTALL_NEVER})
       set_target_properties (nlopt_test PROPERTIES LINKER_LANGUAGE CXX)

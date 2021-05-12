@@ -7,15 +7,24 @@
 #include "plmregister_config.h"
 // #include "itkExceptionObject.h"
 #include "itkMacro.h"
+#if PLM_CONFIG_ITKV4_REGISTRATION
+#include "itkImageRegistrationMethodv4.h"
+#else
 #include "itkImageRegistrationMethod.h"
+#endif
 #include "itk_image_type.h"
 #include "stage_parms.h"
 
 class Registration_data;
 class Stage_parms;
 class Xform;
+#if PLM_CONFIG_ITKV4_REGISTRATION
+using RegistrationType = itk::ImageRegistrationMethodv4 < 
+    FloatImageType, FloatImageType >;
+#else
 typedef itk::ImageRegistrationMethod < 
     FloatImageType, FloatImageType > RegistrationType;
+#endif
 
 class Itk_registration_private {
 public:

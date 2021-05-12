@@ -7,19 +7,29 @@
 #include "itkImage.h"
 #include "itkArray.h"
 #include "itkCenteredTransformInitializer.h"
-#include "itkVersorRigid3DTransformOptimizer.h"
 #include "itkCommand.h"
 #include "itkMultiResolutionImageRegistrationMethod.h"
 #include "itkImageRegistrationMethod.h"
-#include "itkRegularStepGradientDescentOptimizer.h"
-#include "itkQuaternionRigidTransformGradientDescentOptimizer.h"
+#if PLM_CONFIG_ITKV4_REGISTRATION
+#include "itkAmoebaOptimizerv4.h"
+#include "itkLBFGSOptimizerv4.h"
+#include "itkLBFGSBOptimizerv4.h"
+#include "itkConjugateGradientLineSearchOptimizerv4.h"
+#include "itkOnePlusOneEvolutionaryOptimizerv4.h"
+#include "itkRegularStepGradientDescentOptimizerv4.h"
+#else
 #include "itkAmoebaOptimizer.h"
-#include "itkOnePlusOneEvolutionaryOptimizer.h"
 #include "itkLBFGSOptimizer.h"
 #include "itkLBFGSBOptimizer.h"
-#include "itkNormalVariateGenerator.h"
+#include "itkOnePlusOneEvolutionaryOptimizer.h"
+#include "itkRegularStepGradientDescentOptimizer.h"
+// These two are obsolete in v4
+#include "itkQuaternionRigidTransformGradientDescentOptimizer.h"
+#include "itkVersorRigid3DTransformOptimizer.h"
+// This does not exist in v4
 #include "itkFRPROptimizer.h"
-
+#endif
+#include "itkNormalVariateGenerator.h"
 
 #include "itk_optimizer.h"
 #include "itk_registration.h"
@@ -29,48 +39,66 @@
 #include "stage_parms.h"
 
 /* Types of optimizers */
-typedef itk::OnePlusOneEvolutionaryOptimizer      OnePlusOneOptimizerType;
-typedef itk::FRPROptimizer                        FRPROptimizerType;
-typedef itk::AmoebaOptimizer                      AmoebaOptimizerType;
-typedef itk::RegularStepGradientDescentOptimizer  RSGOptimizerType;
-typedef itk::VersorRigid3DTransformOptimizer      VersorOptimizerType;
-typedef itk::QuaternionRigidTransformGradientDescentOptimizer QuatOptimizerType;
+#if PLM_CONFIG_ITKV4_REGISTRATION
+using AmoebaOptimizerType = itk::AmoebaOptimizerv4;
+using LBFGSOptimizerType = itk::LBFGSOptimizerv4;
+using LBFGSBOptimizerType = itk::LBFGSBOptimizerv4;  // or LBFGSBOptimizerv4 ???
+using OnePlusOneOptimizerType = itk::OnePlusOneEvolutionaryOptimizerv4<double>;
+using RSGOptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+// These two are obsolete in v4 -- below is bridge code to be removed
+using VersorOptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+using QuatOptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+// This does not exist in v4 -- below is bridge code to be removed
+using FRPROptimizerType = itk::ConjugateGradientLineSearchOptimizerv4Template<double>;
+#else
+typedef itk::AmoebaOptimizer AmoebaOptimizerType;
 typedef itk::LBFGSOptimizer LBFGSOptimizerType;
 typedef itk::LBFGSBOptimizer LBFGSBOptimizerType;
+typedef itk::OnePlusOneEvolutionaryOptimizer OnePlusOneOptimizerType;
+typedef itk::RegularStepGradientDescentOptimizer RSGOptimizerType;
+// These two are obsolete in v4
+typedef itk::VersorRigid3DTransformOptimizer VersorOptimizerType;
+typedef itk::QuaternionRigidTransformGradientDescentOptimizer QuatOptimizerType;
+// This does not exist in v4
+typedef itk::FRPROptimizer FRPROptimizerType;
+#endif
 
 typedef itk::Statistics::NormalVariateGenerator  OptimizerNormalGeneratorType;
 
 void
 Itk_registration_private::optimizer_set_max_iterations (int its)
 {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    registration->GetOptimizer()->SetNumberOfIterations(its);
+#else
     if (stage->optim_type == OPTIMIZATION_AMOEBA) {
 	typedef AmoebaOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
         optimizer->SetMaximumNumberOfIterations(its);
     }
     else if (stage->optim_type == OPTIMIZATION_ONEPLUSONE) {
         typedef OnePlusOneOptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         optimizer->SetMaximumIteration(its);
     }
     else if (stage->optim_type == OPTIMIZATION_FRPR) {
         typedef FRPROptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         optimizer->SetMaximumIteration(its);
     }
     else if (stage->optim_type == OPTIMIZATION_RSG) {
 	typedef RSGOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	optimizer->SetNumberOfIterations(its);
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR) {
 	typedef VersorOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	optimizer->SetNumberOfIterations(its);
     }
     else if (stage->optim_type == OPTIMIZATION_QUAT) {
@@ -82,85 +110,93 @@ Itk_registration_private::optimizer_set_max_iterations (int its)
     else if (stage->optim_type == OPTIMIZATION_LBFGS) {
 	typedef LBFGSOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	optimizer->SetMaximumNumberOfFunctionEvaluations (its);
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGSB) {
 	typedef LBFGSBOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	optimizer->SetMaximumNumberOfIterations (its);
 	optimizer->SetMaximumNumberOfEvaluations (its);
     } else {
         print_and_exit ("Error: Unknown optimizer value.\n");
     }
+#endif
 }
 
 double
 Itk_registration_private::optimizer_get_value ()
 {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    return registration->GetOptimizer()->GetValue();
+#else
     if (stage->optim_type == OPTIMIZATION_AMOEBA) {
 	typedef AmoebaOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCachedValue();
     }
     else if (stage->optim_type == OPTIMIZATION_ONEPLUSONE) {
         typedef OnePlusOneOptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         return optimizer->GetValue();
     }
     else if (stage->optim_type == OPTIMIZATION_FRPR) {
         typedef FRPROptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         return optimizer->GetValue();
     }
     else if (stage->optim_type == OPTIMIZATION_RSG) {
 	typedef RSGOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetValue();
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR) {
 	typedef VersorOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetValue();
     }
     else if (stage->optim_type == OPTIMIZATION_QUAT) {
 	typedef QuatOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetValue();
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGS) {
 	typedef LBFGSOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCachedValue();
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGSB) {
 	typedef LBFGSBOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCachedValue();
     } else {
         print_and_exit ("Error: Unknown optimizer value.\n");
     }
+#endif
     return 0.0;        /* Suppress compiler warning */
 }
 
 double
 Itk_registration_private::optimizer_get_step_length ()
 {
-    if (stage->optim_type == OPTIMIZATION_AMOEBA) {
-#if defined (commentout)
-	typedef AmoebaOptimizerType * OptimizerPointer;
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    if (stage->optim_type == OPTIMIZATION_RSG) {
+	typedef RSGOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
-#endif
+            registration->GetOptimizer());
+	return optimizer->GetCurrentStepLength();
+    }
+#else
+    if (stage->optim_type == OPTIMIZATION_AMOEBA) {
 	return -1.0;
     }
     else if (stage->optim_type == OPTIMIZATION_ONEPLUSONE) {
@@ -169,45 +205,36 @@ Itk_registration_private::optimizer_get_step_length ()
     else if (stage->optim_type == OPTIMIZATION_FRPR) {
         typedef FRPROptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         return optimizer->GetStepLength();
     }
     else if (stage->optim_type == OPTIMIZATION_RSG) {
 	typedef RSGOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentStepLength();
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR) {
 	typedef VersorOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentStepLength();
     }
     else if (stage->optim_type == OPTIMIZATION_QUAT) {
-#if defined (commentout)
-	typedef QuatOptimizerType * OptimizerPointer;
-	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
-#endif
 	return -1.0;
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGS) {
-#if defined (commentout)
-	typedef LBFGSOptimizerType * OptimizerPointer;
-	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
-#endif
 	return -1.0;
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGSB) {
 	typedef LBFGSBOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetInfinityNormOfProjectedGradient();
     } else {
         print_and_exit ("Error: Unknown optimizer value.\n");
     }
+#endif
     return 0.0;        /* Suppress compiler warning */
 }
 
@@ -218,52 +245,52 @@ Itk_registration_private::optimizer_get_current_iteration ()
 #if defined (commentout)
 	typedef AmoebaOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 #endif
 	return -1;
     }
     if (stage->optim_type == OPTIMIZATION_ONEPLUSONE) {
         typedef OnePlusOneOptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         return optimizer->GetCurrentIteration();
     }
     else if (stage->optim_type == OPTIMIZATION_FRPR) {
         typedef FRPROptimizerType * OptimizerPointer;
         OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-                           registration->GetOptimizer());
+            registration->GetOptimizer());
         return optimizer->GetCurrentIteration();
     }
     else if (stage->optim_type == OPTIMIZATION_RSG) {
 	typedef RSGOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentIteration();
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR) {
 	typedef VersorOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentIteration();
     }
     else if (stage->optim_type == OPTIMIZATION_QUAT) {
 	typedef QuatOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentIteration();
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGS) {
 #if defined (commentout)
 	typedef LBFGSOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 #endif
 	return -1;
     }
     else if (stage->optim_type == OPTIMIZATION_LBFGSB) {
 	typedef LBFGSBOptimizerType * OptimizerPointer;
 	OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
-			   registration->GetOptimizer());
+            registration->GetOptimizer());
 	return optimizer->GetCurrentIteration();
     } else {
         print_and_exit ("Error: Unknown optimizer value.\n");
@@ -293,7 +320,13 @@ Itk_registration_private::optimizer_get_current_position ()
         return optimizer->GetCurrentPosition();
     }
     else if (stage->optim_type == OPTIMIZATION_RSG) {
+        typedef RSGOptimizerType * OptimizerPointer;
+        OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >(
+            registration->GetOptimizer());
+        return optimizer->GetCurrentPosition();
+#if defined (commentout)
         return registration->GetTransform()->GetParameters();
+#endif
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR) {
 	typedef VersorOptimizerType * OptimizerPointer;
@@ -327,6 +360,9 @@ Itk_registration_private::optimizer_get_current_position ()
 void
 Itk_registration_private::optimizer_stop ()
 {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    optimizer_set_max_iterations (0);
+#else
     /* calling StopOptimization() doesn't always stop 
        optimization */
     if (stage->optim_type == OPTIMIZATION_RSG) {
@@ -339,6 +375,7 @@ Itk_registration_private::optimizer_stop ()
     } else {
         optimizer_set_max_iterations (1);
     }
+#endif
 }
 
 void
@@ -348,16 +385,26 @@ set_optimization_amoeba (RegistrationType::Pointer registration,
     AmoebaOptimizerType::Pointer optimizer = AmoebaOptimizerType::New();
     optimizer->SetParametersConvergenceTolerance(stage->amoeba_parameter_tol);
     optimizer->SetFunctionConvergenceTolerance(stage->convergence_tol);  // Was 10000
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    optimizer->SetNumberOfIterations(stage->max_its);
+#else
     optimizer->SetMaximumNumberOfIterations(stage->max_its);
+#endif
     registration->SetOptimizer(optimizer);
 }
 
 void
 set_optimization_rsg (RegistrationType::Pointer registration, 
-		      Stage_parms* stage)
+    Stage_parms* stage)
 {
     RSGOptimizerType::Pointer optimizer = RSGOptimizerType::New();
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    // Not sure.  Maybe SetMaximumStepSizeInPhysicalUnits(), but it would be
+    // desirable to update automatic parameter scales.
+    optimizer->SetLearningRate(stage->max_step);
+#else
     optimizer->SetMaximumStepLength(stage->max_step);
+#endif
     optimizer->SetMinimumStepLength(stage->min_step);
     optimizer->SetNumberOfIterations(stage->max_its);
     optimizer->SetGradientMagnitudeTolerance (stage->rsg_grad_tol);
@@ -370,56 +417,73 @@ set_optimization_oneplusone (
     RegistrationType::Pointer registration,
     Stage_parms* stage)
 {
-  OnePlusOneOptimizerType::Pointer optimizer = OnePlusOneOptimizerType::New();
-  optimizer->SetNormalVariateGenerator(OptimizerNormalGeneratorType::New() );
-  optimizer->SetMaximumIteration(stage->max_its);
-  optimizer->SetEpsilon(stage->opo_epsilon);
-  optimizer->Initialize(stage->opo_initial_search_rad); // Initial search radius
-  registration->SetOptimizer(optimizer);
+    OnePlusOneOptimizerType::Pointer optimizer = OnePlusOneOptimizerType::New();
+    optimizer->SetNormalVariateGenerator(OptimizerNormalGeneratorType::New() );
+    optimizer->SetMaximumIteration(stage->max_its);
+    optimizer->SetEpsilon(stage->opo_epsilon);
+    optimizer->Initialize(stage->opo_initial_search_rad); // Initial search radius
+    registration->SetOptimizer(optimizer);
 }
 
 
 void
 set_optimization_frpr(RegistrationType::Pointer registration,
-                           Stage_parms* stage)
+    Stage_parms* stage)
 {
-  FRPROptimizerType::Pointer optimizer = FRPROptimizerType::New();
-  optimizer->SetMaximize(false);
-  optimizer->SetStepLength(5);
-  optimizer->SetStepTolerance(stage->frpr_step_tol);
-  optimizer->SetMaximumIteration(stage->max_its);
-  optimizer->SetMaximumLineIteration(stage->frpr_max_line_its);
-  registration->SetOptimizer(optimizer);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    FRPROptimizerType::Pointer optimizer = FRPROptimizerType::New();
+    // Not sure how to set these...
+    // optimizer->SetStepLength(5);
+    // optimizer->SetStepTolerance(stage->frpr_step_tol);
+    optimizer->SetNumberOfIterations(stage->max_its);
+    optimizer->SetMaximumLineSearchIterations(stage->frpr_max_line_its);
+    registration->SetOptimizer(optimizer);
+#else
+    FRPROptimizerType::Pointer optimizer = FRPROptimizerType::New();
+    optimizer->SetMaximize(false);
+    optimizer->SetStepLength(5);
+    optimizer->SetStepTolerance(stage->frpr_step_tol);
+    optimizer->SetMaximumIteration(stage->max_its);
+    optimizer->SetMaximumLineIteration(stage->frpr_max_line_its);
+    registration->SetOptimizer(optimizer);
+#endif
 }
 
 void
 set_optimization_versor (RegistrationType::Pointer registration, 
-			 Stage_parms* stage)
+    Stage_parms* stage)
 {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    set_optimization_rsg (registration, stage);
+#else
     VersorOptimizerType::Pointer optimizer = VersorOptimizerType::New();
     optimizer->SetMaximumStepLength(stage->max_step);
     optimizer->SetMinimumStepLength(stage->min_step);
     optimizer->SetNumberOfIterations(stage->max_its);
     optimizer->SetGradientMagnitudeTolerance (stage->rsg_grad_tol);
-
     registration->SetOptimizer(optimizer);
+#endif
 }
 
 void
 set_optimization_quat (RegistrationType::Pointer registration, 
     Stage_parms* stage)
 {
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    set_optimization_rsg (registration, stage);
+#else
     QuatOptimizerType::Pointer optimizer = QuatOptimizerType::New();
     optimizer->SetLearningRate(stage->learn_rate);
     lprintf ("Learning Rate was set to : %f\n", 
         optimizer->GetLearningRate());
     optimizer->SetNumberOfIterations(stage->max_its);
     registration->SetOptimizer(optimizer);
+#endif
 }
 
 void
 set_optimization_lbfgs (RegistrationType::Pointer registration, 
-			 Stage_parms* stage)
+    Stage_parms* stage)
 {
     LBFGSOptimizerType::Pointer optimizer = LBFGSOptimizerType::New();
     
@@ -439,7 +503,7 @@ set_optimization_lbfgs (RegistrationType::Pointer registration,
 
 void
 set_optimization_lbfgsb (RegistrationType::Pointer registration, 
-			 Stage_parms* stage)
+    Stage_parms* stage)
 {
     LBFGSBOptimizerType::Pointer optimizer = LBFGSBOptimizerType::New();
 
@@ -461,9 +525,15 @@ set_optimization_lbfgsb (RegistrationType::Pointer registration,
     /* GCS FIX: I think this is right for # of evaluations.  Not at all sure 
        about # of corrections or cost fn convergence factor. */
     optimizer->SetCostFunctionConvergenceFactor (1e+7);
+#if PLM_CONFIG_ITKV4_REGISTRATION
+    optimizer->SetGradientConvergenceTolerance (stage->pgtol);
+    optimizer->SetNumberOfIterations (stage->max_its);
+    optimizer->SetMaximumNumberOfFunctionEvaluations (2 * stage->max_its);
+#else
     optimizer->SetProjectedGradientTolerance (stage->pgtol);
     optimizer->SetMaximumNumberOfIterations (stage->max_its);
     optimizer->SetMaximumNumberOfEvaluations (2 * stage->max_its);
+#endif
     optimizer->SetMaximumNumberOfCorrections (5);
 
     registration->SetOptimizer(optimizer);
@@ -471,7 +541,7 @@ set_optimization_lbfgsb (RegistrationType::Pointer registration,
 
 void
 set_optimization_scales_translation (RegistrationType::Pointer registration, 
-				     Stage_parms* stage)
+    Stage_parms* stage)
 {
     itk::Array<double> optimizerScales(3);
 
@@ -539,7 +609,7 @@ set_optimization_scales_quaternion (
 
 void
 set_optimization_scales_affine (RegistrationType::Pointer registration, 
-				Stage_parms* stage)
+    Stage_parms* stage)
 {
     itk::Array<double> optimizerScales(12);
 
@@ -565,7 +635,7 @@ set_optimization_scales_affine (RegistrationType::Pointer registration,
 
 void
 set_optimization_scales_similarity (RegistrationType::Pointer registration,
-                Stage_parms* stage)
+    Stage_parms* stage)
 {
     itk::Array<double> optimizerScales(7);
 
@@ -593,8 +663,8 @@ Itk_registration_private::set_optimization ()
     }
     else if (stage->optim_type == OPTIMIZATION_VERSOR
 	&& (stage->xform_type == STAGE_TRANSFORM_TRANSLATION
-        || stage->xform_type == STAGE_TRANSFORM_AFFINE
-        || stage->xform_type == STAGE_TRANSFORM_SIMILARITY))
+            || stage->xform_type == STAGE_TRANSFORM_AFFINE
+            || stage->xform_type == STAGE_TRANSFORM_SIMILARITY))
     {
 	stage->optim_type = OPTIMIZATION_RSG;
     }
@@ -610,11 +680,11 @@ Itk_registration_private::set_optimization ()
 	set_optimization_amoeba(registration,stage);
 	break;
     case OPTIMIZATION_ONEPLUSONE:
-    set_optimization_oneplusone(registration,stage);
-    break;
+        set_optimization_oneplusone(registration,stage);
+        break;
     case OPTIMIZATION_FRPR:
-    set_optimization_frpr(registration,stage);
-    break;
+        set_optimization_frpr(registration,stage);
+        break;
     case OPTIMIZATION_RSG:
 	set_optimization_rsg(registration,stage);
 	break;
@@ -648,8 +718,8 @@ Itk_registration_private::set_optimization ()
 	set_optimization_scales_affine (registration, stage);
 	break;
     case STAGE_TRANSFORM_SIMILARITY:
-    set_optimization_scales_similarity (registration, stage);
-    break;
+        set_optimization_scales_similarity (registration, stage);
+        break;
     case STAGE_TRANSFORM_BSPLINE:
 	/* LBFGS/LBFGSB only. No optimizer scales. */
 	break;

@@ -1,8 +1,45 @@
 ******************************************************************************
-Structure to structure registration
+ITK Registration v4
 
-moving[1]
+Overview: The v4 registration framework is an improvement over the ITK v2/v3
+registration framework.  Important improvements are:
+- Deformation fields are now transforms
+- Composite transforms
+- MultiMetric
 
+Is anything lost using v4?  Possibly?
+- Extra step using fixed image interpolater not often needed
+- No more FRPROptimizer
+  - Substitute ConjugateGradientLineSearchOptimizerv4Template
+- No more MutualInformationImageToImageMetric
+  - Substitute JointHistogramMutualInformationImageToImageMetricv4
+- No more NormalizedMutualInformationHistogramImageToImageMetric
+  - Do either of the other metrics support normalization?
+
+How to take advantage (in order of priority)
+- Upgrade existing ITK methods to v4 framework (!)
+- Implement Composite transform
+
+Implementing plm with registration v4 framework
+- itk::ImageRegistrationMethodv4
+	- Not a great fit for multi-metric registration
+- itk::ImageToImageMetricv4
+	- A metric for two images.
+	  Potentially could be used, but the approach is rather different than
+	  the existing PLM implementation in that the transform is not available.
+	  The LUT would need to go into a new Transform class.
+- itk::ObjectToObjectMetricBaseTemplate
+- itk::ObjectToObjectMultiMetricv4
+	- Potentially useful for organizing a collection of metrics
+- itk::PointSetToPointSetMetricWithIndexv4
+	- Potentially useful for landmark to landmark matching
+- itk::CompositeTransform
+	- Seems very useful
+
+References
+https://itk.org/Wiki/ITK/Release_4/Why_Switch_to_ITKv4
+https://itk.org/Wiki/ITK_Release_4/Migration_Plan/Release_Notes/ITKv4_Final_Release_Notes
+https://github.com/InsightSoftwareConsortium/ITK/blob/master/Documentation/ITK5MigrationGuide.md
 
 ******************************************************************************
 ITK Demons
