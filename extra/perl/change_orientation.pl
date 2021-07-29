@@ -6,6 +6,7 @@ use File::Find;
 $push_to_mim = 0;
 $overwrite_for = 1;
 $overwrite_study = 1;
+$overwrite_series = 1;
 $dob_empty = 0;
 $sex_empty = 0;
 
@@ -22,16 +23,18 @@ $keep_referenced_uid = 0;
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommissSRS_BB";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_pg_hfs";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_01";
-$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_05";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_05";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_08";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_tt000_v2";
+$dicom_dir = "/PHShome/gcs6/shared/ge-sucks/my-input";
 
 $new_name = "";
 $new_id = "";
 $new_birth_date = "";
 $new_sex = "";
 $new_series_description = "";
+
 
 # $new_name = "LPcom_01^PBS";
 # $new_id = "LPcom_01";
@@ -161,6 +164,8 @@ $overwrite_for_uid = `dicom_uid`;
 chomp($overwrite_for_uid);
 $overwrite_study_uid = `dicom_uid`;
 chomp($overwrite_study_uid);
+$overwrite_series_uid = `dicom_uid`;
+chomp($overwrite_series_uid);
 
 %uid_map = {};
 
