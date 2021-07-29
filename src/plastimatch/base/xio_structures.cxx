@@ -49,6 +49,8 @@ add_cms_contournames (Rtss *rtss, const char *filename)
     }
     if (xio_version == 0x00061027) {
 	skip_lines = 5;
+    } else if (xio_version == 0x00071027) {
+        skip_lines = 7;
     }
 
     /* Skip line */
