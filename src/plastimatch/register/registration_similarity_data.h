@@ -16,6 +16,7 @@ public:
     SMART_POINTER_SUPPORT (Registration_similarity_data);
 public:
     Labeled_pointset::Pointer fixed_pointset;
+    Labeled_pointset::Pointer moving_pointset;
     Plm_image::Pointer fixed;
     Plm_image::Pointer moving;
     Plm_image::Pointer fixed_roi;

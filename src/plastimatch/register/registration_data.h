@@ -57,6 +57,9 @@ public:
         const Plm_image::Pointer& image);
     void set_fixed_pointset (const std::string& index,
         const Labeled_pointset::Pointer& image);
+    void set_moving_pointset (const std::string& index,
+        const Labeled_pointset::Pointer& image);
+
     void set_moving_image (const Plm_image::Pointer& image);
     void set_moving_image (const std::string& index,
         const Plm_image::Pointer& image);

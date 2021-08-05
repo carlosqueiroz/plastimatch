@@ -73,25 +73,47 @@ Registration_data::load_shared_input_files (const Shared_parms* shared)
         if (mp.moving_fn == "") {
             continue;
         }
-        
         /* Load images */
         Plm_file_format fixed_format = plm_file_format_deduce (mp.fixed_fn);
         if (fixed_format == PLM_FILE_FMT_POINTSET) {
-            logfile_printf ("Loading fixed pointset [%s]: %s\n", 
+	    if (index == "landmarks") {
+		    logfile_printf ("Loading fixed landmarks: %s\n",
+                    mp.fixed_fn.c_str());
+		    fixed_landmarks = new Labeled_pointset;
+		    fixed_landmarks->load_fcsv (
+                    mp.fixed_fn.c_str());
+	    } else {
+            logfile_printf ("Loading fixed pointset [%s]: %s\n",
                 index.c_str(), mp.fixed_fn.c_str());
             this->set_fixed_pointset (index,
                 Labeled_pointset::New (mp.fixed_fn));
-        } else {
-            logfile_printf ("Loading fixed image [%s]: %s\n", 
+        }} else {
+            logfile_printf ("Loading fixed image [%s]: %s\n",
                 index.c_str(), mp.fixed_fn.c_str());
             this->set_fixed_image (index,
                 Plm_image::New (mp.fixed_fn, PLM_IMG_TYPE_ITK_FLOAT));
         }
-        logfile_printf ("Loading moving image [%s]: %s\n", 
+	Plm_file_format moving_format = plm_file_format_deduce (mp.moving_fn);
+        if (moving_format == PLM_FILE_FMT_POINTSET) {
+		if (index == "landmarks") {
+			logfile_printf ("Loading moving landmarks: %s\n",
+			mp.moving_fn.c_str());
+			moving_landmarks = new Labeled_pointset;
+			moving_landmarks->load_fcsv (
+			mp.moving_fn.c_str());
+		}
+		else {
+            logfile_printf ("Loading moving pointset [%s]: %s\n",
+                index.c_str(), mp.moving_fn.c_str());
+            this->set_moving_pointset (index,
+                Labeled_pointset::New (mp.moving_fn));
+        }} else {
+	logfile_printf ("Loading moving image [%s]: %s\n",
             index.c_str(), mp.moving_fn.c_str());
         this->set_moving_image (index,
             Plm_image::New (mp.moving_fn, PLM_IMG_TYPE_ITK_FLOAT));
-        /* Load rois */
+	}
+	/* Load rois */
         if (mp.fixed_roi_fn != "") {
             logfile_printf ("Loading fixed roi [%s]: %s\n", 
                 index.c_str(), mp.fixed_roi_fn.c_str());
@@ -179,6 +201,14 @@ Registration_data::set_fixed_pointset (
     const Labeled_pointset::Pointer& pointset)
 {
     this->get_similarity_images(index)->fixed_pointset = pointset;
+}
+
+void
+Registration_data::set_moving_pointset (
+    const std::string& index,
+    const Labeled_pointset::Pointer& pointset)
+{
+    this->get_similarity_images(index)->moving_pointset = pointset;
 }
 
 void
