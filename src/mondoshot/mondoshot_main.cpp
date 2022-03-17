@@ -9,6 +9,7 @@
 #include <wx/window.h>
 #include <wx/filename.h>
 #include <wx/fileconf.h>
+#include <wx/fswatcher.h>
 #include "mondoshot_main.h"
 #include "sqlite3.h"
 #include "plm_version.h"
@@ -21,6 +22,7 @@ struct sqlite_populate_cbstruct {
 
 void sqlite_patients_query (MyFrame* frame);
 void sqlite_patients_insert_record (wxString patient_id, wxString patient_name);
+void poll_file_system_if_requested();
 void config_initialize ();
 void config_save (void);
 
@@ -65,9 +67,9 @@ popup (char* fmt, ...)
     va_start (argptr, fmt);
 
     wxMessageBox (
-	wxString::FormatV (fmt, argptr), 
-	wxT("Mondoshot"), 
-	wxOK | wxICON_INFORMATION);
+        wxString::FormatV (fmt, argptr), 
+        _("Mondoshot"),
+        wxOK | wxICON_INFORMATION);
 
     va_end (argptr);
 }
@@ -93,11 +95,17 @@ MyApp::OnInit ()
     config_initialize ();
 
     /* Create and initialize main window */
-    MyFrame* frame = new MyFrame( wxT("Mondoshot"), wxPoint(-1,-1), wxSize(600,500));
-    frame->OnInit ();
-    SetTopWindow (frame);
+    m_frame = new MyFrame( _("Mondoshot"), wxPoint(-1,-1), wxSize(600,500));
+    m_frame->OnInit ();
+    SetTopWindow (m_frame);
 
     return true;
+}
+
+void MyApp::OnEventLoopEnter(wxEventLoopBase* loop)
+{
+    /* The documentation says this should not be created before the event loop starts. */
+    m_frame->CreatePoller();
 }
 
 void
@@ -110,7 +118,9 @@ MyApp::OnQueryEndSession (wxCloseEvent& event)
 int
 MyApp::OnExit ()
 {
-    delete m_checker;
+    if (m_checker) {
+        delete m_checker;
+    }
     return 0;
 }
 
@@ -120,22 +130,24 @@ MyApp::OnExit ()
 MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame((wxFrame *)NULL, -1, title, pos, size)
 {
+    m_poller = 0;
+
     wxMenuBar *menuBar = new wxMenuBar;
     wxMenu *menuFile = new wxMenu;
 
-    menuFile->Append (ID_MENU_SETTINGS, wxT("&Settings..."));
+    menuFile->Append (ID_MENU_SETTINGS, _("&Settings..."));
     menuFile->AppendSeparator ();
-    menuFile->Append (ID_MENU_ABOUT, wxT("&About..."));
+    menuFile->Append (ID_MENU_ABOUT, _("&About..."));
     menuFile->AppendSeparator ();
-    menuFile->Append (ID_MENU_QUIT, wxT("E&xit"));
-    menuBar->Append (menuFile, wxT("&File"));
+    menuFile->Append (ID_MENU_QUIT, _("E&xit"));
+    menuBar->Append (menuFile, _("&File"));
     this->SetMenuBar (menuBar);
 
     m_panel = new wxPanel (this, -1);
 
-    wxButton *send_portal = new wxButton (m_panel, ID_BUTTON_SEND_PORTAL, wxT("Send Portal"));
-    wxButton *send_screenshot = new wxButton (m_panel, ID_BUTTON_SEND_SCREENSHOT, wxT("Send Screenshot"));
-    wxButton *cancel = new wxButton (m_panel, ID_BUTTON_CANCEL, wxT("Cancel"));
+    wxButton *send_portal = new wxButton (m_panel, ID_BUTTON_SEND_PORTAL, _("Send Portal"));
+    wxButton *send_screenshot = new wxButton (m_panel, ID_BUTTON_SEND_SCREENSHOT, _("Send Screenshot"));
+    wxButton *cancel = new wxButton (m_panel, ID_BUTTON_CANCEL, _("Cancel"));
 
     wxBoxSizer *vbox = new wxBoxSizer (wxVERTICAL);
     wxFlexGridSizer *fgs = new wxFlexGridSizer (2, 2, 9, 25);
@@ -143,8 +155,8 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
     wxBoxSizer *hbox2 = new wxBoxSizer (wxHORIZONTAL);
     wxBoxSizer *hbox3 = new wxBoxSizer (wxHORIZONTAL);
 
-    wxStaticText *label_patient_id =  new wxStaticText (m_panel, wxID_ANY, wxT("Patient ID"));
-    wxStaticText *label_patient_name =  new wxStaticText (m_panel, wxID_ANY, wxT("Patient Name"));
+    wxStaticText *label_patient_id =  new wxStaticText (m_panel, wxID_ANY, _("Patient ID"));
+    wxStaticText *label_patient_name =  new wxStaticText (m_panel, wxID_ANY, _("Patient Name"));
     this->m_textctrl_patient_id = new wxTextCtrl (m_panel, ID_TEXTCTRL_PATIENT_ID);
     this->m_textctrl_patient_name = new wxTextCtrl (m_panel, ID_TEXTCTRL_PATIENT_NAME);
 
@@ -163,15 +175,15 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxDefaultSize,
 	wxLC_REPORT | wxLC_SINGLE_SEL | wxSUNKEN_BORDER | wxLC_EDIT_LABELS);
     wxListItem itemCol;
-    itemCol.SetText (_T("Patient ID"));
+    itemCol.SetText (_("Patient ID"));
     itemCol.SetAlign (wxLIST_FORMAT_LEFT);
     this->m_listctrl_patients->InsertColumn (0, itemCol);
 
-    itemCol.SetText (_T("Patient Name"));
+    itemCol.SetText (_("Patient Name"));
     itemCol.SetAlign (wxLIST_FORMAT_LEFT);
     this->m_listctrl_patients->InsertColumn (1, itemCol);
 
-    itemCol.SetText (_T("Latest Image"));
+    itemCol.SetText (_("Latest Image"));
     itemCol.SetAlign (wxLIST_FORMAT_LEFT);
     this->m_listctrl_patients->InsertColumn (2, itemCol);
 
@@ -202,10 +214,24 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
     this->m_panel->SetSizer (vbox);
 }
 
+void MyFrame::CreatePoller()
+{
+    if (!m_poller) {
+        m_poller = new wxFileSystemWatcher;
+        m_poller->SetOwner(this);
+        Bind(wxEVT_FSWATCHER, &MyFrame::OnFileSystemEvent, this);
+    }
+}
+
+void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
+{
+    popup("Got a FS event!");
+}
+
 void MyFrame::OnMenuAbout (wxCommandEvent& WXUNUSED(event))
 {
-    wxMessageBox (wxT("Mondoshot Version " PLASTIMATCH_VERSION_STRING "   "),
-        wxT("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox (_("Mondoshot Version " PLASTIMATCH_VERSION_STRING "   "),
+        _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
 }
 
 void MyFrame::OnMenuSettings (wxCommandEvent& WXUNUSED(event))
@@ -231,10 +257,10 @@ MyFrame::OnWindowClose (wxCloseEvent& event)
     //popup ("Event type = %d (%d)", event.GetEventType(), wxEVT_CLOSE_WINDOW);
     if (event.GetEventType() == wxEVT_CLOSE_WINDOW && event.CanVeto ()) {
 	/* Hide dialog box */
-	this->Show (FALSE);
-	event.Veto ();
+        this->Show (FALSE);
+        event.Veto ();
     } else {
-	this->Destroy ();
+        this->Destroy ();
     }
 }
 
@@ -256,14 +282,14 @@ MyFrame::OnButtonSend (wxCommandEvent& event)
     /* Validate input fields */
     patient_name = this->m_textctrl_patient_name->GetValue ();
     if (patient_name.IsEmpty ()) {
-	wxMessageBox (wxT("Please enter a patient name"),
-	    wxT("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
+	wxMessageBox (_("Please enter a patient name"),
+	    _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
 	return;
     }
     patient_id = this->m_textctrl_patient_id->GetValue ();
     if (patient_id.IsEmpty ()) {
-	wxMessageBox (wxT("Please enter a patient id"),
-	    wxT("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
+	wxMessageBox (_("Please enter a patient id"),
+	    _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
 	return;
     }
 
@@ -524,27 +550,29 @@ MyListCtrl::OnSelected (wxListEvent& event)
    Config_dialog
    ----------------------------------------------------------------------- */
 Config_dialog::Config_dialog (wxWindow *parent)
-    : wxDialog(parent, wxID_ANY, wxString(_T("Mondoshot Configuration")))
+    : wxDialog(parent, wxID_ANY, wxString(_("Mondoshot Configuration")))
 {
     wxBoxSizer *vbox = new wxBoxSizer (wxVERTICAL);
     wxFlexGridSizer *edit_sizer = new wxFlexGridSizer (5, 2, 9, 25);
-    wxBoxSizer *capture_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* polling_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxFlexGridSizer* polling_edit_sizer = new wxFlexGridSizer(1, 2, 9, 25);
+    wxBoxSizer* capture_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
     wxFlexGridSizer *capture_roi_sizer = new wxFlexGridSizer (2, 4, 9, 25);
     wxBoxSizer *white_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
     wxFlexGridSizer *white_roi_sizer = new wxFlexGridSizer (2, 4, 9, 25);
     wxBoxSizer *button_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     /* Edit fields at top */
-    wxStaticText *label_remote_ip =  new wxStaticText (this, wxID_ANY, wxT("Dicom Remote IP"));
-    wxStaticText *label_remote_port =  new wxStaticText (this, wxID_ANY, wxT("Dicom Remote Port"));
-    wxStaticText *label_remote_aet =  new wxStaticText (this, wxID_ANY, wxT("Dicom Remote AET"));
-    wxStaticText *label_local_aet =  new wxStaticText (this, wxID_ANY, wxT("Dicom Local AET"));
-    wxStaticText *label_data_directory =  new wxStaticText (this, wxID_ANY, wxT("Local data directory"));
-    this->m_textctrl_remote_ip = new wxTextCtrl (this, wxID_ANY, _T(""));
+    wxStaticText *label_remote_ip =  new wxStaticText (this, wxID_ANY, _("Dicom Remote IP"));
+    wxStaticText *label_remote_port =  new wxStaticText (this, wxID_ANY, _("Dicom Remote Port"));
+    wxStaticText *label_remote_aet =  new wxStaticText (this, wxID_ANY, _("Dicom Remote AET"));
+    wxStaticText *label_local_aet =  new wxStaticText (this, wxID_ANY, _("Dicom Local AET"));
+    wxStaticText* label_data_directory = new wxStaticText(this, wxID_ANY, _("Local data directory"));
+    this->m_textctrl_remote_ip = new wxTextCtrl (this, wxID_ANY, _(""));
     this->m_textctrl_remote_port = new wxTextCtrl (this, wxID_ANY);
     this->m_textctrl_remote_aet = new wxTextCtrl (this, wxID_ANY);
     this->m_textctrl_local_aet = new wxTextCtrl (this, wxID_ANY);
-    this->m_textctrl_data_directory = new wxTextCtrl (this, wxID_ANY, _T(""), wxDefaultPosition, wxSize(200, wxDefaultCoord));
+    this->m_textctrl_data_directory = new wxTextCtrl(this, wxID_ANY, _(""), wxDefaultPosition, wxSize(200, wxDefaultCoord));
     edit_sizer->Add (label_remote_ip);
     edit_sizer->Add (m_textctrl_remote_ip, 1, wxEXPAND);
     edit_sizer->Add (label_remote_port);
@@ -553,24 +581,34 @@ Config_dialog::Config_dialog (wxWindow *parent)
     edit_sizer->Add (m_textctrl_remote_aet, 1, wxEXPAND);
     edit_sizer->Add (label_local_aet);
     edit_sizer->Add (m_textctrl_local_aet, 1, wxEXPAND);
-    edit_sizer->Add (label_data_directory);
-    edit_sizer->Add (m_textctrl_data_directory, 1, wxEXPAND);
+    edit_sizer->Add(label_data_directory);
+    edit_sizer->Add(m_textctrl_data_directory, 1, wxEXPAND);
     edit_sizer->AddGrowableCol (1, 1);
     edit_sizer->Layout ();
 
+    /* Polling checkbox */
+    m_polling_checkbox = new wxCheckBox(this, wxID_ANY, _("Poll directory for images"));
+    polling_checkbox_sizer->Add(m_polling_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
+
+    /* Polling edit */
+    wxStaticText* label_polling_directory = new wxStaticText(this, wxID_ANY, _("Image polling directory"));
+    this->m_textctrl_polling_directory = new wxTextCtrl(this, wxID_ANY, _(""), wxDefaultPosition, wxSize(200, wxDefaultCoord));
+    polling_edit_sizer->Add(label_polling_directory);
+    polling_edit_sizer->Add(m_textctrl_polling_directory, 1, wxEXPAND);
+
     /* Capture checkbox */
-    m_capture_checkbox =  new wxCheckBox (this, wxID_ANY, wxT("Limit capture to region"));
+    m_capture_checkbox =  new wxCheckBox (this, wxID_ANY, _("Limit capture to region"));
     capture_checkbox_sizer->Add (m_capture_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
     
     /* Capture ROI */
-    wxStaticText *label_capture_roi_cmin =  new wxStaticText (this, wxID_ANY, wxT("Col min"));
-    wxStaticText *label_capture_roi_cmax =  new wxStaticText (this, wxID_ANY, wxT("Col max"));
-    wxStaticText *label_capture_roi_rmin =  new wxStaticText (this, wxID_ANY, wxT("Row min"));
-    wxStaticText *label_capture_roi_rmax =  new wxStaticText (this, wxID_ANY, wxT("Row max"));
-    this->m_textctrl_capture_roi_cmin = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_capture_roi_cmax = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_capture_roi_rmin = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_capture_roi_rmax = new wxTextCtrl (this, wxID_ANY, _T(""));
+    wxStaticText *label_capture_roi_cmin =  new wxStaticText (this, wxID_ANY, _("Col min"));
+    wxStaticText *label_capture_roi_cmax =  new wxStaticText (this, wxID_ANY, _("Col max"));
+    wxStaticText *label_capture_roi_rmin =  new wxStaticText (this, wxID_ANY, _("Row min"));
+    wxStaticText *label_capture_roi_rmax =  new wxStaticText (this, wxID_ANY, _("Row max"));
+    this->m_textctrl_capture_roi_cmin = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_capture_roi_cmax = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_capture_roi_rmin = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_capture_roi_rmax = new wxTextCtrl (this, wxID_ANY, _(""));
     capture_roi_sizer->Add (label_capture_roi_cmin);
     capture_roi_sizer->Add (m_textctrl_capture_roi_cmin, 1, wxEXPAND);
     capture_roi_sizer->Add (label_capture_roi_cmax);
@@ -581,18 +619,18 @@ Config_dialog::Config_dialog (wxWindow *parent)
     capture_roi_sizer->Add (m_textctrl_capture_roi_rmax, 1, wxEXPAND);
     
     /* Whiting checkbox */
-    m_white_checkbox =  new wxCheckBox (this, wxID_ANY, wxT("Convert colors to white"));
+    m_white_checkbox =  new wxCheckBox (this, wxID_ANY, _("Convert colors to white"));
     white_checkbox_sizer->Add (m_white_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
     
     /* Whitening ROI */
-    wxStaticText *label_white_roi_cmin =  new wxStaticText (this, wxID_ANY, wxT("Col min"));
-    wxStaticText *label_white_roi_cmax =  new wxStaticText (this, wxID_ANY, wxT("Col max"));
-    wxStaticText *label_white_roi_rmin =  new wxStaticText (this, wxID_ANY, wxT("Row min"));
-    wxStaticText *label_white_roi_rmax =  new wxStaticText (this, wxID_ANY, wxT("Row max"));
-    this->m_textctrl_white_roi_cmin = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_white_roi_cmax = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_white_roi_rmin = new wxTextCtrl (this, wxID_ANY, _T(""));
-    this->m_textctrl_white_roi_rmax = new wxTextCtrl (this, wxID_ANY, _T(""));
+    wxStaticText *label_white_roi_cmin =  new wxStaticText (this, wxID_ANY, _("Col min"));
+    wxStaticText *label_white_roi_cmax =  new wxStaticText (this, wxID_ANY, _("Col max"));
+    wxStaticText *label_white_roi_rmin =  new wxStaticText (this, wxID_ANY, _("Row min"));
+    wxStaticText *label_white_roi_rmax =  new wxStaticText (this, wxID_ANY, _("Row max"));
+    this->m_textctrl_white_roi_cmin = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_white_roi_cmax = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_white_roi_rmin = new wxTextCtrl (this, wxID_ANY, _(""));
+    this->m_textctrl_white_roi_rmax = new wxTextCtrl (this, wxID_ANY, _(""));
     white_roi_sizer->Add (label_white_roi_cmin);
     white_roi_sizer->Add (m_textctrl_white_roi_cmin, 1, wxEXPAND);
     white_roi_sizer->Add (label_white_roi_cmax);
@@ -603,8 +641,8 @@ Config_dialog::Config_dialog (wxWindow *parent)
     white_roi_sizer->Add (m_textctrl_white_roi_rmax, 1, wxEXPAND);
     
     /* Buttons at bottom */
-    m_button_save = new wxButton (this, wxID_ANY, _T("&Save"));
-    m_button_cancel = new wxButton (this, wxID_CANCEL, _T("&Cancel"));
+    m_button_save = new wxButton (this, wxID_ANY, _("&Save"));
+    m_button_cancel = new wxButton (this, wxID_CANCEL, _("&Cancel"));
     button_sizer->Add (m_button_save, 0, wxALIGN_CENTER | wxALL, 5);
     button_sizer->Add (m_button_cancel, 0, wxALIGN_CENTER | wxALL, 5);
 
@@ -613,7 +651,9 @@ Config_dialog::Config_dialog (wxWindow *parent)
     m_textctrl_remote_port->SetValue (::config.remote_port);
     m_textctrl_remote_aet->SetValue (::config.remote_aet);
     m_textctrl_local_aet->SetValue (::config.local_aet);
-    m_textctrl_data_directory->SetValue (::config.data_directory);
+    m_textctrl_data_directory->SetValue(::config.data_directory);
+    m_polling_checkbox->SetValue(::config.polling_checkbox);
+    m_textctrl_polling_directory->SetValue(::config.polling_directory);
     m_capture_checkbox->SetValue (::config.capture_checkbox);
     m_textctrl_capture_roi_cmin->SetValue (::config.capture_roi_cmin);
     m_textctrl_capture_roi_cmax->SetValue (::config.capture_roi_cmax);
@@ -627,8 +667,10 @@ Config_dialog::Config_dialog (wxWindow *parent)
 
     /* Sizer stuff */
     vbox->Add (edit_sizer, 0, wxALL | wxEXPAND, 15);
-    vbox->Add (capture_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
-    vbox->Add (capture_roi_sizer, 0, wxALL | wxEXPAND, 10);
+    vbox->Add(polling_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
+    vbox->Add(polling_edit_sizer, 0, wxALL | wxEXPAND, 10);
+    vbox->Add(capture_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
+    vbox->Add(capture_roi_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add (white_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add (white_roi_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add (button_sizer, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 10);
@@ -648,7 +690,9 @@ void Config_dialog::OnButton (wxCommandEvent& event)
         ::config.remote_port = m_textctrl_remote_port->GetValue ();
         ::config.remote_aet = m_textctrl_remote_aet->GetValue ();
         ::config.local_aet = m_textctrl_local_aet->GetValue ();
-        ::config.data_directory = m_textctrl_data_directory->GetValue ();
+        ::config.data_directory = m_textctrl_data_directory->GetValue();
+        ::config.polling_checkbox = m_polling_checkbox->GetValue();
+        ::config.polling_directory = m_textctrl_polling_directory->GetValue();
         ::config.capture_checkbox = m_capture_checkbox->GetValue ();
         ::config.capture_roi_cmin = m_textctrl_capture_roi_cmin->GetValue ();
         ::config.capture_roi_cmax = m_textctrl_capture_roi_cmax->GetValue ();
@@ -661,12 +705,31 @@ void Config_dialog::OnButton (wxCommandEvent& event)
         ::config.white_roi_rmax = m_textctrl_white_roi_rmax->GetValue ();
         config_save ();
 
-        wxMessageBox(_T("Configuration saved!"));
+        poll_file_system_if_requested();
+
+        wxMessageBox(_("Configuration saved!"));
 
         this->EndModal (0);
 
     } else {
         event.Skip();
+    }
+}
+
+/* -----------------------------------------------------------------------
+   File system watcher
+   ----------------------------------------------------------------------- */
+void
+poll_file_system_if_requested()
+{
+    wxFileSystemWatcher* poller = wxGetApp().m_frame->m_poller;
+    if (!poller) {
+        return;
+    }
+    poller->RemoveAll();
+    if (::config.polling_checkbox) {
+        wxFileName fn = wxFileName::DirName(::config.polling_directory);
+        poller->Add(fn);
     }
 }
 
@@ -684,7 +747,9 @@ config_save (void)
     wxconfig->Write ("remote_aet", ::config.remote_aet);
     wxconfig->Write ("local_aet", ::config.local_aet);
     wxconfig->Write ("data_directory", ::config.data_directory);
-    wxconfig->Write ("capture_checkbox", ::config.capture_checkbox);
+    wxconfig->Write("polling_checkbox", ::config.polling_checkbox);
+    wxconfig->Write("polling_directory", ::config.polling_directory);
+    wxconfig->Write("capture_checkbox", ::config.capture_checkbox);
     wxconfig->Write ("capture_roi_cmin", ::config.capture_roi_cmin);
     wxconfig->Write ("capture_roi_cmax", ::config.capture_roi_cmax);
     wxconfig->Write ("capture_roi_rmin", ::config.capture_roi_rmin);
@@ -701,32 +766,47 @@ config_save (void)
 void
 config_initialize (void)
 {
-	wxString data_directory = wxT("C:/tmp");
+	wxString data_directory = _("C:/tmp");
 	wxFileName::Mkdir(data_directory, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
     /* Load from config file */
     wxFileConfig *wxconfig = new wxFileConfig("Mondoshot","Mondoshot", 
         "c:/tmp/mondoshot.ini", "c:/tmp/mondoshot.ini", wxCONFIG_USE_GLOBAL_FILE);
-    wxconfig->Read ("remote_ip", &::config.remote_ip, wxT("132.183.1.1"));
-    wxconfig->Read ("remote_port", &::config.remote_port, wxT("104"));
-    wxconfig->Read ("remote_aet", &::config.remote_aet, wxT("IMPAC_DCM_SCP"));
-    wxconfig->Read ("local_aet", &::config.local_aet, wxT("MONDOSHOT"));
-    wxconfig->Read ("data_directory", &::config.data_directory, wxT("C:/tmp"));
+    wxconfig->Read ("remote_ip", &::config.remote_ip, _("132.183.1.1"));
+    wxconfig->Read ("remote_port", &::config.remote_port, _("104"));
+    wxconfig->Read ("remote_aet", &::config.remote_aet, _("IMPAC_DCM_SCP"));
+    wxconfig->Read ("local_aet", &::config.local_aet, _("MONDOSHOT"));
+    wxconfig->Read ("data_directory", &::config.data_directory, _("C:/tmp"));
+    wxconfig->Read("polling_checkbox", &::config.polling_checkbox, false);
+    wxconfig->Read ("polling_directory", &::config.polling_directory, _("C:/tmp"));
     wxconfig->Read ("capture_checkbox", &::config.capture_checkbox, false);
-    wxconfig->Read ("capture_roi_cmin", &::config.capture_roi_cmin, wxT("0"));
-    wxconfig->Read ("capture_roi_cmax", &::config.capture_roi_cmax, wxT("-1"));
-    wxconfig->Read ("capture_roi_rmin", &::config.capture_roi_rmin, wxT("0"));
-    wxconfig->Read ("capture_roi_rmax", &::config.capture_roi_rmax, wxT("-1"));
+    wxconfig->Read ("capture_roi_cmin", &::config.capture_roi_cmin, _("0"));
+    wxconfig->Read ("capture_roi_cmax", &::config.capture_roi_cmax, _("-1"));
+    wxconfig->Read ("capture_roi_rmin", &::config.capture_roi_rmin, _("0"));
+    wxconfig->Read ("capture_roi_rmax", &::config.capture_roi_rmax, _("-1"));
     wxconfig->Read ("white_checkbox", &::config.white_checkbox, false);
-    wxconfig->Read ("white_roi_cmin", &::config.white_roi_cmin, wxT("0"));
-    wxconfig->Read ("white_roi_cmax", &::config.white_roi_cmax, wxT("-1"));
-    wxconfig->Read ("white_roi_rmin", &::config.white_roi_rmin, wxT("0"));
-    wxconfig->Read ("white_roi_rmax", &::config.white_roi_rmax, wxT("-1"));
+    wxconfig->Read ("white_roi_cmin", &::config.white_roi_cmin, _("0"));
+    wxconfig->Read ("white_roi_cmax", &::config.white_roi_cmax, _("-1"));
+    wxconfig->Read ("white_roi_rmin", &::config.white_roi_rmin, _("0"));
+    wxconfig->Read ("white_roi_rmax", &::config.white_roi_rmax, _("-1"));
 
     /* Save settings */
     config_save ();
 
     delete wxconfig;
+}
+
+void
+polling_initialize(void)
+{
+    if (::config.polling_directory.IsEmpty()) {
+        return;
+    }
+    wxFileName fn(::config.polling_directory);
+    if (!fn.IsOk() || !fn.IsDirReadable()) {
+        popup("Could not read image polling directory");
+    }
+
 }
 
 /* -----------------------------------------------------------------------

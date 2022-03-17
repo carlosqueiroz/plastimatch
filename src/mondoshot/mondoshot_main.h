@@ -5,6 +5,7 @@
 #define __mondoshot_main_h__
 
 #include <wx/wx.h>
+#include <wx/fswatcher.h>
 #include <wx/listctrl.h>
 #include <wx/snglinst.h>
 
@@ -19,18 +20,6 @@ enum
     ID_LISTCTRL_PATIENTS,
     ID_TEXTCTRL_PATIENT_NAME,
     ID_TEXTCTRL_PATIENT_ID
-};
-
-class MyApp : public wxApp
-{
-public:
-    virtual bool OnInit ();
-    virtual void OnQueryEndSession (wxCloseEvent& event);
-    virtual int OnExit ();
-public:
-    wxSingleInstanceChecker *m_checker;
-private:
-    DECLARE_EVENT_TABLE()
 };
 
 class MyListCtrl : public wxListCtrl
@@ -106,6 +95,8 @@ public:
     wxString remote_ip;
     wxString remote_port;
     wxString data_directory;
+    bool polling_checkbox;
+    wxString polling_directory;
     bool capture_checkbox;
     wxString capture_roi_cmin;
     wxString capture_roi_cmax;
@@ -125,6 +116,7 @@ public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
     virtual bool OnInit ();
+    void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
     void OnMenuQuit (wxCommandEvent& event);
     void OnMenuSettings (wxCommandEvent& event);
     void OnMenuAbout (wxCommandEvent& event);
@@ -133,6 +125,8 @@ public:
     void OnHotKey1 (wxKeyEvent& event);
     void OnHotKey2 (wxKeyEvent& event);
     void OnWindowClose (wxCloseEvent& event);
+
+    void CreatePoller();
     void listctrl_patients_populate (void);
 
     wxBitmap m_bitmap;
@@ -140,6 +134,7 @@ public:
     wxTextCtrl *m_textctrl_patient_id;
     MyListCtrl *m_listctrl_patients;
     wxPanel *m_panel;
+    wxFileSystemWatcher* m_poller;
 
     DECLARE_EVENT_TABLE()
 };
@@ -151,11 +146,13 @@ public:
 
     void OnButton (wxCommandEvent& event);
 
-    wxTextCtrl *m_textctrl_data_directory;
     wxTextCtrl *m_textctrl_remote_ip;
     wxTextCtrl *m_textctrl_remote_port;
     wxTextCtrl *m_textctrl_remote_aet;
     wxTextCtrl *m_textctrl_local_aet;
+    wxTextCtrl *m_textctrl_data_directory;
+    wxCheckBox *m_polling_checkbox;
+    wxTextCtrl *m_textctrl_polling_directory;
     wxCheckBox *m_capture_checkbox;
     wxTextCtrl *m_textctrl_capture_roi_cmin;
     wxTextCtrl *m_textctrl_capture_roi_cmax;
@@ -174,5 +171,19 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
+class MyApp : public wxApp
+{
+public:
+    virtual bool OnInit();
+    virtual void OnEventLoopEnter(wxEventLoopBase* loop);
+    virtual void OnQueryEndSession(wxCloseEvent& event);
+    virtual int OnExit();
+public:
+    MyFrame* m_frame;
+    wxSingleInstanceChecker* m_checker;
+private:
+    DECLARE_EVENT_TABLE()
+};
+wxDECLARE_APP(MyApp);
 
 #endif /* __mondoshot_main_h__ */
