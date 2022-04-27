@@ -448,7 +448,6 @@ Dcmtk_rt_study::image_load ()
             }
         }
 #else
-        df->get_dataset()->chooseRepresentation (EXS_LittleEndianExplicit, nullptr);
         rc = 0;
         if (bits_alloc == 8) {
             rc = df->get_uint8_array (DCM_PixelData, &pixel_data_8, &length);
@@ -458,9 +457,16 @@ Dcmtk_rt_study::image_load ()
 	if (!rc) {
 	    print_and_exit ("Oops.  Error reading pixel data.  Punting.\n");
 	}
+
+        /* GCS 2022-04-27.  Some GE scans have OB type with twice the length
+           but are actually OW.  Why??  */
+        if (bits_alloc == 16 && length == 2 * dim[0] * dim[1]) {
+            length = dim[0] * dim[1];
+        }
+        
 	if (((long) length) != dim[0] * dim[1]) {
 	    print_and_exit ("Oops.  Dicom image had wrong length "
-		"(%d vs. %d x %d).\n", length, dim[0], dim[1]);
+		"(%d vs. %d x %d = %d).\n", length, dim[0], dim[1], dim[0] * dim[1]);
 	}
 #endif /* USE_DICOMIMAGE */
 
@@ -623,6 +629,7 @@ dcmtk_save_slice (const Rt_study_metadata::Pointer rsm, Dcmtk_slice_data *dsd)
             DCM_SOPClassUID, UID_CTImageStorage);
     }
     dataset->putAndInsertString (DCM_SOPInstanceUID, dsd->slice_uid);
+#if defined (commentout)
     if (image_metadata->get_metadata (DCM_InstanceCreationDate) != "") {
         dataset->putAndInsertOFStringArray(DCM_InstanceCreationDate, 
             image_metadata->get_metadata(DCM_InstanceCreationDate).c_str());
@@ -637,7 +644,15 @@ dcmtk_save_slice (const Rt_study_metadata::Pointer rsm, Dcmtk_slice_data *dsd)
         dataset->putAndInsertOFStringArray(DCM_InstanceCreationTime, 
             rsm->get_study_time());
     }
-
+#endif
+    /* GCS 2022-02-10.  The above is inconsistent with what RTSS and RTDOSE are 
+       doing.  It is hard to see which approach is better, but at least they 
+       should all do the same thing. */
+    dataset->putAndInsertOFStringArray(DCM_InstanceCreationDate, 
+        rsm->get_study_date());
+    dataset->putAndInsertOFStringArray(DCM_InstanceCreationTime, 
+        rsm->get_study_time());
+    
     /* Write the output file */
     OFCondition status = fileformat.saveFile (dsd->fn.c_str(), 
         EXS_LittleEndianExplicit);
