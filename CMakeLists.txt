@@ -62,12 +62,6 @@ include (PlmMacros)
 include (SuperbuildOptions)
 
 ##-----------------------------------------------------------------------------
-##  Set C++ compiler standard
-##-----------------------------------------------------------------------------
-sb_set(CMAKE_CXX_STANDARD 11)
-sb_set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-##-----------------------------------------------------------------------------
 ##  Define default build type as Release
 ##-----------------------------------------------------------------------------
 if (NOT CMAKE_BUILD_TYPE)
