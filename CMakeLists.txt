@@ -563,6 +563,8 @@ message (STATUS "Plastimatch version is ${PLASTIMATCH_VERSION_STRING}")
 ##-----------------------------------------------------------------------------
 ##  ITK
 ##-----------------------------------------------------------------------------
+## ITK clobbers DCMTK_DIR, which is used in the superbuild
+set (DCMTK_DIR_CACHE "${DCMTK_DIR}")
 set (FIND_LIBRARY_USE_LIB64 true)
 if (PLM_SYSTEM_ITK STREQUAL "YES")
   find_package (ITK REQUIRED
@@ -580,6 +582,7 @@ if (ITK_FOUND)
   include (HandleITK)
   include (HandleVXL)
 endif ()
+set (DCMTK_DIR "${DCMTK_DIR_CACHE}")
 
 ##-----------------------------------------------------------------------------
 ##  QT
