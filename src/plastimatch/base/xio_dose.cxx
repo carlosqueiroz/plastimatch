@@ -81,7 +81,7 @@ xio_dose_load_header (Xio_dose_header *xdh, const char *filename)
     /* Skip line */
     fgets (line1, sizeof(line1), fp);
 
-    if (xio_dose_version >= 0x0062101e) {
+    if (xio_dose_version >= 0x005e101e) {
 	/* Skip line */
 	fgets (line1, sizeof(line1), fp);
     }
