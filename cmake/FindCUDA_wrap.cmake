@@ -188,12 +188,17 @@ if (CUDA_FOUND)
       --compiler-options -D__GNUC__=6)
   endif ()
   
-  # GCS 2017-10-24: Let CUDA work with gcc 6 and CUDA 8
+  # Let CUDA work with unsupported (too new) gcc versions
   if (CUDA_VERSION_MAJOR EQUAL "8"
       AND CMAKE_COMPILER_IS_GNUCC
       AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
     list (APPEND CUDA_NVCC_FLAGS
       --compiler-options -D__GNUC__=5)
+  elseif (CUDA_VERSION_MAJOR EQUAL "10"
+      AND CMAKE_COMPILER_IS_GNUCC
+      AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+    list (APPEND CUDA_NVCC_FLAGS
+      --compiler-options -D__GNUC__=8)
   endif ()
 
   # Choose compute capabilities
