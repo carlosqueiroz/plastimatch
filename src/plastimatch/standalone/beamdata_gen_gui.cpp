@@ -7,6 +7,9 @@
 #include "YK16GrayImage.h"
 
 #include "plm_image.h"
+
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 #include "rt_study_metadata.h"
 #include "gamma_dose_comparison.h"
 
@@ -31,8 +34,6 @@
 #include "dcmtk/dcmdata/dcdeftag.h"
 
 #include <QDataStream>
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
 #include "itkImageSliceIteratorWithIndex.h"
 #include "itkFlipImageFilter.h"
 
