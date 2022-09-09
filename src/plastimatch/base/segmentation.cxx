@@ -992,6 +992,7 @@ Segmentation::set_structure_image (
     if ((uchar_no+1) > ss_img->GetVectorLength()) {
         lprintf ("Broadening ss_image\n");
         this->broaden_ss_image (uchar_no+1);
+        ss_img = d_ptr->m_ss_img->itk_uchar_vec();
     }
 
     /* Set up iterators for looping through images */
