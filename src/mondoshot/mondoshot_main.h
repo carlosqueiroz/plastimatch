@@ -14,6 +14,7 @@ enum
     ID_MENU_QUIT = 1,
     ID_MENU_SETTINGS,
     ID_MENU_ABOUT,
+    ID_BUTTON_BROWSE,
     ID_BUTTON_SEND_PORTAL,
     ID_BUTTON_SEND_SCREENSHOT,
     ID_BUTTON_CANCEL,
@@ -97,6 +98,7 @@ public:
     wxString data_directory;
     bool polling_checkbox;
     wxString polling_directory;
+    bool ethos_chop_checkbox;
     bool capture_checkbox;
     wxString capture_roi_cmin;
     wxString capture_roi_cmax;
@@ -120,14 +122,17 @@ public:
     void OnMenuQuit (wxCommandEvent& event);
     void OnMenuSettings (wxCommandEvent& event);
     void OnMenuAbout (wxCommandEvent& event);
-    void OnButtonSend (wxCommandEvent& event);
+    void OnButtonBrowse(wxCommandEvent& event);
+    void OnButtonSend(wxCommandEvent& event);
     void OnButtonCancel (wxCommandEvent& event);
+    void OnCharHook(wxKeyEvent& event);
     void OnHotKey1 (wxKeyEvent& event);
     void OnHotKey2 (wxKeyEvent& event);
     void OnWindowClose (wxCloseEvent& event);
 
     void CreatePoller();
     void listctrl_patients_populate (void);
+    void load_image_from_file(const wxFileName& fn);
 
     wxBitmap m_bitmap;
     wxTextCtrl *m_textctrl_patient_name;
@@ -135,6 +140,8 @@ public:
     MyListCtrl *m_listctrl_patients;
     wxPanel *m_panel;
     wxFileSystemWatcher* m_poller;
+    wxFileName m_polled_filename;
+    int m_polled_file_modifications;
 
     DECLARE_EVENT_TABLE()
 };
@@ -153,7 +160,8 @@ public:
     wxTextCtrl *m_textctrl_data_directory;
     wxCheckBox *m_polling_checkbox;
     wxTextCtrl *m_textctrl_polling_directory;
-    wxCheckBox *m_capture_checkbox;
+    wxCheckBox* m_ethos_chop_checkbox;
+    wxCheckBox* m_capture_checkbox;
     wxTextCtrl *m_textctrl_capture_roi_cmin;
     wxTextCtrl *m_textctrl_capture_roi_cmax;
     wxTextCtrl *m_textctrl_capture_roi_rmin;

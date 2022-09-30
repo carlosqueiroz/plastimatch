@@ -22,7 +22,7 @@ struct sqlite_populate_cbstruct {
 
 void sqlite_patients_query (MyFrame* frame);
 void sqlite_patients_insert_record (wxString patient_id, wxString patient_name);
-void poll_file_system_if_requested();
+void configure_polling();
 void config_initialize ();
 void config_save (void);
 
@@ -39,9 +39,12 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_MENU_SETTINGS, MyFrame::OnMenuSettings)
     EVT_MENU(ID_MENU_ABOUT, MyFrame::OnMenuAbout)
     EVT_HOTKEY(0xB000, MyFrame::OnHotKey1)
+    EVT_HOTKEY(0xB001, MyFrame::OnHotKey1)
+    EVT_BUTTON(ID_BUTTON_BROWSE, MyFrame::OnButtonBrowse)
     EVT_BUTTON(ID_BUTTON_SEND_PORTAL, MyFrame::OnButtonSend)
     EVT_BUTTON(ID_BUTTON_SEND_SCREENSHOT, MyFrame::OnButtonSend)
     EVT_BUTTON(ID_BUTTON_CANCEL, MyFrame::OnButtonCancel)
+    EVT_CHAR_HOOK(MyFrame::OnCharHook)
     EVT_CLOSE(MyFrame::OnWindowClose)
 END_EVENT_TABLE()
 
@@ -104,6 +107,11 @@ MyApp::OnInit ()
 
 void MyApp::OnEventLoopEnter(wxEventLoopBase* loop)
 {
+    /* For reasons I don't understand, this function is called at program exit with 
+       a null loop value. */
+    if (!loop) {
+        return;
+    }
     /* The documentation says this should not be created before the event loop starts. */
     m_frame->CreatePoller();
 }
@@ -131,6 +139,8 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame((wxFrame *)NULL, -1, title, pos, size)
 {
     m_poller = 0;
+    m_polled_filename.Clear();
+    m_polled_file_modifications = 0;
 
     wxMenuBar *menuBar = new wxMenuBar;
     wxMenu *menuFile = new wxMenu;
@@ -145,7 +155,8 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
 
     m_panel = new wxPanel (this, -1);
 
-    wxButton *send_portal = new wxButton (m_panel, ID_BUTTON_SEND_PORTAL, _("Send Portal"));
+    wxButton* browse = new wxButton(m_panel, ID_BUTTON_BROWSE, _("Browse"));
+    wxButton* send_portal = new wxButton(m_panel, ID_BUTTON_SEND_PORTAL, _("Send Portal"));
     wxButton *send_screenshot = new wxButton (m_panel, ID_BUTTON_SEND_SCREENSHOT, _("Send Screenshot"));
     wxButton *cancel = new wxButton (m_panel, ID_BUTTON_CANCEL, _("Cancel"));
 
@@ -169,11 +180,11 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
 
     /* Set up listbox */
     this->m_listctrl_patients = new MyListCtrl (
-	this->m_panel, 
-	ID_LISTCTRL_PATIENTS,
-	wxDefaultPosition, 
-	wxDefaultSize,
-	wxLC_REPORT | wxLC_SINGLE_SEL | wxSUNKEN_BORDER | wxLC_EDIT_LABELS);
+        this->m_panel, 
+        ID_LISTCTRL_PATIENTS,
+        wxDefaultPosition, 
+        wxDefaultSize,
+        wxLC_REPORT | wxLC_SINGLE_SEL | wxSUNKEN_BORDER | wxLC_EDIT_LABELS);
     wxListItem itemCol;
     itemCol.SetText (_("Patient ID"));
     itemCol.SetAlign (wxLIST_FORMAT_LEFT);
@@ -198,9 +209,10 @@ MyFrame::MyFrame (const wxString& title, const wxPoint& pos, const wxSize& size)
 
     //hbox2->Add (new wxTextCtrl (m_panel, wxID_ANY), 1);
     //hbox2->Layout ();
-
-    hbox3->Add (send_screenshot);
-    hbox3->AddSpacer (20);
+    hbox3->Add(browse);
+    hbox3->AddSpacer(20);
+    hbox3->Add(send_screenshot);
+    hbox3->AddSpacer(20);
     hbox3->Add (send_portal);
     hbox3->AddSpacer (20);
     hbox3->Add (cancel);
@@ -221,11 +233,56 @@ void MyFrame::CreatePoller()
         m_poller->SetOwner(this);
         Bind(wxEVT_FSWATCHER, &MyFrame::OnFileSystemEvent, this);
     }
+    configure_polling();
 }
 
-void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
+void
+MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
 {
-    popup("Got a FS event!");
+    /* Empirically, the create event is followed by two modify events.
+       Opening the file too early, such as after the first create event, 
+       may result in trying to open the file before the write has completed.
+       So we wait for the second modify event.  */
+    if (event.GetChangeType() == wxFSW_EVENT_CREATE) {
+        m_polled_filename = event.GetPath();
+        m_polled_file_modifications = 0;
+        if (!m_polled_filename.GetExt().IsSameAs("png",false)) {
+            m_polled_filename.Clear();
+            return;
+        }
+    }
+
+    if (!m_polled_filename.IsOk()) {
+        return;
+    }
+
+//    if (event.GetChangeType() != wxFSW_EVENT_MODIFY) {
+//        m_polled_filename.Clear();
+//        return;
+//    }
+
+//    if (++m_polled_file_modifications < 1) {
+//        return;
+//    }
+
+    /* Try to wait until the file can be opened.  We may get this event 
+       before the write operation has completed.  */
+    int retries = 30;
+    wxMilliSleep(500);
+    while (!m_polled_filename.IsFileReadable()) {
+        wxMilliSleep(500);
+        if (--retries < 0) {
+            m_polled_filename.Clear();
+            return;
+        }
+    }
+
+    /* Offer to send the new file */
+    m_bitmap.LoadFile(m_polled_filename.GetFullPath(), wxBITMAP_TYPE_PNG);
+    m_polled_filename.Clear();
+    m_polled_file_modifications = 0;
+    this->Show(TRUE);
+    this->Raise();
 }
 
 void MyFrame::OnMenuAbout (wxCommandEvent& WXUNUSED(event))
@@ -245,10 +302,29 @@ void MyFrame::OnMenuQuit (wxCommandEvent& WXUNUSED(event))
     this->Close (TRUE);
 }
 
-void MyFrame::OnButtonCancel (wxCommandEvent& WXUNUSED(event))
+void MyFrame::OnButtonCancel(wxCommandEvent& WXUNUSED(event))
 {
     /* Hide dialog box */
-    this->Show (FALSE);
+    this->Show(FALSE);
+}
+
+void MyFrame::OnButtonBrowse(wxCommandEvent& WXUNUSED(event))
+{
+    wxFileDialog dlg(this, _("Open PNG file"), ::config.polling_directory, "",
+            "PNG files (*.png)|*.png", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    if (dlg.ShowModal() == wxID_CANCEL) {
+        return;
+    }
+    m_bitmap.LoadFile(dlg.GetPath(), wxBITMAP_TYPE_PNG);
+}
+
+void MyFrame::OnCharHook(wxKeyEvent& event)
+{
+    if (event.GetKeyCode() == WXK_ESCAPE) {
+        this->Show(FALSE);
+        return;
+    }
+    event.Skip();
 }
 
 void
@@ -282,15 +358,15 @@ MyFrame::OnButtonSend (wxCommandEvent& event)
     /* Validate input fields */
     patient_name = this->m_textctrl_patient_name->GetValue ();
     if (patient_name.IsEmpty ()) {
-	wxMessageBox (_("Please enter a patient name"),
-	    _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
-	return;
+        wxMessageBox (_("Please enter a patient name"),
+            _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
+        return;
     }
     patient_id = this->m_textctrl_patient_id->GetValue ();
     if (patient_id.IsEmpty ()) {
-	wxMessageBox (_("Please enter a patient id"),
-	    _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
-	return;
+        wxMessageBox (_("Please enter a patient id"),
+            _("MONDOSHOT"), wxOK | wxICON_INFORMATION, this);
+        return;
     }
 
     /* Hide dialog box */
@@ -305,7 +381,7 @@ MyFrame::OnButtonSend (wxCommandEvent& event)
         (const char*) patient_name
     );
     for (unsigned int i = 0; i < wxFileName::GetForbiddenChars().Len(); i++) {
-	filename_base.Replace (wxFileName::GetForbiddenChars().Mid(i,1), "-", true);
+        filename_base.Replace (wxFileName::GetForbiddenChars().Mid(i,1), "-", true);
     }
     filename_base = ::config.data_directory + wxString ("/") + filename_base;
     wxString png_filename = wxString::Format ("%s.png", filename_base);
@@ -317,6 +393,38 @@ MyFrame::OnButtonSend (wxCommandEvent& event)
 
     /* Get an image we can manipulate */
     wxImage image = this->m_bitmap.ConvertToImage ();
+
+    /* Do Ethos image chopping: chop out patient photo */
+    if (::config.ethos_chop_checkbox) {
+        if (image.GetHeight() != 1080 || image.GetWidth() != 3840) {
+            popup("Could not perform Ethos chop.  Image size was not 1080 x 3840");
+        }
+        else {
+            int removal_range[] = { 480, 1918 };
+            int new_height = image.GetHeight();
+            int new_width = image.GetWidth() - (removal_range[1] - removal_range[0] + 1);
+            unsigned char* bytes = image.GetData();
+            unsigned char* new_bytes = (unsigned char*)malloc(new_height*new_width*3);
+            for (int r = 0; r < image.GetHeight(); r++) {
+                for (int c = 0; c < image.GetWidth(); c++) {
+                    if (c >= removal_range[0] && c <= removal_range[1]) {
+                        continue;
+                    }
+                    int old_idx = r * image.GetWidth() + c;
+                    int new_idx = r * new_width + c;
+                    if (c > removal_range[1]) {
+                        new_idx -= (removal_range[1] - removal_range[0] + 1);
+                    }
+                    new_bytes[3 * new_idx + 0] = bytes[3 * old_idx + 0];
+                    new_bytes[3 * new_idx + 1] = bytes[3 * old_idx + 1];
+                    new_bytes[3 * new_idx + 2] = bytes[3 * old_idx + 2];
+                }
+            }
+            image.SetData(new_bytes, new_width, new_height);
+            wxString ethos_crop_filename = wxString::Format("%s-ec.png", filename_base);
+            image.SaveFile(ethos_crop_filename);
+        }
+    }
 
     /* Convert to grayscale for dicom.  Also, do whitening if requested. */
     if (::config.white_checkbox) {
@@ -478,8 +586,11 @@ MyFrame::OnButtonSend (wxCommandEvent& event)
 bool MyFrame::OnInit ()
 {
     bool rc;
-//    rc = this->RegisterHotKey (0xB000, 0, wxCharCodeWXToMSW(WXK_F11));r
-	rc = this->RegisterHotKey(0xB000, 0, VK_F11);
+
+    /* When MOSAIQ is focused, F11 is not responsive, so we also allow Alt-F11 */
+    rc = this->RegisterHotKey(0xB000, 0, VK_F11);
+    rc = this->RegisterHotKey(0xB001, wxMOD_ALT, VK_F11);
+
     wxSize screenSize = wxGetDisplaySize();
     this->m_bitmap.Create (screenSize.x, screenSize.y);
 
@@ -498,6 +609,11 @@ void MyFrame::OnHotKey1 (wxKeyEvent& WXUNUSED(event))
 
     this->Show (TRUE);
 	this->Raise();
+}
+
+void
+MyFrame::load_image_from_file(const wxFileName& fn)
+{
 }
 
 void
@@ -554,6 +670,7 @@ Config_dialog::Config_dialog (wxWindow *parent)
 {
     wxBoxSizer *vbox = new wxBoxSizer (wxVERTICAL);
     wxFlexGridSizer *edit_sizer = new wxFlexGridSizer (5, 2, 9, 25);
+    wxBoxSizer* ethos_chop_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* polling_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
     wxFlexGridSizer* polling_edit_sizer = new wxFlexGridSizer(1, 2, 9, 25);
     wxBoxSizer* capture_checkbox_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -586,6 +703,10 @@ Config_dialog::Config_dialog (wxWindow *parent)
     edit_sizer->AddGrowableCol (1, 1);
     edit_sizer->Layout ();
 
+    /* Ethos chop checkbox */
+    m_ethos_chop_checkbox = new wxCheckBox(this, wxID_ANY, _("Chop for Ethos"));
+    ethos_chop_checkbox_sizer->Add(m_ethos_chop_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
+
     /* Polling checkbox */
     m_polling_checkbox = new wxCheckBox(this, wxID_ANY, _("Poll directory for images"));
     polling_checkbox_sizer->Add(m_polling_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
@@ -597,9 +718,9 @@ Config_dialog::Config_dialog (wxWindow *parent)
     polling_edit_sizer->Add(m_textctrl_polling_directory, 1, wxEXPAND);
 
     /* Capture checkbox */
-    m_capture_checkbox =  new wxCheckBox (this, wxID_ANY, _("Limit capture to region"));
-    capture_checkbox_sizer->Add (m_capture_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
-    
+    m_capture_checkbox = new wxCheckBox(this, wxID_ANY, _("Limit capture to region"));
+    capture_checkbox_sizer->Add(m_capture_checkbox, 0, wxALIGN_LEFT | wxALL, 10);
+
     /* Capture ROI */
     wxStaticText *label_capture_roi_cmin =  new wxStaticText (this, wxID_ANY, _("Col min"));
     wxStaticText *label_capture_roi_cmax =  new wxStaticText (this, wxID_ANY, _("Col max"));
@@ -652,6 +773,7 @@ Config_dialog::Config_dialog (wxWindow *parent)
     m_textctrl_remote_aet->SetValue (::config.remote_aet);
     m_textctrl_local_aet->SetValue (::config.local_aet);
     m_textctrl_data_directory->SetValue(::config.data_directory);
+    m_ethos_chop_checkbox->SetValue(::config.ethos_chop_checkbox);
     m_polling_checkbox->SetValue(::config.polling_checkbox);
     m_textctrl_polling_directory->SetValue(::config.polling_directory);
     m_capture_checkbox->SetValue (::config.capture_checkbox);
@@ -667,6 +789,7 @@ Config_dialog::Config_dialog (wxWindow *parent)
 
     /* Sizer stuff */
     vbox->Add (edit_sizer, 0, wxALL | wxEXPAND, 15);
+    vbox->Add(ethos_chop_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add(polling_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add(polling_edit_sizer, 0, wxALL | wxEXPAND, 10);
     vbox->Add(capture_checkbox_sizer, 0, wxALL | wxEXPAND, 10);
@@ -691,6 +814,7 @@ void Config_dialog::OnButton (wxCommandEvent& event)
         ::config.remote_aet = m_textctrl_remote_aet->GetValue ();
         ::config.local_aet = m_textctrl_local_aet->GetValue ();
         ::config.data_directory = m_textctrl_data_directory->GetValue();
+        ::config.ethos_chop_checkbox = m_ethos_chop_checkbox->GetValue();
         ::config.polling_checkbox = m_polling_checkbox->GetValue();
         ::config.polling_directory = m_textctrl_polling_directory->GetValue();
         ::config.capture_checkbox = m_capture_checkbox->GetValue ();
@@ -705,7 +829,7 @@ void Config_dialog::OnButton (wxCommandEvent& event)
         ::config.white_roi_rmax = m_textctrl_white_roi_rmax->GetValue ();
         config_save ();
 
-        poll_file_system_if_requested();
+        configure_polling();
 
         wxMessageBox(_("Configuration saved!"));
 
@@ -720,16 +844,16 @@ void Config_dialog::OnButton (wxCommandEvent& event)
    File system watcher
    ----------------------------------------------------------------------- */
 void
-poll_file_system_if_requested()
+configure_polling()
 {
-    wxFileSystemWatcher* poller = wxGetApp().m_frame->m_poller;
-    if (!poller) {
-        return;
-    }
-    poller->RemoveAll();
-    if (::config.polling_checkbox) {
-        wxFileName fn = wxFileName::DirName(::config.polling_directory);
-        poller->Add(fn);
+    MyFrame* frame = wxGetApp().m_frame;
+    wxFileSystemWatcher* poller = frame->m_poller;
+    if (poller) {
+        poller->RemoveAll();
+        if (::config.polling_checkbox) {
+            wxFileName fn = wxFileName::DirName(::config.polling_directory);
+            poller->Add(fn);
+        }
     }
 }
 
@@ -747,6 +871,7 @@ config_save (void)
     wxconfig->Write ("remote_aet", ::config.remote_aet);
     wxconfig->Write ("local_aet", ::config.local_aet);
     wxconfig->Write ("data_directory", ::config.data_directory);
+    wxconfig->Write("ethos_chop_checkbox", ::config.ethos_chop_checkbox);
     wxconfig->Write("polling_checkbox", ::config.polling_checkbox);
     wxconfig->Write("polling_directory", ::config.polling_directory);
     wxconfig->Write("capture_checkbox", ::config.capture_checkbox);
@@ -777,6 +902,7 @@ config_initialize (void)
     wxconfig->Read ("remote_aet", &::config.remote_aet, _("IMPAC_DCM_SCP"));
     wxconfig->Read ("local_aet", &::config.local_aet, _("MONDOSHOT"));
     wxconfig->Read ("data_directory", &::config.data_directory, _("C:/tmp"));
+    wxconfig->Read("ethos_chop_checkbox", &::config.ethos_chop_checkbox, false);
     wxconfig->Read("polling_checkbox", &::config.polling_checkbox, false);
     wxconfig->Read ("polling_directory", &::config.polling_directory, _("C:/tmp"));
     wxconfig->Read ("capture_checkbox", &::config.capture_checkbox, false);
