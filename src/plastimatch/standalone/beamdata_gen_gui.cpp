@@ -8,7 +8,21 @@
 
 #include "plm_image.h"
 
+/// This workaround prevents a compilation fail with ITK-5.3
+/// Something defines POSIX in preprocessor, and it conflicts
+/// with ITK KWSys POSIX enumeration constant
+#if (ITK_VERSION_MAJOR == 5) && (ITK_VERSION_MINOR > 2) && defined(POSIX)
+#define PLMPOSIX_TMP (POSIX)
+#undef POSIX
+#endif
+
 #include "itkImageFileReader.h"
+
+#ifdef PLMPOSIX_TMP
+#define POSIX (PLMPOSIX_TMP)
+#undef PLMPOSIX_TMP
+#endif
+
 #include "itkImageFileWriter.h"
 #include "rt_study_metadata.h"
 #include "gamma_dose_comparison.h"

@@ -256,8 +256,8 @@ namespace
             DLIB_TEST(get_deleter<D>(p1) == 0);
 
 
-            auto_ptr<derived> ap1(new derived);
-            auto_ptr<derived> ap2(new derived);
+            unique_ptr<derived> ap1(new derived);
+            unique_ptr<derived> ap2(new derived);
             ap1->num = 35;
             ap2->num = 36;
 
