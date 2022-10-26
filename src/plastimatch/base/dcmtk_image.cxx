@@ -103,6 +103,33 @@ Dcmtk_rt_study::image_load ()
         return;
     }
 
+    /* Check that every slice image in series have the same dimention */
+    std::vector< std::array< size_t, 3 > > dimParams; 
+    for (Dcmtk_file_list::iterator it = flist->begin(); it != flist->end(); ++it) {
+      const Dcmtk_file* df = (*it).get();
+      DicomImage di (df->get_dataset(), EXS_Unknown);
+      Volume_header vh (df->get_volume_header());
+      plm_long *dim = vh.get_dim();
+    
+      unsigned long length = di.getOutputDataSize(8);
+      dimParams.push_back({ size_t(length), size_t(dim[0]), size_t(dim[1])});
+    }
+    for ( size_t i = 1; i < dimParams.size(); ++i) {
+      std::array< size_t, 3 >& sliceDim = dimParams[i];
+      if (sliceDim[0] != dimParams[0][0] 
+        || sliceDim[1] != dimParams[0][1] 
+        || sliceDim[2] != dimParams[0][2]) {
+        
+        print_and_exit ("Error. Wrong slice dimention, comparing to the previous ones.\n"
+          "Possibly data corrupted or partially downloaded! Please, check the data!\n"
+          "Corrupted slice index is %u\n"
+          "Correct slice data must be (%d vs. %d x %d)\n"  
+          "Corrupted slice data is (%d vs. %d x %d).\n", i, 
+          dimParams[0][0], dimParams[0][1], dimParams[0][2],
+          sliceDim[0], sliceDim[1], sliceDim[2]);
+      }
+    }
+
     /* Get first slice */
     const Dcmtk_file* df = (*flist->begin()).get();
     
