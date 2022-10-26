@@ -5,7 +5,7 @@
 
 typedef float elem_type ;
 
-#define ELEM_SWAP(a,b) { register elem_type t=(a);(a)=(b);(b)=t; }
+#define ELEM_SWAP(a,b) { elem_type t=(a);(a)=(b);(b)=t; }
 
 
 /*---------------------------------------------------------------------------
@@ -28,8 +28,8 @@ typedef float elem_type ;
 
 elem_type kth_smallest(elem_type a[], int n, int k)
 {
-    register int i,j,l,m ;
-    register elem_type x ;
+    int i,j,l,m ;
+    elem_type x ;
 
     l=0 ; m=n-1 ;
     while (l<m) {
