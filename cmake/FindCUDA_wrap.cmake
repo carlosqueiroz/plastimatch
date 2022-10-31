@@ -112,8 +112,9 @@ endif ()
 
 # 14-5-2016 PAOLO: WORKAROUND GCC 6.1 AND CUDA 7.5 INCOMPATIBILITY
 if (CMAKE_COMPILER_IS_GNUCC
-      AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0))
-    set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-std=c++98")
+    AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+    AND (NOT CUDA_VERSION_MAJOR VERSION_GREATER 7))
+  set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-std=c++98")
 endif ()
 
 # ITK headers cannot be processed by nvcc, so we define
@@ -181,24 +182,25 @@ if (CUDA_FOUND)
       --Wno-deprecated-gpu-targets)
   endif ()
 
-  if (CUDA_VERSION_MAJOR EQUAL "9"
-      AND CMAKE_COMPILER_IS_GNUCC
-      AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-    list (APPEND CUDA_NVCC_FLAGS
-      --compiler-options -D__GNUC__=6)
-  endif ()
-  
   # Let CUDA work with unsupported (too new) gcc versions
+  # Note: CUDA 10 cannot be used with gcc 10 or greater.
   if (CUDA_VERSION_MAJOR EQUAL "8"
       AND CMAKE_COMPILER_IS_GNUCC
       AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
     list (APPEND CUDA_NVCC_FLAGS
       --compiler-options -D__GNUC__=5)
-  elseif (CUDA_VERSION_MAJOR EQUAL "10"
+  elseif (CUDA_VERSION_MAJOR EQUAL "9"
       AND CMAKE_COMPILER_IS_GNUCC
-      AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+      AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
     list (APPEND CUDA_NVCC_FLAGS
-      --compiler-options -D__GNUC__=8)
+      --compiler-options -D__GNUC__=6)
+  elseif (CUDA_VERSION_MAJOR EQUAL "10"
+      AND CMAKE_COMPILER_IS_GNUCC)
+    if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
+      list (APPEND CUDA_NVCC_FLAGS
+	--compiler-options -D__GNUC__=8)
+      # For gcc 10, let it fail.
+    endif()
   endif ()
 
   # Choose compute capabilities

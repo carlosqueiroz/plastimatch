@@ -8,7 +8,9 @@
 #include <string>
 #include <stdio.h>
 
-#include "itk_image.h"
+#ifndef PLM_CUDA_COMPILE
+#include "itk_direction_type.h"
+#endif
 #include "plm_math.h"
 
 #define DIRECTION_COSINES_IDENTITY_THRESH 1e-9
@@ -25,7 +27,9 @@ public:
 public:
     Direction_cosines ();
     Direction_cosines (const float *dm);
+#ifndef PLM_CUDA_COMPILE
     Direction_cosines (const DirectionType& itk_dc);
+#endif
     ~Direction_cosines ();
 
 public:
@@ -45,7 +49,9 @@ public:
     float* get_matrix ();
     const float* get_inverse () const;
     void set (const float dc[]);
+#ifndef PLM_CUDA_COMPILE
     void set (const DirectionType& itk_dc);
+#endif
     bool set_from_string (std::string& str);
     bool is_identity ();
     std::string get_string () const;

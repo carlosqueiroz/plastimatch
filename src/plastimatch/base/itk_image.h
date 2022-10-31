@@ -7,13 +7,13 @@
 #include "plmbase_config.h"
 #include "plm_int.h"
 
+#include "itk_direction_type.h"
 #include "itk_image_type.h"
 
 class Plm_image_header;
 class Volume_header;
 
 /* Other types */
-typedef itk::Matrix < double, 3, 3 > DirectionType;
 typedef itk::Index < 3 >  IndexType;
 typedef itk::Point < double, 3 >  OriginType;
 typedef itk::ImageRegion < 3 > RegionType;
