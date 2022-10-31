@@ -146,7 +146,13 @@ private:
 	}
     };
                    
-    static ITK_THREAD_RETURN_TYPE RANSACThreadCallback( void *arg );
+    static ITK_THREAD_RETURN_TYPE 
+#if ITK_VERSION_MAJOR >= 5
+#if defined(ITK_USE_WIN32_THREADS)
+        __stdcall
+#endif
+#endif
+        RANSACThreadCallback( void *arg );
 
     //number of threads used in computing the RANSAC hypotheses
     unsigned int numberOfThreads;

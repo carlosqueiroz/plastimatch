@@ -151,6 +151,9 @@ double RANSAC<T,S>::Compute( std::vector<S> &parameters,
 template<class T, class S>
 #if ITK_VERSION_MAJOR >= 5
 itk::ITK_THREAD_RETURN_TYPE
+#if defined(ITK_USE_WIN32_THREADS)
+__stdcall
+#endif
 #else
 ITK_THREAD_RETURN_TYPE
 #endif
