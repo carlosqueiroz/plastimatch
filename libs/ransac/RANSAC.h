@@ -146,11 +146,11 @@ private:
 	}
     };
                    
-    static ITK_THREAD_RETURN_TYPE 
+    static 
 #if ITK_VERSION_MAJOR >= 5
-#if defined(ITK_USE_WIN32_THREADS)
-        __stdcall
-#endif
+    ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+#else
+    ITK_THREAD_RETURN_TYPE
 #endif
         RANSACThreadCallback( void *arg );
 
