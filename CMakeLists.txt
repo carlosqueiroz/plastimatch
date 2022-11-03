@@ -675,7 +675,7 @@ add_subdirectory (src)
 ##  Additional install files
 ##-----------------------------------------------------------------------------
 if (ITK_FOUND)
-  set (DLL_PATTERNS "ITKCommon*.dll" "ITKIO*.dll" "ITKOptimizers*.dll" "ITKStatistics*.dll" "ITKTransform*.dll")
+  set (DLL_PATTERNS "ITKCommon*.dll" "ITKIO*.dll" "ITKOptimizers*.dll" "ITKStatistics*.dll" "ITKTransform*.dll" "ITKSpatial*.dll" "ITKSmoothing*.dll" "itkhdf5*.dll")
   foreach (p ${DLL_PATTERNS})
     # .../bin/release/*.dll for build tree, .../bin/*.dll for install tree
     file (GLOB DLLFILES "${ITK_DLL_DIR}/${p}")

@@ -119,6 +119,8 @@ Step 3: Build the debian package
 
      git-pbuilder update
 
+#. Don't edit changelog yet
+
 #. Patch git with upstream::
 
      gbp import-orig --pristine-tar --uscan 
@@ -131,6 +133,7 @@ Step 3: Build the debian package
      
 #. Update changelog (in an terminal, not emacs)::
 
+     V=1.9.4              # New version
      cd plastimatch
      dch -v ${V}+dfsg.1-1
      git commit -a -m "Update changelog"
@@ -139,7 +142,7 @@ Step 3: Build the debian package
      
 #. Test::
 
-     gbp buildpackage --git-pbuilder --git-ignore-new -j16 --git-postbuild='lintian -i $GBP_CHANGES_FILE'
+     gbp buildpackage --git-pbuilder --git-ignore-new -j4 --git-postbuild='lintian -i $GBP_CHANGES_FILE'
    
 #. If you need select a patch from git, do somthing like this::
 
