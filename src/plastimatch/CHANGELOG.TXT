@@ -1,3 +1,21 @@
+Version 1.9.4 (tag 1.9.4)
+Thu 03 Nov 2022 01:30:56 PM EDT
+* Bug fixes for ITK 5.X
+* Bug fixes for C++17
+* Bug fixes for DCMTK 3.6.7
+* Bug fixes for XiO file load
+* CUDA build fixes
+* Bug fix for loading certain GE images
+* Bug fix in structure set loading
+* Better error checking during DICOM image load
+* Support DICOM input for DVH calculation
+* Change DICOM default character set to ISO_IR 100
+* Bug fix for DICOM RT Ion Plan patient setup sequence
+* Fix regression in plastimatch xf-convert for B-Spline conversion
+* Improve DICOM conformance for RTPLAN objects
+* Allow plastimatch convert to copy more DICOM metadata from referenced CT
+* Fix bug where empty DICOM tags were not being written
+
 Version 1.9.3 (tag 1.9.3)
 Tue 19 Jan 2021 04:32:03 PM EST
 * Fixes for SlicerRT

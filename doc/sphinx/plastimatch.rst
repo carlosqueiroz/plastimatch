@@ -18,7 +18,7 @@ The list of possible commands can be seen by simply typing "plastimatch"
 without any additional command line arguments::
 
  $ plastimatch
- plastimatch version 1.9.3
+ plastimatch version 1.9.4
  Usage: plastimatch command [options]
  Commands:
   add           adjust        average       bbox          boundary    

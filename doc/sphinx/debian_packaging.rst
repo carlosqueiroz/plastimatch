@@ -59,7 +59,7 @@ Setting up a build system for the first time
        cmake \
        libblas-dev liblapack-dev libsqlite3-dev \
        libdcmtk-dev libdlib-dev libfftw3-dev \
-       libinsighttoolkit4-dev \
+       libinsighttoolkit5-dev \
        libpng-dev libtiff-dev uuid-dev zlib1g-dev
 
    See this link for more information https://wiki.debian.org/git-pbuilder
@@ -102,6 +102,7 @@ Step 1: Test the debian build
 
 #. Run lintian on package::
 
+     cd ~/debian-med
      lintian -i *.changes
    
 Step 2: Build the tarball
