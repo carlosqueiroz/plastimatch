@@ -30,7 +30,11 @@ class Plm_image;
  * and a dose difference tolerance such that gamma values of less than 
  * 1.0 are acceptable, and gamma values greater than 1.0 are unacceptable.
  */
-class PLMUTIL_API Gamma_dose_comparison {
+class
+#ifndef SWIG
+PLMUTIL_API
+#endif
+Gamma_dose_comparison {
 public:
     Gamma_dose_comparison ();
     ~Gamma_dose_comparison ();

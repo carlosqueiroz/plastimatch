@@ -89,6 +89,8 @@ sb_option (PLM_CONFIG_ENABLE_VISCOUS
   "Set to ON to allow build of experimental viscous fluid registration algorithm" OFF)
 sb_option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
   "Set to ON to allow build of experimental plastimatch_qt executable" OFF)
+sb_option (PLM_CONFIG_ENABLE_CSHARP "Set to ON to allow build CSharp wrapping" OFF)
+
 
 option (PLM_CONFIG_BUILD_QT_PLUGINS "Set to ON to allow build of QT4 Designer Plugins" OFF)
 sb_option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
@@ -481,6 +483,20 @@ endif ()
 ##  Doxygen
 ##-----------------------------------------------------------------------------
 find_package (Doxygen)
+
+##-----------------------------------------------------------------------------
+##  SWIG
+##-----------------------------------------------------------------------------
+set (SWIG_FOUND OFF)
+if (PLM_CONFIG_ENABLE_CSHARP)
+  find_package (SWIG 4.0 COMPONENTS csharp)
+  if (SWIG_FOUND)
+    message ("SWIG found: ${SWIG_EXECUTABLE}")
+    if (NOT SWIG_csharp_FOUND)
+      message(WARNING "SWIG CSharp bindings cannot be generated")
+    endif()
+  endif()
+endif()
 
 ##-----------------------------------------------------------------------------
 ##  For shared libraries, we enable dynamic loading of cuda, opencl

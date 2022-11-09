@@ -123,6 +123,22 @@ plm_add_library (
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   "${PLMUTIL_LIBRARY_HEADERS}")
 
+if (SWIG_FOUND)
+  include (UseSWIG)
+  message ("Oh yea, give me a SWIG.")
+  
+  set (PLMUTIL_SWIG_LIBRARY_SRC
+    gamma_dose_comparison.i)
+  set_property (SOURCE ${PLMUTIL_SWIG_LIBRARY_SRC}
+    PROPERTY CPLUSPLUS ON)
+  swig_add_library (plmutil-cs
+    TYPE USE_BUILD_SHARED_LIBS
+    LANGUAGE csharp
+    # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+    SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+endif ()
+
+
 # because plmutilcuda is dynamically loaded (not linked)
 # CMake needs to be told explicitly that plmutil
 # depends on it, so we tell it explicitly here
