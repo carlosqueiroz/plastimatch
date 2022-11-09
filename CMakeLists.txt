@@ -96,7 +96,7 @@ option (PLM_CONFIG_LIBRARY_BUILD "Set to ON to build only libraries" OFF)
 option (PLM_CONFIG_NOMANIFEST
   "Set to ON to build windows DLLs without manifests" OFF)
 option (PLM_CONFIG_ENABLE_SUPERBUILD
-  "Set to ON to allow src/plastimatch to be built using nested superbuild" ON)
+  "Set to ON to allow src/plastimatch to be built using nested superbuild" OFF)
 
 # Plastimatch software configuration options
 option (PLM_CONFIG_CLANG_COMPLETE
