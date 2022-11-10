@@ -4,7 +4,6 @@
 ##  See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
 ##-----------------------------------------------------------------------------
 project (src_plastimatch)
-cmake_minimum_required (VERSION 3.1.3)
 
 ##-----------------------------------------------------------------------------
 ##  CMake include files

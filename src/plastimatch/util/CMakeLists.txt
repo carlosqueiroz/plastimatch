@@ -125,17 +125,25 @@ plm_add_library (
 
 if (SWIG_FOUND)
   include (UseSWIG)
-  message ("Oh yea, give me a SWIG.")
-  
+  message (STATUS "Oh yea, give me a SWIG.")
   set (PLMUTIL_SWIG_LIBRARY_SRC
     gamma_dose_comparison.i)
   set_property (SOURCE ${PLMUTIL_SWIG_LIBRARY_SRC}
     PROPERTY CPLUSPLUS ON)
-  swig_add_library (plmutil-cs
-    TYPE USE_BUILD_SHARED_LIBS
-    LANGUAGE csharp
-    # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
-    SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+  if (PLM_CONFIG_ENABLE_CSHARP)
+    swig_add_library (plmutil-cs
+      TYPE SHARED
+      LANGUAGE csharp
+      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+  endif ()
+  if (PLM_CONFIG_ENABLE_PYTHON)
+    swig_add_library (plmutil-py
+      TYPE SHARED
+      LANGUAGE python
+      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+  endif ()
 endif ()
 
 

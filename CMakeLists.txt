@@ -31,19 +31,28 @@ endif ()
 if (POLICY CMP0017)
   cmake_policy (SET CMP0017 NEW)
 endif ()
+# Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
+if (POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif ()
 # CMP0054: Quoted variables no longer dereferenced
 # GCS 2017-11-02: This is added to suppress Qt warnings
 if (POLICY CMP0054)
   cmake_policy (SET CMP0054 NEW)
 endif ()
-# Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
-if (POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW)
-endif ()
 # Allow plastimatch to set CUDA option variables
 if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif ()
+# UseSWIG generates standard target names
+if (POLICY CMP0078)
+  cmake_policy(SET CMP0078 NEW)
+endif ()
+# UseSWIG honors SWIG_MODULE_NAME
+if (POLICY CMP0086)
+  cmake_policy(SET CMP0086 NEW)
+endif ()
+
 
 ##-----------------------------------------------------------------------------
 ##  CMake path
@@ -90,7 +99,7 @@ sb_option (PLM_CONFIG_ENABLE_VISCOUS
 sb_option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
   "Set to ON to allow build of experimental plastimatch_qt executable" OFF)
 sb_option (PLM_CONFIG_ENABLE_CSHARP "Set to ON to allow build CSharp wrapping" OFF)
-
+sb_option (PLM_CONFIG_ENABLE_PYTHON "Set to ON to allow build Python wrapping" OFF)
 
 option (PLM_CONFIG_BUILD_QT_PLUGINS "Set to ON to allow build of QT4 Designer Plugins" OFF)
 sb_option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
@@ -488,12 +497,15 @@ find_package (Doxygen)
 ##  SWIG
 ##-----------------------------------------------------------------------------
 set (SWIG_FOUND OFF)
-if (PLM_CONFIG_ENABLE_CSHARP)
-  find_package (SWIG 4.0 COMPONENTS csharp)
+if (PLM_CONFIG_ENABLE_CSHARP OR PLM_CONFIG_ENABLE_PYTHON)
+  find_package (SWIG 4.0 COMPONENTS csharp python)
   if (SWIG_FOUND)
-    message ("SWIG found: ${SWIG_EXECUTABLE}")
+    message (STATUS "SWIG found: ${SWIG_EXECUTABLE}")
     if (NOT SWIG_csharp_FOUND)
       message(WARNING "SWIG CSharp bindings cannot be generated")
+    endif()
+    if (NOT SWIG_python_FOUND)
+      message(WARNING "SWIG Python bindings cannot be generated")
     endif()
   endif()
 endif()
