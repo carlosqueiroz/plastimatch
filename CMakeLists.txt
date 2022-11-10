@@ -86,7 +86,6 @@ sb_variable (CMAKE_BUILD_TYPE)
 sb_option (PLM_CONFIG_ENABLE_CUDA "Set to ON to allow build with CUDA" ON)
 option (PLM_CONFIG_ENABLE_DCMTK "Set to ON to allow build with DCMTK" ON)
 option (PLM_CONFIG_ENABLE_FATM "Set to ON to allow building fatm" OFF)
-option (PLM_CONFIG_ENABLE_MONDOSHOT "Set to ON to allow building mondoshot" OFF)
 sb_option (PLM_CONFIG_ENABLE_OPENCL "Set to ON to allow build with OpenCL" ON)
 sb_option (PLM_CONFIG_ENABLE_OPENMP "Set to ON to allow build with OpenMP" ON)
 sb_option (PLM_CONFIG_ENABLE_OPT4D "Set to ON to allow build with Opt4D" OFF)
@@ -178,7 +177,6 @@ endif ()
 # Override some options if library build is selected
 if (PLM_CONFIG_LIBRARY_BUILD)
   set (PLM_CONFIG_ENABLE_FATM OFF)
-  set (PLM_CONFIG_ENABLE_MONDOSHOT OFF)
 endif ()
 
 ##-----------------------------------------------------------------------------

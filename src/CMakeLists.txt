@@ -10,17 +10,10 @@ project (src)
 ##-----------------------------------------------------------------------------
 if (PLM_CONFIG_DEBIAN_BUILD)
   set (PLM_CONFIG_ENABLE_FATM OFF)
-  set (PLM_CONFIG_ENABLE_MONDOSHOT OFF)
 endif ()
 
 if (PLM_CONFIG_ENABLE_FATM)
   add_subdirectory (fatm)
-endif ()
-
-# mondoshot requires plastimatch, WIN32, wx, dcmtk, sqlite3
-if (WIN32 AND NOT CYGWIN AND wxWidgets_FOUND AND DCMTK_FOUND
-    AND PLM_CONFIG_ENABLE_MONDOSHOT)
-  add_subdirectory (mondoshot)
 endif ()
 
 sb_set (PLM_USING_SUPERBUILD OFF)
