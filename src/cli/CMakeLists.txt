@@ -85,15 +85,9 @@ set (PLM_CLI_LIBRARIES ${PLASTIMATCH_LIBS} plmclp)
 ##-----------------------------------------------------------------------------
 ##  BUILD TARGETS
 ##-----------------------------------------------------------------------------
-#plm_add_library (
-#  plmclp
-#  "${PLMCLP_LIBRARY_SRC}" 
-#  ""
-#  "")
-#add_library (plmclp STATIC ${PLMCLP_LIBRARY_SRC})
-plm_add_executable_v3 (plastimatch "${PLASTIMATCH_SRC}"
-  "" "${PLM_CLI_LIBRARIES}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_ALWAYS})
-# plm_add_executable_v3 (landmark_warp "${LANDMARK_WARP_SRC}" 
-#   "" "${PLM_CLI_LIBRARIES}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_ALWAYS})
-# plm_add_executable_v3 (drr "${DRR_SRC}" 
-#   "" "${PLM_CLI_LIBRARIES}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_ALWAYS})
+plm_add_executable_v3 (plastimatch
+  "${PLASTIMATCH_SRC}"
+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
+  "${PLM_CLI_LIBRARIES}"
+  "${PLASTIMATCH_LDFLAGS}"
+  ${INSTALL_ALWAYS})

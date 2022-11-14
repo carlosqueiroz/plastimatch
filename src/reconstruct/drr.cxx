@@ -11,7 +11,9 @@
 
 #include "delayload.h"
 #include "drr.h"
+#if CUDA_FOUND
 #include "drr_cuda.h"
+#endif
 #include "drr_opencl.h"
 #include "drr_options.h"
 #include "drr_trilin.h"

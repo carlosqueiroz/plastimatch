@@ -17,7 +17,9 @@
 
 #include "bspline.h"
 #include "bspline_correspond.h"
+#if CUDA_FOUND
 #include "bspline_cuda.h"
+#endif
 #include "bspline_interpolate.h"
 #include "bspline_loop.txx"
 #include "bspline_macros.h"

@@ -4,7 +4,9 @@
 #include "plmcli_config.h"
 
 #include "fdk.h"
+#if CUDA_FOUND
 #include "fdk_cuda.h"
+#endif
 #include "fdk_opencl.h"
 #include "fdk_util.h"
 #include "mha_io.h"

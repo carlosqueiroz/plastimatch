@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <vector>
 #include "dlib/cmd_line_parser.h"
-#include "sys/plm_int.h"
+#include "plm_int.h"
 
 #include "plm_version.h"
 

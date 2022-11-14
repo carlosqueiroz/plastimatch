@@ -3,8 +3,6 @@
 ##-----------------------------------------------------------------------------
 project (src_plastimatch_clp)
 
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-
 ##-----------------------------------------------------------------------------
 ##  SOURCE FILES
 ##-----------------------------------------------------------------------------
@@ -20,4 +18,11 @@ set (PLMCLP_LIBRARY_SRC
 #  "${PLMCLP_LIBRARY_SRC}" 
 #  ""
 #  "")
-add_library (plmclp STATIC ${PLMCLP_LIBRARY_SRC})
+plm_add_library (
+  plmclp
+  "${PLMCLP_LIBRARY_SRC}"
+  ""
+  ""
+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
+  ""
+)

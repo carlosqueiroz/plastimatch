@@ -14,7 +14,9 @@
 #include "bowtie_correction.h"
 #include "delayload.h"
 #include "fdk.h"
+#if CUDA_FOUND
 #include "fdk_cuda.h"
+#endif
 #include "fdk_opencl.h"
 #include "file_util.h"
 #include "plm_math.h"

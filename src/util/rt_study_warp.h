@@ -5,7 +5,7 @@
 #define _rt_study_warp_h_
 
 #include "plmutil_config.h"
-#include "base/plm_file_format.h"
+#include "plm_file_format.h"
 
 class Rt_study;
 class Warp_parms;

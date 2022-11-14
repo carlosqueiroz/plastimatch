@@ -259,8 +259,10 @@ if (QT4_FOUND)
     "${PLASTIMATCH_LDFLAGS}" ${INSTALL_IF_NOT_DEBIAN})
 endif()
 
-plm_add_executable_v3 (check_grad "${CHECK_GRAD_SRC}" 
-  "" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
+plm_add_executable_v3 (check_grad
+  "${CHECK_GRAD_SRC}" 
+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
+  "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
 plm_add_executable_v3 (demons "${DEMONS_SRC}" 
   "" "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" ${INSTALL_NEVER})
 plm_add_executable_v3 (dlib_train "${DLIB_TRAIN_SRC}" 

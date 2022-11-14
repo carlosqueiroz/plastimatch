@@ -12,7 +12,9 @@
 
 #include "delayload.h"
 #include "demons.h"
+#if CUDA_FOUND
 #include "demons_cuda.h"
+#endif
 #include "demons_state.h"
 
 void

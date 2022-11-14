@@ -213,27 +213,24 @@ endif ()
 ##-----------------------------------------------------------------------------
 set (INCLUDE_THESE_TWICE false)
 
-include_directories (BEFORE ${PLM_BINARY_DIR})
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/base)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cli)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/clp)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/dose)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cuda)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/opencl)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/qt)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct/cuda)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register/cuda)
-# GCS 2013-09-11.  Disable scripting, because it doesn't yet support
-#   smart pointers for registration.
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/script)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/segment)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/sys)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util)
-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util/cuda)
-include_directories (BEFORE ${CMAKE_CURRENT_BINARY_DIR})
+# include_directories (BEFORE ${PLM_BINARY_DIR})
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/base)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cli)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/clp)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/dose)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cuda)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/opencl)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/qt)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct/cuda)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register/cuda)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/segment)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/sys)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util)
+# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util/cuda)
+# include_directories (BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ITK compatibility shims
 if (INCLUDE_THESE_TWICE)
@@ -323,7 +320,7 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_version.h.in
 ##-----------------------------------------------------------------------------
 if (PLM_CONFIG_CLANG_COMPLETE)
   get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
-  set (file_clang_complete "${CMAKE_SOURCE_DIR}/src/plastimatch/.clang_complete")
+  set (file_clang_complete "${CMAKE_SOURCE_DIR}/src/.clang_complete")
   foreach (arg ${inc_dirs})
     set (inc_args "${inc_args} -I${arg}\n")
   endforeach ()
@@ -390,33 +387,55 @@ if (NOT PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
     )
   list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
     $<BUILD_INTERFACE:${PLM_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/sys>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/base>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/util>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/devillard>
     $<BUILD_INTERFACE:${DLIB_INCLUDE_DIR}>
+  )
+  if (CUDA_FOUND)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util/cuda>
     )
+    endif ()
   if (PLMLIB_CONFIG_ENABLE_REGISTER)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/register>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
+    )
+    if (CUDA_FOUND)
+      list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register/cuda>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
       )
+    endif ()
   endif ()
   if (PLMLIB_CONFIG_ENABLE_SEGMENT)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/segment>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/segment>
       )
   endif ()
   if (PLMLIB_CONFIG_ENABLE_DOSE)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/dose>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/dose>
       )
   endif ()
   if (PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/reconstruct>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct>
+    )
+    if (CUDA_FOUND)
+      list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct/cuda>
       )
+    endif ()
   endif ()
+endif ()
+
+if (NOT PLM_CONFIG_LIBRARY_BUILD)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/clp>
+  )
 endif ()
 
 # Core

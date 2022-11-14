@@ -12,7 +12,9 @@
 
 #include "image_boundary.h"
 #include "distance_map.h"
+#if CUDA_FOUND
 #include "distance_map_cuda.h"
+#endif
 #include "itk_distance_map.h"
 #include "itk_image_type.h"
 #include "plm_image.h"
