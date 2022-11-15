@@ -114,7 +114,6 @@ set (RANSAC_INCLUDE_DIRS
 ##  ITK
 ##-----------------------------------------------------------------------------
 if (PLM_USING_SUPERBUILD)
-  set (PLM_CONFIG_USE_PATCHED_ITK 0)
   find_package (ITK REQUIRED
     PATHS "/usr/lib64/cmake/InsightToolkit")
   include (HandleITK)
@@ -265,10 +264,6 @@ include_directories (AFTER ${DLIB_INCLUDE_DIR})
 include_directories (AFTER ${libLBFGS_INCLUDE_DIR})
 include_directories (AFTER ${MSINTTYPES_INCLUDE_DIR})
 include_directories (AFTER ${RANSAC_INCLUDE_DIRS})
-
-if (${PLM_CONFIG_USE_PATCHED_ITK})
-  include_directories (AFTER ${CMAKE_SOURCE_DIR}/libs/itk-3.20.0)
-endif ()
 
 if (DCMTK_FOUND)
   include_directories (BEFORE ${DCMTK_INCLUDE_DIRS})

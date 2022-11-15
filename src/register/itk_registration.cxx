@@ -14,11 +14,7 @@
 #include "itkMattesMutualInformationImageToImageMetricv4.h"
 #include "itkMeanSquaresImageToImageMetricv4.h"
 #else
-#if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)    \
-    && defined (PLM_CONFIG_USE_PATCHED_ITK)
-#include "plm_OptMattesMutualInformationImageToImageMetric.h"
-#include "itkOptMeanSquaresImageToImageMetric.h"
-#elif defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)
+#if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)
 #include "itkOptMattesMutualInformationImageToImageMetric.h"
 #include "itkOptMeanSquaresImageToImageMetric.h"
 #else
@@ -66,14 +62,8 @@ typedef itk::MutualInformationImageToImageMetric <
     FloatImageType, FloatImageType > MIMetricType;
 typedef itk::NormalizedMutualInformationHistogramImageToImageMetric <
     FloatImageType, FloatImageType > NMIMetricType;
-#if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)    \
-    && defined (PLM_CONFIG_USE_PATCHED_ITK)
-typedef itk::plm_MattesMutualInformationImageToImageMetric <
-    FloatImageType, FloatImageType > MattesMIMetricType;
-#else
 typedef itk::MattesMutualInformationImageToImageMetric <
     FloatImageType, FloatImageType > MattesMIMetricType;
-#endif
 #endif
 
 typedef itk::ImageMaskSpatialObject< 3 > Mask_SOType;
@@ -300,18 +290,6 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
         metric->SetNumberOfSpatialSamples (
             this->compute_num_samples (fixed_ss));
 #endif
-        
-#if defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)    \
-    && defined (PLM_CONFIG_USE_PATCHED_ITK)
-        /* Setting maxVal and minVal for MI calculation 
-           (default==0 --> minVal and maxVal will be calculated from 
-           images) */
-        metric->SetFixedImageMin(stage->mi_fixed_image_minVal);
-        metric->SetMovingImageMin(stage->mi_moving_image_minVal);
-        metric->SetFixedImageMax(stage->mi_fixed_image_maxVal);
-        metric->SetMovingImageMax(stage->mi_moving_image_maxVal);
-#endif
-	
         registration->SetMetric(metric);
     }
     break;
@@ -333,9 +311,7 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
 
         /* Apparently sampling is not implemented in ITK 3 
            unless optimized registration methods are specified. */
-#if ITK_VERSION_MAJOR >= 4                                      \
-    || (defined (ITK_USE_OPTIMIZED_REGISTRATION_METHODS)        \
-        && defined (PLM_CONFIG_USE_PATCHED_ITK))
+#if ITK_VERSION_MAJOR >= 4
         metric->SetNumberOfSpatialSamples (
             this->compute_num_samples (fixed_ss));
 #endif
