@@ -92,3 +92,13 @@ plm_add_library (
   ""
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   "${PLMSYS_LIBRARY_HEADERS}")
+
+# We need to add PLM_BINARY_DIR to the DT_RUNPATH on linux for delayload
+# to find the dynamically loaded libraries
+if (PLM_USE_GPU_PLUGINS)
+  if (CMAKE_VERSION VERSION_LESS "3.8")
+    link_directories ("${PLM_BINARY_DIR}")
+  else ()
+    set_target_properties (plmsys PROPERTIES BUILD_RPATH "${PLM_BINARY_DIR}")
+  endif ()
+endif ()

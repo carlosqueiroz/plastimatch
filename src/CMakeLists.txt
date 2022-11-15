@@ -123,7 +123,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 ##  Hack for superbuild
 ##-----------------------------------------------------------------------------
-link_directories (${PLM_BINARY_DIR})
+#link_directories (${PLM_BINARY_DIR})
 
 ##-----------------------------------------------------------------------------
 ##  Libraries
@@ -145,7 +145,8 @@ set (PLASTIMATCH_LIBS
   ${MATH_LIB}
   )
 
-if (CUDA_FOUND AND NOT PLM_USE_GPU_PLUGINS)
+#if (CUDA_FOUND AND NOT PLM_USE_GPU_PLUGINS)
+if (CUDA_FOUND)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmcuda)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmutilcuda)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmreconstructcuda)
