@@ -270,9 +270,6 @@ if (${PLM_CONFIG_USE_PATCHED_ITK})
   include_directories (AFTER ${CMAKE_SOURCE_DIR}/libs/itk-3.20.0)
 endif ()
 
-if (CUDA_FOUND)
-  include_directories (AFTER ${CUDA_INCLUDE_DIRS})
-endif ()
 if (DCMTK_FOUND)
   include_directories (BEFORE ${DCMTK_INCLUDE_DIRS})
   if (DEFINED DCMTK_CMAKE_INSTALL_LIBDIR)
@@ -395,9 +392,15 @@ if (NOT PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
   )
   if (CUDA_FOUND)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/cuda>
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util/cuda>
     )
-    endif ()
+  endif ()
+  if (OPENCL_FOUND)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/opencl>
+    )
+  endif ()
   if (PLMLIB_CONFIG_ENABLE_REGISTER)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
