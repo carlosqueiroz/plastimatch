@@ -166,13 +166,6 @@ option (PLM_PACKAGE_32BIT
     "Set this when building 32-bit packages on a 64-bit machine" OFF)
 option (PLM_PACKAGE_NSIS "Set to ON when packaging binaries with NSIS" OFF)
 option (PLM_PACKAGE_WIX "Set to ON when packaging binaries with WIX" ON)
-sb_option (PLM_PACKAGE_LEGACY_CMAKE_CONFIG
-    "Use the old code for creating PlastimatchConfig.cmake and friends" OFF)
-
-# Use legacy packaging if cmake version is < 3.0
-if (CMAKE_VERSION VERSION_LESS "3.0")
-  set (PLM_PACKAGE_LEGACY_CMAKE_CONFIG ON CACHE BOOL "Use legacy packaging routines")
-endif ()
 
 # Override some options if library build is selected
 if (PLM_CONFIG_LIBRARY_BUILD)
@@ -204,26 +197,6 @@ mark_as_advanced (
   PLM_INSTALL_BIN_DIR
   PLM_INSTALL_INCLUDE_DIR
   PLM_INSTALL_CMAKE_DIR)
-
-
-# GCS 2015-07-08.  The below workflow is described here:
-#   http://www.cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
-# However, it creates install targets with absolute paths, which is
-# not allowed for NSIS targets.
-# It is possible this is resolved by newer documentation, which is referred
-# by the above link:
-#   http://www.cmake.org/cmake/help/git-master/manual/cmake-packages.7.html#creating-packages
-# Needs further investigation
-
-# Make relative install paths absolute (needed later on)
-if (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
-foreach (p LIB BIN INCLUDE CMAKE)
-  set (var PLM_INSTALL_${p}_DIR)
-  if (NOT IS_ABSOLUTE "${${var}}")
-    set (${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif ()
-endforeach ()
-endif ()
 
 ##-----------------------------------------------------------------------------
 ##  CMake include files

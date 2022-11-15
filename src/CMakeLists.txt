@@ -210,31 +210,8 @@ endif ()
 ##-----------------------------------------------------------------------------
 ##  Include directories
 ##-----------------------------------------------------------------------------
-set (INCLUDE_THESE_TWICE false)
-
-# include_directories (BEFORE ${PLM_BINARY_DIR})
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/base)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cli)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/clp)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/dose)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/cuda)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/opencl)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/qt)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/reconstruct/cuda)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/register/cuda)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/segment)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/sys)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util)
-# include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/util/cuda)
-# include_directories (BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ITK compatibility shims
-if (INCLUDE_THESE_TWICE)
-  include_directories (AFTER ${ITK_INCLUDE_DIRS})
-endif ()
 if (NOT HAVE_ITK_VECTOR_CD)
   message (STATUS "Appending ${CMAKE_SOURCE_DIR}/libs/itk-5.1.0")
   include_directories (AFTER "${CMAKE_SOURCE_DIR}/libs/itk-5.1.0")
@@ -373,67 +350,65 @@ mark_as_advanced (
 ## Specify which include directories are needed when
 ## compiling code that links to the libraries
 set (PLASTIMATCH_INCLUDE_DIRECTORIES "")
-if (NOT PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
-  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-    $<INSTALL_INTERFACE:${PLM_INSTALL_INCLUDE_DIR}>
-    )
-  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-    $<BUILD_INTERFACE:${PLM_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/devillard>
-    $<BUILD_INTERFACE:${DLIB_INCLUDE_DIR}>
+list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+  $<INSTALL_INTERFACE:${PLM_INSTALL_INCLUDE_DIR}>
   )
+list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+  $<BUILD_INTERFACE:${PLM_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/devillard>
+  $<BUILD_INTERFACE:${DLIB_INCLUDE_DIR}>
+  )
+if (CUDA_FOUND)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/cuda>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util/cuda>
+    )
+endif ()
+if (OPENCL_FOUND)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/opencl>
+    )
+endif ()
+if (PLMLIB_CONFIG_ENABLE_REGISTER)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
+    )
   if (CUDA_FOUND)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/cuda>
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/util/cuda>
-    )
-  endif ()
-  if (OPENCL_FOUND)
-    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/opencl>
-    )
-  endif ()
-  if (PLMLIB_CONFIG_ENABLE_REGISTER)
-    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register/cuda>
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
+      )
+  endif ()
+endif ()
+if (PLMLIB_CONFIG_ENABLE_SEGMENT)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/segment>
     )
-    if (CUDA_FOUND)
-      list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register/cuda>
-	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
-      )
-    endif ()
-  endif ()
-  if (PLMLIB_CONFIG_ENABLE_SEGMENT)
-    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/segment>
-      )
-  endif ()
-  if (PLMLIB_CONFIG_ENABLE_DOSE)
-    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/dose>
-      )
-  endif ()
-  if (PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
-    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct>
+endif ()
+if (PLMLIB_CONFIG_ENABLE_DOSE)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/dose>
     )
-    if (CUDA_FOUND)
-      list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
-	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct/cuda>
+endif ()
+if (PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct>
+    )
+  if (CUDA_FOUND)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/reconstruct/cuda>
       )
-    endif ()
   endif ()
 endif ()
 
 if (NOT PLM_CONFIG_LIBRARY_BUILD)
   list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/clp>
-  )
+    )
 endif ()
 
 # Core
@@ -514,78 +489,39 @@ endif ()
 #endif ()
 
 # Create the configuration files used by client applications
-if (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
+## GCS: This is not working
+include (CMakePackageConfigHelpers)
 
-  export (TARGETS
-    ${EXPORT_TARGET_LIST}
-    FILE "${PLM_BINARY_DIR}/PlastimatchLibraryDepends.cmake")
+# Make the version file
+write_basic_package_version_file (
+  "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
+  VERSION ${PLASTIMATCH_VERSION_STRING}
+  COMPATIBILITY AnyNewerVersion
+  )
 
-  # Help cmake find the PlastimatchConfig.cmake in the build directory
-  if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 2.8)
-    export (PACKAGE Plastimatch)
-  endif ()
-
-  # Create PlastimatchBuildTreeSettings.cmake for the use from the build tree
-  file (RELATIVE_PATH CONF_REL_INCLUDE_DIR "${PLM_INSTALL_CMAKE_DIR}"
-    "${PLM_INSTALL_INCLUDE_DIR}")
-  configure_file (
-    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig-Legacy.cmake.in"
-    "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
-    @ONLY)
-  configure_file (
-    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchBuildTreeSettings.cmake.in"
-    "${PLM_BINARY_DIR}/PlastimatchBuildTreeSettings.cmake" @ONLY)
-
-  # Install the PlastimatchConfig.cmake file
-  install (FILES
-    "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
-    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-    # COMPONENT dev
+# Make the targets file
+if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.0)
+  export (EXPORT PlastimatchLibraryDepends
+    FILE "${PLM_BINARY_DIR}/PlastimatchLibraryDepends.cmake"
     )
+endif ()
 
-  # Install the export set for use with the install-tree
-  install (EXPORT PlastimatchLibraryDepends
-    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-    # COMPONENT dev
-    )
+# Make the config file
+configure_file (
+  "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig.cmake.in"
+  "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
+  @ONLY)
 
-else (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
-  ## GCS: This is not working
-  #if (COMMENTOUT)
-  include (CMakePackageConfigHelpers)
-
-  # Make the version file
-  write_basic_package_version_file (
-    "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
-    VERSION ${PLASTIMATCH_VERSION_STRING}
-    COMPATIBILITY AnyNewerVersion
-    )
-
-  # Make the targets file
-  if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.0)
-    export (EXPORT PlastimatchLibraryDepends
-      FILE "${PLM_BINARY_DIR}/PlastimatchLibraryDepends.cmake"
-      )
-  endif ()
-
-  # Make the config file
-  configure_file (
-    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig.cmake.in"
-    "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
-    @ONLY)
-
-  # Install the files
-  install (EXPORT PlastimatchLibraryDepends
-    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-    )
-  install (FILES
-    "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
-    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-    COMPONENT Devel
-    )
-  #endif (COMMENTOUT)
-endif (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
+# Install the files
+install (EXPORT PlastimatchLibraryDepends
+  DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+  )
+install (FILES
+  "${PLM_BINARY_DIR}/PlastimatchConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
+  DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+  COMPONENT Devel
+  )
 
 ##-----------------------------------------------------------------------------
 ##  DOXYGEN
@@ -670,4 +606,4 @@ if (PLM_CONFIG_ENABLE_PLASTIMATCH)
     add_subdirectory (plastimatch)
   endif ()
 endif ()
-endif ()
+endif (false)
