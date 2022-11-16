@@ -1,8 +1,10 @@
 /* -----------------------------------------------------------------------
    See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
    ----------------------------------------------------------------------- */
-#include "plmcli_config.h"
 #include "plm_clp.h"
+#include "plm_int.h"
+
+#include "plm_version.h"
 
 namespace dlib {
 

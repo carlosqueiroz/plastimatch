@@ -6,7 +6,6 @@
 #ifndef _plm_dlib_clp_h_
 #define _plm_dlib_clp_h_
 
-#include "plmcli_config.h"
 #include <iostream>
 #include <map>
 #include <stdarg.h>
@@ -14,8 +13,6 @@
 #include <vector>
 #include "dlib/cmd_line_parser.h"
 #include "plm_int.h"
-
-#include "plm_version.h"
 
 typedef dlib::cmd_line_parser<char>::check_1a_c Clp;
 

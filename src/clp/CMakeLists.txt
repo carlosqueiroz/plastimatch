@@ -13,16 +13,17 @@ set (PLMCLP_LIBRARY_SRC
 ##-----------------------------------------------------------------------------
 ##  BUILD TARGETS
 ##-----------------------------------------------------------------------------
-#plm_add_library (
-#  plmclp
-#  "${PLMCLP_LIBRARY_SRC}" 
-#  ""
-#  "")
-plm_add_library (
+plm_add_static_library (
   plmclp
   "${PLMCLP_LIBRARY_SRC}"
   ""
   ""
-  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   ""
 )
+target_include_directories (plmclp 
+	PRIVATE 
+	"${DLIB_INCLUDE_DIRS}"
+	"${PLM_SOURCE_DIR}/src/sys"
+	"${PLM_BINARY_DIR}"
+	)
+
