@@ -134,8 +134,16 @@ if (SWIG_FOUND)
     swig_add_library (plmutil-cs
       TYPE SHARED
       LANGUAGE csharp
-      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      OUTPUT_DIR "${PLM_BINARY_DIR}"
+      OUTFILE_DIR "${PLM_BINARY_DIR}"
       SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+    target_link_libraries (plmutil-cs PUBLIC plmutil)
+    set_target_properties (plmutil-cs PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PLM_BINARY_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PLM_BINARY_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}"
+      )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)
     swig_add_library (plmutil-py
