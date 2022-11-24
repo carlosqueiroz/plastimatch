@@ -36,6 +36,7 @@ binary download.
    #. Use fresh build directory
    #. Set BUILD_SHARED_LIBS to ON
    #. Set Module_ITKReview to ON
+   #. Set ITK_SKIP_PATH_LENGTH_CHECKS to ON
    #. Set CMAKE_INSTALL_PREFIX c:/Users/grego/install/{32,64}/ITK-{version}
    #. Make and install
 
