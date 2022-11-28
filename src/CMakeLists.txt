@@ -454,6 +454,9 @@ endif ()
 if (PLMLIB_CONFIG_ENABLE_TEST)
   add_subdirectory(test)
 endif ()
+if (PLM_CONFIG_ENABLE_CSHARP)
+#  add_subdirectory(csharp)
+endif ()
 
 # Create a list of targets to be exported.  These are used by applications
 # which link to plastimatch libraries.
