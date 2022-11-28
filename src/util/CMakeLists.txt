@@ -144,8 +144,10 @@ if (SWIG_FOUND)
       target_link_libraries (plmutil-cs PUBLIC dcmdata)
     endif ()
     set_target_properties (plmutil-cs PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}/csharp"
-      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}/csharp"
+      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
+      PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
       )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)
