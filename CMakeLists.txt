@@ -52,6 +52,10 @@ endif ()
 if (POLICY CMP0086)
   cmake_policy(SET CMP0086 NEW)
 endif ()
+# UseSWIG uses library name conventions for CSharp
+if (POLICY CMP0122)
+  cmake_policy(SET CMP0122 NEW)
+endif ()
 
 
 ##-----------------------------------------------------------------------------

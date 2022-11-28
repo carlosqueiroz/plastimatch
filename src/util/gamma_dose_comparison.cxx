@@ -236,6 +236,12 @@ Gamma_dose_comparison::set_reference_dose (float dose)
 }
 
 void 
+Gamma_dose_comparison::unset_reference_dose ()
+{
+    d_ptr->have_reference_dose = false;
+}
+
+void 
 Gamma_dose_comparison::set_analysis_threshold (float thresh)
 {
     d_ptr->have_analysis_thresh = true;

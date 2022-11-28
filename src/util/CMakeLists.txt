@@ -134,15 +134,14 @@ if (SWIG_FOUND)
     swig_add_library (plmutil-cs
       TYPE SHARED
       LANGUAGE csharp
-      OUTPUT_DIR "${PLM_BINARY_DIR}"
-      OUTFILE_DIR "${PLM_BINARY_DIR}"
+      OUTPUT_DIR "${PLM_BINARY_DIR}/$<CONFIG>"
+      OUTFILE_DIR "${PLM_BINARY_DIR}/$<CONFIG>"
       SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
-    target_link_libraries (plmutil-cs PUBLIC plmutil)
+    target_include_directories (plmutil-cs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR};${PLASTIMATCH_INCLUDE_DIRECTORIES};${ITK_INCLUDE_DIRS}")
+    target_link_libraries (plmutil-cs PUBLIC plmutil DCMTK::dcmdata)
     set_target_properties (plmutil-cs PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PLM_BINARY_DIR}"
-      RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PLM_BINARY_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
-      INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}/$<CONFIG>"
+      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}/$<CONFIG>"
       )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)

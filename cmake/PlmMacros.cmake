@@ -80,7 +80,7 @@ macro (PLM_ADD_LIBRARY
       PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
       )
   endif ()
-  target_link_libraries (${TARGET_NAME} ${TARGET_LIBS})
+  target_link_libraries (${TARGET_NAME} PUBLIC ${TARGET_LIBS})
   if (NOT ${TARGET_LDFLAGS} STREQUAL "")
     set_target_properties(${TARGET_NAME}
       PROPERTIES LINK_FLAGS ${TARGET_LDFLAGS})
