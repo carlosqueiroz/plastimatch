@@ -744,7 +744,7 @@ endif ()
 
 install (FILES
   README.TXT
-  src/plastimatch/COPYRIGHT.TXT
+  src/COPYRIGHT.TXT
   DESTINATION ${DOC_DESTINATION}
   )
 
@@ -752,7 +752,7 @@ install (FILES
 if (NOT PLM_CONFIG_DEBIAN_BUILD)
   install (FILES
     INSTALL.TXT
-    src/plastimatch/LICENSE.TXT
+    src/LICENSE.TXT
     DESTINATION ${DOC_DESTINATION}
     )
 endif ()
