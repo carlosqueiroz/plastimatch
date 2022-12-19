@@ -36,8 +36,8 @@ itk_crop_by_index (
             extract_index[d] = 0;
         }
 	extract_size[d] = new_size[d*2+1] - extract_index[d] + 1;
-        if (extract_size[d] > current_region.GetSize(d)-1) {
-            extract_size[d] = current_region.GetSize(d)-1;
+        if (extract_size[d] > current_region.GetSize(d)) {
+            extract_size[d] = current_region.GetSize(d);
         }
     }
 
