@@ -3,11 +3,6 @@
 ##-----------------------------------------------------------------------------
 project (src_plastimatch_segment)
 
-configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/plmsegment_config.h.in
-    ${PLM_BINARY_DIR}/plmsegment_config.h
-)
-
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 ##-----------------------------------------------------------------------------

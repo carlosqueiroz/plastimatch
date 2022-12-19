@@ -27,5 +27,8 @@
 # define PLMUTILCUDA_C_API EXTERNC 
 # define PLMUTILCUDA_API
 #endif
+#ifdef SWIG
+#define PLMUTIL_API 
+#endif
 
 #endif

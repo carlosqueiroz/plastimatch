@@ -3,11 +3,6 @@
 ##-----------------------------------------------------------------------------
 project (src_plastimatch_sys)
 
-configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/plmsys_config.h.in
-    ${PLM_BINARY_DIR}/plmsys_config.h
-)
-
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 ##-----------------------------------------------------------------------------

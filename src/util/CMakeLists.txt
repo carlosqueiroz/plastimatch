@@ -3,11 +3,6 @@
 ##-----------------------------------------------------------------------------
 project (src_plastimatch_util)
 
-configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/plmutil_config.h.in
-    ${PLM_BINARY_DIR}/plmutil_config.h
-)
-
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories (AFTER ${DEVILLARD_INCLUDE_DIR})
 
@@ -124,8 +119,6 @@ plm_add_library (
   "${PLMUTIL_LIBRARY_HEADERS}")
 
 if (SWIG_FOUND)
-  include (UseSWIG)
-  message (STATUS "Oh yea, give me a SWIG.")
   set (PLMUTIL_SWIG_LIBRARY_SRC
     gamma_dose_comparison.i)
   set_property (SOURCE ${PLMUTIL_SWIG_LIBRARY_SRC}

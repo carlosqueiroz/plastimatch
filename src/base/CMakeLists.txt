@@ -3,11 +3,6 @@
 ##-----------------------------------------------------------------------------
 project (src_plastimatch_base)
 
-configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/plmbase_config.h.in
-    ${PLM_BINARY_DIR}/plmbase_config.h
-)
-
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories (AFTER ${NKIDECOMPRESS_INCLUDE_DIR})
 
@@ -241,3 +236,37 @@ plm_add_library (
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   "${PLMBASE_LIBRARY_HEADERS}"
   )
+
+if (SWIG_FOUND)
+  set (PLMBASE_SWIG_LIBRARY_SRC
+    plm_image.i)
+  set_property (SOURCE ${PLMBASE_SWIG_LIBRARY_SRC}
+    PROPERTY CPLUSPLUS ON)
+  if (PLM_CONFIG_ENABLE_CSHARP)
+    swig_add_library (plmbase-cs
+      TYPE SHARED
+      LANGUAGE csharp
+      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
+      SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
+    target_include_directories (plmbase-cs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR};${PLASTIMATCH_INCLUDE_DIRECTORIES};${ITK_INCLUDE_DIRS}")
+    target_link_libraries (plmbase-cs PUBLIC plmbase)
+    if (TARGET DCMTK::dcmdata)
+      target_link_libraries (plmbase-cs PUBLIC DCMTK::dcmdata)
+    else ()
+      target_link_libraries (plmbase-cs PUBLIC dcmdata)
+    endif ()
+    set_target_properties (plmbase-cs PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
+      PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
+      )
+  endif ()
+  if (PLM_CONFIG_ENABLE_PYTHON)
+    swig_add_library (plmbase-py
+      TYPE SHARED
+      LANGUAGE python
+      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
+  endif ()
+endif ()

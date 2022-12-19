@@ -18,5 +18,8 @@
 # define PLMBASE_C_API EXTERNC 
 # define PLMBASE_API 
 #endif
+#ifdef SWIG
+#define PLMBASE_API 
+#endif
 
 #endif
