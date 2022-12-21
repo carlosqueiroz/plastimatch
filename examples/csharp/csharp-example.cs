@@ -6,7 +6,12 @@ namespace Application
         static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            var k = new Gamma_dose_comparison();
+            var fn1 = "C:/Users/gcs6/build/x64/plastimatch/Testing/gauss-2.mha";
+            var fn2 = "C:/Users/gcs6/build/x64/plastimatch/Testing/gauss-3.mha";
+            var pi1 = Plm_image::New(fn1);
+            var pi2 = Plm_image::New(fn2);
+            var gdc = new Gamma_dose_comparison();
+            gdc.set_reference_image(pi1);
         }
     }
 }

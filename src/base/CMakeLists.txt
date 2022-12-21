@@ -248,7 +248,7 @@ if (SWIG_FOUND)
       LANGUAGE csharp
       OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
       SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
-    target_include_directories (plmbase-cs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR};${PLASTIMATCH_INCLUDE_DIRECTORIES};${ITK_INCLUDE_DIRS}")
+    set_property (TARGET plmbase-cs PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
     target_link_libraries (plmbase-cs PUBLIC plmbase)
     if (TARGET DCMTK::dcmdata)
       target_link_libraries (plmbase-cs PUBLIC DCMTK::dcmdata)

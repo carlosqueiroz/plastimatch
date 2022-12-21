@@ -1,4 +1,4 @@
-%module plastimatch
+%module plmutil
 %{
 #include "gamma_dose_comparison.h"
 %}

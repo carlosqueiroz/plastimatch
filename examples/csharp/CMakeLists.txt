@@ -5,17 +5,14 @@ project (src_csharp LANGUAGES CSharp)
 cmake_minimum_required(VERSION 3.25)
 
 message (STATUS "CSharp example!")
-add_executable(csharp-example csharp-example.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/Gamma_dose_comparison.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_FloatImageType__Pointer.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_Gamma_dose_comparison_private.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_Plm_image.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_Plm_image__Pointer.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_UCharImageType__Pointer.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_f_float__void.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/SWIGTYPE_p_std__string.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/plastimatch.cs
-  C:/Users/gcs6/build/x64/plastimatch/csharp/plastimatchPINVOKE.cs
+
+# Grab all the .cs files created by SWIG
+set (PLM_CS_DIR "C:/Users/gcs6/build/x64/plastimatch/csharp")
+file(GLOB SWIG_GENERATED_CS_FILES ${PLM_CS_DIR}/*.cs)
+
+add_executable(csharp-example
+  csharp-example.cs
+  ${SWIG_GENERATED_CS_FILES}
 )
 
 find_package (DCMTK REQUIRED)
