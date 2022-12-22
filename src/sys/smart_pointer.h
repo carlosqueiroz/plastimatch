@@ -12,22 +12,10 @@
 # define SMART_POINTER_SUPPORT(T)                         \
     typedef void* Pointer
 #else
-# if __cplusplus < 201103L
-#  include "dlib/smart_pointers.h"
-#  define plm_shared_ptr dlib::shared_ptr
-# elif SHARED_PTR_USE_MEMORY
+
 #  include <memory>
 #  define plm_shared_ptr std::shared_ptr
-# elif TR1_SHARED_PTR_USE_TR1_MEMORY
-#  include <tr1/memory>
-#  define plm_shared_ptr std::tr1::shared_ptr
-# elif TR1_SHARED_PTR_USE_MEMORY
-#  include <memory>
-#  define plm_shared_ptr std::tr1::shared_ptr
-# else
-#  include "dlib/smart_pointers.h"
-#  define plm_shared_ptr dlib::shared_ptr
-# endif
+
 # define SMART_POINTER_SUPPORT(T)                               \
     public:                                                     \
     typedef T Self;                                             \
