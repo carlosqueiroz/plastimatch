@@ -5,6 +5,7 @@
 #define _rt_spot_map_h_
 
 #include "plmdose_config.h"
+#include <string>
 #include "smart_pointer.h"
 
 class Rt_spot_map_private;
