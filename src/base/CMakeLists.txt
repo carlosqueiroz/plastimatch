@@ -261,10 +261,24 @@ if (SWIG_FOUND)
       )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
     swig_add_library (plmbase-py
       TYPE SHARED
       LANGUAGE python
       # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
       SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
+    set_property (TARGET plmbase-py PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
+    target_link_libraries (plmbase-py PUBLIC plmbase)
+    if (TARGET DCMTK::dcmdata)
+      target_link_libraries (plmbase-py PUBLIC DCMTK::dcmdata)
+    else ()
+      target_link_libraries (plmbase-py PUBLIC dcmdata)
+    endif ()
+    set_target_properties (plmbase-py PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
+      PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
+      )
   endif ()
 endif ()

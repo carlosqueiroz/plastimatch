@@ -101,8 +101,12 @@ sb_option (PLM_CONFIG_ENABLE_VISCOUS
   "Set to ON to allow build of experimental viscous fluid registration algorithm" OFF)
 sb_option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
   "Set to ON to allow build of experimental plastimatch_qt executable" OFF)
-sb_option (PLM_CONFIG_ENABLE_CSHARP "Set to ON to allow build CSharp wrapping" OFF)
-sb_option (PLM_CONFIG_ENABLE_PYTHON "Set to ON to allow build Python wrapping" OFF)
+
+# Wrapping has a minimum version.  Pretty sure 3.25 should be good.
+if (CMAKE_VERSION VERSION_LESS "3.25")
+  sb_option (PLM_CONFIG_ENABLE_CSHARP "Set to ON to allow build CSharp wrapping" OFF)
+  sb_option (PLM_CONFIG_ENABLE_PYTHON "Set to ON to allow build Python wrapping" OFF)
+endif ()
 
 option (PLM_CONFIG_BUILD_QT_PLUGINS "Set to ON to allow build of QT4 Designer Plugins" OFF)
 sb_option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
