@@ -186,9 +186,7 @@ else ()
     )
 endif ()
 
-set (PLMBASE_LIBRARY_HEADERS
-  "${PLM_BINARY_DIR}/plmbase_config.h"
-  )
+set (PLMBASE_LIBRARY_HEADERS "")
 foreach (ARG ${PLMBASE_LIBRARY_SRC})
   string (REGEX MATCH ".*\\.h$" TMP "${ARG}")
   if (TMP)

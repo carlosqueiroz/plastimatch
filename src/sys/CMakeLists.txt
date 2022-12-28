@@ -44,10 +44,7 @@ list (APPEND PLMSYS_LIBRARY_SRC
   )
 endif ()
 
-set (PLMSYS_LIBRARY_HEADERS
-  "${PLM_BINARY_DIR}/plm_config.h"
-  "${PLM_BINARY_DIR}/plmsys_config.h"
-  )
+set (PLMSYS_LIBRARY_HEADERS "${PLM_BINARY_DIR}/plm_config.h")
 foreach (ARG ${PLMSYS_LIBRARY_SRC})
   string (REGEX MATCH ".*\\.h$" TMP "${ARG}")
   if (TMP)

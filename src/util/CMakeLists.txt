@@ -61,9 +61,7 @@ if (FFTW_FOUND)
    )
 endif ()
 
-set (PLMUTIL_LIBRARY_HEADERS
-  "${PLM_BINARY_DIR}/plmutil_config.h"
-  )
+set (PLMUTIL_LIBRARY_HEADERS "")
 foreach (ARG ${PLMUTIL_LIBRARY_SRC})
   string (REGEX MATCH ".*\\.h$" TMP "${ARG}")
   if (TMP)
