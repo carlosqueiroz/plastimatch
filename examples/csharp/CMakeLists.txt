@@ -8,7 +8,7 @@ message (STATUS "CSharp example!")
 
 # Grab all the .cs files created by SWIG
 set (PLM_CS_DIR "C:/Users/gcs6/build/x64/plastimatch/csharp")
-file(GLOB SWIG_GENERATED_CS_FILES ${PLM_CS_DIR}/*.cs)
+file(GLOB_RECURSE SWIG_GENERATED_CS_FILES ${PLM_CS_DIR}/*.cs)
 
 add_executable(csharp-example
   csharp-example.cs

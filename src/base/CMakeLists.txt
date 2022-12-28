@@ -246,7 +246,7 @@ if (SWIG_FOUND)
     swig_add_library (plmbase-cs
       TYPE SHARED
       LANGUAGE csharp
-      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
+      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp/plmbase"
       SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
     set_property (TARGET plmbase-cs PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
     target_link_libraries (plmbase-cs PUBLIC plmbase)
