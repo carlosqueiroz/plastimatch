@@ -2595,8 +2595,8 @@ plmtest_check_interval ("plm-dice-e-check-1"
 plmtest_check_interval ("plm-dice-e-check-2"
   "${PLM_BUILD_TESTING_DIR}/plm-dice-e.stdout.txt"
   "^Hausdorff distance = *([-0-9.]*)"
-  "4"
-  "4"
+  "5"
+  "5"
   )
 
 set_tests_properties (plm-dice-e PROPERTIES DEPENDS "cyl-2;cyl-3")
