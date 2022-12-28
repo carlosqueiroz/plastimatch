@@ -125,7 +125,7 @@ if (SWIG_FOUND)
     swig_add_library (plmutil-cs
       TYPE SHARED
       LANGUAGE csharp
-      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp/plmutil"
+      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
       SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
     set_property (TARGET plmutil-cs PROPERTY SWIG_INCLUDE_DIRECTORIES 
       "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>;$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>")
