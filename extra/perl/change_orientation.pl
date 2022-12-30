@@ -25,12 +25,14 @@ $keep_referenced_uid = 0;
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_05";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/019-01-16";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_08";
-$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_09";
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_09";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_tt000_v2";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/LPcom_H2Oart";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/LPcommissSRS_BB";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/GBMON_SOBP1-3";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/ce1";
+#$dicom_dir = "/PHShome/gcs6/shared/ben-1/PLOGOS_PPS_VarG_50bms_0_5GP";
+$dicom_dir = "/PHShome/gcs6/shared/ben-1/PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
 
 
 $new_name = "";
@@ -68,10 +70,10 @@ $new_series_description = "";
 # $new_id = "LPcom_05";
 # $new_birth_date = "20180101";
 # $new_sex = "O";
- $new_name = "LPcom_06^PBS";
- $new_id = "LPcom_06";
- $new_birth_date = "20180101";
- $new_sex = "O";
+ # $new_name = "LPcom_06^PBS";
+ # $new_id = "LPcom_06";
+ # $new_birth_date = "20180101";
+ # $new_sex = "O";
 # $new_name = "LPcom_07^PBS";
 # $new_id = "LPcom_07";
 # $new_birth_date = "20180101";
@@ -80,10 +82,10 @@ $new_series_description = "";
 #$new_id = "LPcom_08";
 #$new_birth_date = "20180101";
 #$new_sex = "O";
-# $new_name = "LPcom_09^PBS";
-# $new_id = "LPcom_09";
-# $new_birth_date = "20180101";
-# $new_sex = "O";
+$new_name = "LPcom_09^PBS";
+$new_id = "LPcom_09";
+$new_birth_date = "20180101";
+$new_sex = "O";
 # $new_name = "LPcom_H2Oart^PBS";
 # $new_id = "LPcom_H2Oart";
 # $new_birth_date = "20170101";
@@ -129,6 +131,8 @@ $new_series_description = "";
 # $new_birth_date = "20200101";
 # $new_sex = "M";
 
+# $new_id = "PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
+
 
 #$new_series_description = "Sex empty";
 #$new_series_description = "Control";
@@ -156,6 +160,8 @@ $new_series_description = "";
 #$new_series_description = "CE27 Cant";
 #$new_series_description = "CE27 Non-Cant";
 #$new_series_description = "CE27 None";
+#$new_series_description = "C0-180 G180-G295";
+$new_series_description = "PLOGOS_PPS_0";
 
 $new_patient_position = "";
 $new_image_orientation = "";
@@ -320,7 +326,8 @@ sub process_file {
 	    next;
 	}
 	if ($key eq "300a,0002" and $new_series_description ne "") {
-	    print FOUT "($key) SH [$new_series_description]\n";
+	    $short_series_description = substr $new_series_description, 0, 16;
+	    print FOUT "($key) SH [$short_series_description]\n";
 	    next;
 	}
 	if ($key eq "0020,0032") {
