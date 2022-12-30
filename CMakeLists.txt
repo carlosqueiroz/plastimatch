@@ -102,8 +102,10 @@ sb_option (PLM_CONFIG_ENABLE_VISCOUS
 sb_option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
   "Set to ON to allow build of experimental plastimatch_qt executable" OFF)
 
-# Wrapping has a minimum version.  Pretty sure 3.25 should be good.
-if (CMAKE_VERSION VERSION_LESS "3.25")
+# Wrapping has a minimum version.  Nominally 3.19 is required to support
+# swig_add_library (target OUTPUT_DIR "..." OUTFILE_DIR "..."), but
+# empirically "3.18.4" (version in Debian stable) does the right thing.
+if (NOT CMAKE_VERSION VERSION_LESS "3.18.4")
   sb_option (PLM_CONFIG_ENABLE_CSHARP "Set to ON to allow build CSharp wrapping" OFF)
   sb_option (PLM_CONFIG_ENABLE_PYTHON "Set to ON to allow build Python wrapping" OFF)
 endif ()
