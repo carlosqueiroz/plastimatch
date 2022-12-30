@@ -121,11 +121,16 @@ if (SWIG_FOUND)
     gamma_dose_comparison.i)
   set_property (SOURCE ${PLMUTIL_SWIG_LIBRARY_SRC}
     PROPERTY CPLUSPLUS ON)
+  set (CSHARP_OUTPUT_DIR "${PLM_BINARY_DIR}/csharp")
+  set (CSHARP_OUTFILE_DIR "${PLM_BINARY_DIR}/csharp-cxx")
+  set (PYTHON_OUTPUT_DIR "${PLM_BINARY_DIR}/python")
+  set (PYTHON_OUTFILE_DIR "${PLM_BINARY_DIR}/python-cxx")
   if (PLM_CONFIG_ENABLE_CSHARP)
     swig_add_library (plmutil-cs
       TYPE SHARED
       LANGUAGE csharp
-      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
+      OUTPUT_DIR "${CSHARP_OUTPUT_DIR}"
+      OUTFILE_DIR "${CSHARP_OUTFILE_DIR}"
       SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
     set_property (TARGET plmutil-cs PROPERTY SWIG_INCLUDE_DIRECTORIES 
       "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>;$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>")
@@ -136,18 +141,35 @@ if (SWIG_FOUND)
       target_link_libraries (plmutil-cs PUBLIC dcmdata)
     endif ()
     set_target_properties (plmutil-cs PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY "${CSHARP_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${CSHARP_OUTPUT_DIR}"
       ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
       PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
       )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)
-    swig_add_library (plmutil-py
+    find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
+    swig_add_library (plmutil_py
       TYPE SHARED
       LANGUAGE python
-      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      OUTPUT_DIR "${PYTHON_OUTPUT_DIR}"
+      OUTFILE_DIR "${PYTHON_OUTFILE_DIR}"
       SOURCES ${PLMUTIL_SWIG_LIBRARY_SRC})
+    set_property (TARGET plmutil_py PROPERTY SWIG_INCLUDE_DIRECTORIES
+      "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>;$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/base>")
+    target_include_directories (plmutil_py PUBLIC ${Python3_INCLUDE_DIRS})
+    target_link_libraries (plmutil_py PUBLIC plmutil)
+    if (TARGET DCMTK::dcmdata)
+      target_link_libraries (plmutil_py PUBLIC DCMTK::dcmdata)
+    else ()
+      target_link_libraries (plmutil_py PUBLIC dcmdata)
+    endif ()
+    set_target_properties (plmutil_py PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${PYTHON_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PYTHON_OUTPUT_DIR}"
+      ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
+      PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
+      )
   endif ()
 endif ()
 

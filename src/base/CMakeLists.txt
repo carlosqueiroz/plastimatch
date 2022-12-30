@@ -240,11 +240,16 @@ if (SWIG_FOUND)
     plm_image.i)
   set_property (SOURCE ${PLMBASE_SWIG_LIBRARY_SRC}
     PROPERTY CPLUSPLUS ON)
+  set (CSHARP_OUTPUT_DIR "${PLM_BINARY_DIR}/csharp")
+  set (CSHARP_OUTFILE_DIR "${PLM_BINARY_DIR}/csharp-cxx")
+  set (PYTHON_OUTPUT_DIR "${PLM_BINARY_DIR}/python")
+  set (PYTHON_OUTFILE_DIR "${PLM_BINARY_DIR}/python-cxx")
   if (PLM_CONFIG_ENABLE_CSHARP)
     swig_add_library (plmbase-cs
       TYPE SHARED
       LANGUAGE csharp
-      OUTPUT_DIR "${PLM_BINARY_DIR}/csharp"
+      OUTPUT_DIR "${CSHARP_OUTPUT_DIR}"
+      OUTFILE_DIR "${CSHARP_OUTFILE_DIR}"
       SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
     set_property (TARGET plmbase-cs PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
     target_link_libraries (plmbase-cs PUBLIC plmbase)
@@ -254,29 +259,31 @@ if (SWIG_FOUND)
       target_link_libraries (plmbase-cs PUBLIC dcmdata)
     endif ()
     set_target_properties (plmbase-cs PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY "${CSHARP_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${CSHARP_OUTPUT_DIR}"
       ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
       PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
       )
   endif ()
   if (PLM_CONFIG_ENABLE_PYTHON)
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
-    swig_add_library (plmbase-py
+    swig_add_library (plmbase_py
       TYPE SHARED
       LANGUAGE python
-      # Do I need to set OUTPUT_DIR or OUTFILE_DIR ?
+      OUTPUT_DIR "${PYTHON_OUTPUT_DIR}"
+      OUTFILE_DIR "${PYTHON_OUTFILE_DIR}"
       SOURCES ${PLMBASE_SWIG_LIBRARY_SRC})
-    set_property (TARGET plmbase-py PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
-    target_link_libraries (plmbase-py PUBLIC plmbase)
+    set_property (TARGET plmbase_py PROPERTY SWIG_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/sys>")
+    target_include_directories (plmbase_py PUBLIC ${Python3_INCLUDE_DIRS})
+    target_link_libraries (plmbase_py PUBLIC plmbase)
     if (TARGET DCMTK::dcmdata)
-      target_link_libraries (plmbase-py PUBLIC DCMTK::dcmdata)
+      target_link_libraries (plmbase_py PUBLIC DCMTK::dcmdata)
     else ()
-      target_link_libraries (plmbase-py PUBLIC dcmdata)
+      target_link_libraries (plmbase_py PUBLIC dcmdata)
     endif ()
-    set_target_properties (plmbase-py PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY "${PLM_BINARY_DIR}"
+    set_target_properties (plmbase_py PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${PYTHON_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${PYTHON_OUTPUT_DIR}"
       ARCHIVE DESTINATION "${PLM_INSTALL_LIB_DIR}"
       PUBLIC_HEADER DESTINATION "${PLM_INSTALL_INCLUDE_DIR}"
       )
