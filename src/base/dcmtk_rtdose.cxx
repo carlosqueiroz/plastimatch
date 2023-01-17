@@ -149,24 +149,29 @@ Dcmtk_rt_study::rtdose_load ()
 
     /* GridFrameOffsetVector */
     val = d_ptr->ds_rtdose->get_cstr (DCM_GridFrameOffsetVector);
-    if (!val) {
-        print_and_exit ("Couldn't find DCM_GridFrameOffsetVector in rtdose\n");
-    }
-    gfov = 0;
-    gfov_len = 0;
-    gfov_str = val;
-    while (1) {
-	int len;
-	gfov = (float*) realloc (gfov, (gfov_len + 1) * sizeof(float));
-	rc = sscanf (gfov_str, "%g%n", &gfov[gfov_len], &len);
-	if (rc != 1) {
-	    break;
-	}
-	gfov_len ++;
-	gfov_str += len;
-	if (gfov_str[0] == '\\') {
-	    gfov_str ++;
-	}
+    if (val) {
+        /* 3D Dose */
+        gfov = 0;
+        gfov_len = 0;
+        gfov_str = val;
+        while (1) {
+            int len;
+            gfov = (float*) realloc (gfov, (gfov_len + 1) * sizeof(float));
+            rc = sscanf (gfov_str, "%g%n", &gfov[gfov_len], &len);
+            if (rc != 1) {
+                break;
+            }
+            gfov_len ++;
+            gfov_str += len;
+            if (gfov_str[0] == '\\') {
+                gfov_str ++;
+            }
+        }
+    } else {
+        /* 2D Dose */
+        gfov = (float*) malloc (sizeof(float));
+        gfov[0] = 0.f;
+        gfov_len = 1;
     }
     dim[2] = gfov_len;
     if (gfov_len == 0) {
@@ -195,16 +200,18 @@ Dcmtk_rt_study::rtdose_load ()
     }
 
     /* (3) Check to make sure spacing is regular. */
-    for (plm_long i = 1; i < gfov_len; i++) {
-	if (i == 1) {
-	    spacing[2] = gfov[1] - gfov[0];
-	} else {
-	    float sp = gfov[i] - gfov[i-1];
-	    if (fabs(sp - spacing[2]) > GFOV_SPACING_TOL) {
-		print_and_exit ("Error RTDOSE grid has irregular spacing:"
-		    "%f vs %f.\n", sp, spacing[2]);
-	    }
-	}
+    else {
+        for (plm_long i = 1; i < gfov_len; i++) {
+            if (i == 1) {
+                spacing[2] = gfov[1] - gfov[0];
+            } else {
+                float sp = gfov[i] - gfov[i-1];
+                if (fabs(sp - spacing[2]) > GFOV_SPACING_TOL) {
+                    print_and_exit ("Error RTDOSE grid has irregular spacing:"
+                        "%f vs %f.\n", sp, spacing[2]);
+                }
+            }
+        }
     }
     free (gfov);
 
