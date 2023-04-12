@@ -470,16 +470,6 @@ Dcmtk_rt_study::rtss_save (const char *dicom_dir)
 	rtroio_item->putAndInsertString (DCM_ObservationNumber, tmp.c_str());
 	/* ReferencedROINumber */
 	rtroio_item->putAndInsertString (DCM_ReferencedROINumber, tmp.c_str());
-	/* ROIObservationLabel */
-        if (curr_structure->name.length() <= 16) {
-            rtroio_item->putAndInsertString (DCM_ROIObservationLabel, 
-                curr_structure->name.c_str());
-        } else {
-            /* VR is SH, max length 16 */
-            std::string tmp_name = curr_structure->name.substr (0, 16);
-            rtroio_item->putAndInsertString (DCM_ROIObservationLabel, 
-                tmp_name.c_str());
-        }
 	/* RTROIInterpretedType */
 	rtroio_item->putAndInsertString (DCM_RTROIInterpretedType, "");
 	/* ROIInterpreter */
