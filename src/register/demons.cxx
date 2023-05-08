@@ -12,6 +12,7 @@
 
 #include "delayload.h"
 #include "demons.h"
+#undef CUDA_FOUND   // GCS 2023-04-24.  Defeat CUDA. 
 #if CUDA_FOUND
 #include "demons_cuda.h"
 #endif

@@ -20,6 +20,8 @@
 #include "stage_parms.h"
 #include "string_util.h"
 
+#undef CUDA_FOUND   // GCS 2023-04-24.  Defeat CUDA. 
+
 class Registration_parms_private
 {
 public:

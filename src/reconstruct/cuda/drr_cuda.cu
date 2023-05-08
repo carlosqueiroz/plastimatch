@@ -37,15 +37,6 @@
 #define EMUSYNC
 #endif
 
-/* Textures */
-//texture<float, 1, cudaReadModeElementType> tex_img;
-//texture<float, 1, cudaReadModeElementType> tex_matrix;
-#if PLM_CONFIG_LEGACY_DRR_CUDA_TEXTURE
-texture<float, 1, cudaReadModeElementType> tex_vol;
-#else
-texture<float, 3, cudaReadModeElementType> tex_vol;
-#endif
-
 #define DRR_LEN_TOLERANCE 1e-6
 
 /* From volume_limit.c */
@@ -158,7 +149,7 @@ volume_limit_clip_segment (
 __device__
 float
 ray_trace_uniform (
-    float *dev_vol,           /* Output: the rendered drr */
+    cudaTextureObject_t tex_vol, /* Input: volume texture */
     float3 vol_offset,        /* Input:  volume geometry */
     int3 vol_dim,             /* Input:  volume resolution */
     float3 vol_spacing,       /* Input:  volume voxel spacing */
@@ -177,7 +168,6 @@ ray_trace_uniform (
     for (step = 0; step < MAX_STEPS; step++) {
 	float3 ipx;
 	int3 ai;
-	int idx;
 
 	/* Find 3-D location for this sample */
 	ipx = ip1 + step * step_length * ray;
@@ -187,18 +177,10 @@ ray_trace_uniform (
 		    + 0.5 * vol_spacing) * inv_spacing));
 
 	/* Find linear index within 3D volume */
-#if PLM_CONFIG_LEGACY_DRR_CUDA_TEXTURE
-        idx = ((ai.z * vol_dim.y + ai.y) * vol_dim.x) + ai.x;
-#endif
-
 	if (ai.x >= 0 && ai.y >= 0 && ai.z >= 0 &&
 	    ai.x < vol_dim.x && ai.y < vol_dim.y && ai.z < vol_dim.z)
 	{
-#if PLM_CONFIG_LEGACY_DRR_CUDA_TEXTURE
-	    acc += step_length * tex1Dfetch (tex_vol, idx);
-#else
-	    acc += step_length * tex3D (tex_vol, ai.x, ai.y, ai.z);
-#endif
+	    acc += step_length * tex3D<float> (tex_vol, ai.x, ai.y, ai.z);
 	}
     }
     return acc;
@@ -209,7 +191,7 @@ __global__ void
 kernel_drr (
     float *dev_img,           /* Output: the rendered drr */
     int2 img_dim,             /* Input:  size of output image */
-    float *dev_vol,           /* Input:  the input volume */
+    cudaTextureObject_t tex_vol,
     float2 ic,                /* Input:  image center */
     float3 nrm,               /* Input:  normal vector */
     float sad,                /* Input:  source-axis distance */
@@ -251,7 +233,7 @@ kernel_drr (
     {
 	outval = 0.0f;
     } else {
-	outval = ray_trace_uniform (dev_vol, vol_offset, vol_dim, vol_spacing,
+	outval = ray_trace_uniform (tex_vol, vol_offset, vol_dim, vol_spacing,
 	    ip1, ip2);
     }
 
@@ -278,25 +260,12 @@ drr_cuda_state_create_cu (
     memset (state, 0, sizeof(Drr_cuda_state));
 
     state->kargs = kargs = (Drr_kernel_args*) malloc (sizeof(Drr_kernel_args));
-    //cudaMalloc ((void**) &state->dev_matrix, 12 * sizeof(float));
     cudaMalloc ((void**) &state->dev_kargs, sizeof(Drr_kernel_args));
 
     kargs->vol_origin = make_float3 (vol->origin);
     kargs->vol_dim = make_int3 (vol->dim);
     kargs->vol_spacing = make_float3 (vol->spacing);
 
-#if PLM_CONFIG_LEGACY_DRR_CUDA_TEXTURE
-    cudaMalloc ((void**) &state->dev_vol, vol->npix * sizeof (float));
-    CUDA_check_error ("Failed to allocate dev_vol.");
-
-    cudaMemcpy (state->dev_vol, vol->img, vol->npix * sizeof (float),
-	cudaMemcpyHostToDevice);
-    CUDA_check_error ("Failed to memcpy dev_vol host to device.");
-
-    cudaBindTexture (0, tex_vol, state->dev_vol, vol->npix * sizeof (float));
-    CUDA_check_error ("Failed to bind state->dev_vol to texture.");
-
-#else
     /* The below code is Junan's.  Presumably this way can be better
        for using hardware linear interpolation, but for now I'm going
        to follow Tony's method. */
@@ -308,13 +277,12 @@ drr_cuda_state_create_cu (
     ca_extent.width  = vol->dim[0];
     ca_extent.height = vol->dim[1];
     ca_extent.depth  = vol->dim[2];
-    cudaMalloc3DArray (&state->dev_3Dvol, &ca_descriptor, ca_extent);
-    cudaBindTextureToArray (tex_vol, state->dev_3Dvol, ca_descriptor);
+    cudaMalloc3DArray (&state->dev_vol, &ca_descriptor, ca_extent);
 
     cudaMemcpy3DParms cpy_params = {0};
     cpy_params.extent   = ca_extent;
     cpy_params.kind     = cudaMemcpyHostToDevice;
-    cpy_params.dstArray = state->dev_3Dvol;
+    cpy_params.dstArray = state->dev_vol;
 
     //http://sites.google.com/site/cudaiap2009/cookbook-1#TOC-CUDA-3D-Texture-Example-Gerald-Dall
     // The pitched pointer is really tricky to get right. We give the
@@ -324,7 +292,26 @@ drr_cuda_state_create_cu (
 	ca_extent.width * sizeof(float), ca_extent.width , ca_extent.height);
 
     cudaMemcpy3D (&cpy_params);
-#endif
+    CUDA_check_error ("Failed to copy vol->img to device.\n");
+
+    // Specify texture
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = state->dev_vol;
+
+    // Specify texture object parameters
+    struct cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    texDesc.addressMode[0] = cudaAddressModeWrap;
+    texDesc.addressMode[1] = cudaAddressModeWrap;
+    texDesc.addressMode[1] = cudaAddressModeWrap;
+    texDesc.filterMode = cudaFilterModeLinear;
+    texDesc.readMode = cudaReadModeElementType;
+    texDesc.normalizedCoords = 0;
+
+    state->tex_vol = 0;
+    cudaCreateTextureObject (&state->tex_vol, &resDesc, &texDesc, NULL);
 
     cudaMalloc ((void**) &state->dev_img,
 	options->image_resolution[0] * options->image_resolution[1]
@@ -340,12 +327,10 @@ drr_cuda_state_destroy_cu (
 )
 {
     Drr_cuda_state *state = (Drr_cuda_state*) void_state;
-
-    cudaUnbindTexture (tex_vol);
-    cudaFree (state->dev_vol);
+    cudaDestroyTextureObject (state->tex_vol);
+    cudaFreeArray (state->dev_vol);
     cudaFree (state->dev_img);
     cudaFree (state->dev_kargs);
-    //cudaFree (state->dev_matrix);
     free (state->kargs);
 }
 
@@ -418,7 +403,7 @@ drr_cuda_ray_trace_image (
     kernel_drr<<< dimGrid, dimBlock >>> (
 	state->dev_img,
 	kargs->img_dim,
-	state->dev_vol,
+        state->tex_vol,
 	kargs->ic,
 	kargs->nrm,
 	kargs->sad,

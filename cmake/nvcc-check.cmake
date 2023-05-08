@@ -63,7 +63,7 @@ if (CUDA_FOUND AND CMAKE_SYSTEM_NAME MATCHES "Linux" AND CMAKE_COMPILER_IS_GNUCC
 
     #: CUDA 2.X: UNSUPPORTED
     #  ----------------------------------------------------------------
-    if (CUDA_VERSION_MAJOR MATCHES "2")
+    if (CUDA_VERSION_MAJOR LESS_EQUAL "2")
         message (FATAL_ERROR "nvcc-check: Plastimatch only supports CUDA 3.0+\n")
     endif ()
 

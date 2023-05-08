@@ -150,7 +150,8 @@ if (CUDA_FOUND)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmcuda)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmutilcuda)
   set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmreconstructcuda)
-  set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmregistercuda)
+
+##  set (PLASTIMATCH_LIBS ${PLASTIMATCH_LIBS} plmregistercuda)
 endif ()
 
 if (DCMTK_FOUND)
@@ -378,10 +379,10 @@ if (PLMLIB_CONFIG_ENABLE_REGISTER)
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
     )
-  if (CUDA_FOUND)
+  # GCS 2023-04-24.  Defeat CUDA.
+  if (CUDA_FOUND_DEFEATED)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register/cuda>
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
       )
   endif ()
 endif ()

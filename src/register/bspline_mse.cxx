@@ -17,6 +17,7 @@
 
 #include "bspline.h"
 #include "bspline_correspond.h"
+#undef CUDA_FOUND   // GCS 2023-04-24.  Defeat CUDA. 
 #if CUDA_FOUND
 #include "bspline_cuda.h"
 #endif

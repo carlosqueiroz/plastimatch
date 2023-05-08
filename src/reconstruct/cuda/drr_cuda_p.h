@@ -35,8 +35,8 @@ struct drr_cuda_state
 {
     Drr_kernel_args *kargs;         // Holds kernel parameters on host
     Drr_kernel_args *dev_kargs;     // Holds kernel parameters on device
-    float *dev_vol;	            // Holds volume on device
-    cudaArray_t dev_3Dvol;          // Ditto, but for 3d texture
+    cudaArray_t dev_vol;          // 3D volume on the device
+    cudaTextureObject_t tex_vol;    // Texture for 3D volume
     float *dev_img;	            // Holds image pixels on device
     float *dev_matrix;              // Holds projection matrix on device
 };
