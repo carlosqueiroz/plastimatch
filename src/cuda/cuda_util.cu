@@ -26,7 +26,7 @@ CUDA_check_error (const char *msg)
         fprintf (stderr, "CUDA ERROR: %s (%s).\n", 
 	    msg, cudaGetErrorString(err));
         exit (EXIT_FAILURE);
-    }                         
+    }
 }
 
 int
@@ -125,3 +125,4 @@ CUDA_getarch (int gpuid)
         return -1;
     }
 }
+

@@ -266,9 +266,6 @@ drr_cuda_state_create_cu (
     kargs->vol_dim = make_int3 (vol->dim);
     kargs->vol_spacing = make_float3 (vol->spacing);
 
-    /* The below code is Junan's.  Presumably this way can be better
-       for using hardware linear interpolation, but for now I'm going
-       to follow Tony's method. */
     // prepare texture
     cudaChannelFormatDesc ca_descriptor;
     cudaExtent ca_extent;
@@ -304,7 +301,6 @@ drr_cuda_state_create_cu (
     struct cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.addressMode[0] = cudaAddressModeWrap;
-    texDesc.addressMode[1] = cudaAddressModeWrap;
     texDesc.addressMode[1] = cudaAddressModeWrap;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.readMode = cudaReadModeElementType;

@@ -10,10 +10,10 @@ class Volume;
 class Demons_parms;
 
 class PLMREGISTER_API Demons_state {
-  public:
+public:
     Volume *vf_smooth;
     Volume *vf_est;
-  public:
+public:
     Demons_state (void);
     ~Demons_state (void);
     void init (

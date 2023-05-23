@@ -206,3 +206,151 @@ CUDA_timer_report (cuda_timer *timer)
     cudaEventDestroy (timer->stop);
     return time;
 }
+
+// https://stackoverflow.com/questions/59899751/memset-cuarray-for-surface-memory
+__global__ void
+CUDA_clear_3d_array_kernel (cudaSurfaceObject_t surf, dim3 kdim)
+{
+    // calculate surface coordinates
+    unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
+    unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
+
+    // write to memeory
+    if (x < kdim.x && y < kdim.y && z < kdim.z) {
+        surf3Dwrite<float> (0.f, surf, x*4, y, z, cudaBoundaryModeTrap);
+    }
+}
+
+void
+CUDA_clear_3d_array (cudaSurfaceObject_t *surf, const plm_long *dim)
+{
+    int threadX = 256;  // BLOCK_SIZE
+    int threadY = 1;
+    int threadZ = 1;
+    int blockX = (dim[0] + threadX - 1) / threadX;
+    int blockY = (dim[1] + threadY - 1) / threadY;
+    int blockZ = (dim[2] + threadZ - 1) / threadZ;
+    dim3 block_dim = dim3(threadX, threadY, threadZ);
+    dim3 grid_dim = dim3(blockX, blockY, blockZ);
+    dim3 kdim (dim[0], dim[1], dim[2]);
+    CUDA_clear_3d_array_kernel <<< grid_dim, block_dim >>> (*surf, kdim);
+}
+
+void
+CUDA_memcpy_to_3d_array (
+    cudaArray_t *dev_array,
+    const plm_long *dim,
+    const float *source    
+)
+{
+    cudaExtent ca_extent;
+    ca_extent.width  = dim[0];
+    ca_extent.height = dim[1];
+    ca_extent.depth  = dim[2];
+
+    cudaMemcpy3DParms cpy_params = {0};
+    cpy_params.extent   = ca_extent;
+    cpy_params.kind     = cudaMemcpyHostToDevice;
+    cpy_params.dstArray = *dev_array;
+
+    cpy_params.srcPtr = make_cudaPitchedPtr ((void*)source,
+        ca_extent.width * sizeof(float), ca_extent.width , ca_extent.height);
+
+    cudaMemcpy3D (&cpy_params);
+    CUDA_check_error ("cudaMemcpy3D (to) failed");
+}
+
+void
+CUDA_memcpy_from_3d_array (
+    float *dest, 
+    const plm_long *dim,
+    cudaArray_t *dev_array
+)
+{
+    cudaExtent ca_extent;
+    ca_extent.width  = dim[0];
+    ca_extent.height = dim[1];
+    ca_extent.depth  = dim[2];
+
+    cudaMemcpy3DParms cpy_params = {0};
+    cpy_params.extent   = ca_extent;
+    cpy_params.kind     = cudaMemcpyDeviceToHost;
+    cpy_params.srcArray = *dev_array;
+
+    cpy_params.dstPtr = make_cudaPitchedPtr ((void*)dest,
+        ca_extent.width * sizeof(float), ca_extent.width , ca_extent.height);
+
+    cudaMemcpy3D (&cpy_params);
+    CUDA_check_error ("cudaMemcpy3D (from) failed");
+}
+
+void
+CUDA_malloc_3d_array (
+    cudaArray_t *dev_array,
+    const plm_long *dim
+)
+{
+    cudaChannelFormatDesc ca_descriptor;
+    cudaExtent ca_extent;
+
+    ca_descriptor = cudaCreateChannelDesc<float>();
+    ca_extent.width  = dim[0];
+    ca_extent.height = dim[1];
+    ca_extent.depth  = dim[2];
+    cudaMalloc3DArray (dev_array, &ca_descriptor, ca_extent);
+    CUDA_check_error ("cudaMalloc3DArray failed");
+}
+
+void
+CUDA_bind_texture (
+    cudaTextureObject_t *tex_obj,
+    cudaArray_t dev_array
+)
+{
+    if (*tex_obj != 0) {
+        cudaDestroyTextureObject (*tex_obj);
+        *tex_obj = 0;
+    }
+    
+    // Specify texture
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = dev_array;
+
+    // Specify texture object parameters
+    struct cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    texDesc.addressMode[0] = cudaAddressModeWrap;
+    texDesc.addressMode[1] = cudaAddressModeWrap;
+    texDesc.addressMode[2] = cudaAddressModeWrap;
+    texDesc.filterMode = cudaFilterModeLinear;
+    texDesc.readMode = cudaReadModeElementType;
+    texDesc.normalizedCoords = 0;
+
+    cudaCreateTextureObject (tex_obj, &resDesc, &texDesc, NULL);
+    CUDA_check_error ("cudaCreateTextureObject failed");
+}
+
+void
+CUDA_bind_surface (
+    cudaSurfaceObject_t *surf,
+    cudaArray_t dev_array
+)
+{
+    if (*surf != 0) {
+        cudaDestroySurfaceObject (*surf);
+        *surf = 0;
+    }
+
+    // Specify surface
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = dev_array;
+    
+    // Create the surface objects
+    cudaCreateSurfaceObject(surf, &resDesc);
+    CUDA_check_error ("cudaCreateSurfaceObject failed");
+}

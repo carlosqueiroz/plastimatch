@@ -237,7 +237,7 @@ private:
 };
 
 PLMBASE_C_API void vf_convert_to_interleaved (Volume* ref);
-PLMBASE_C_API void vf_convert_to_planar (Volume* ref, int min_size);
+PLMBASE_C_API void vf_convert_to_planar (Volume* ref);
 PLMBASE_C_API void vf_pad_planar (Volume* vol, int size);  // deprecated?
 PLMBASE_C_API Volume* volume_clone_empty (Volume* ref);
 PLMBASE_C_API Volume* volume_clone (const Volume* ref);

@@ -22,6 +22,7 @@ set (PLMCUDA_LIBRARY_SRC
   cuda_kernel_util.cu
   cuda_mem.cu
   cuda_probe.cu
+  cuda_texture.cu
   cuda_util.cu
   )
 

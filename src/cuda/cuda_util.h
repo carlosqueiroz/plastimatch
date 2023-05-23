@@ -49,7 +49,6 @@ int CUDA_getarch,
     int gpuid
 );
 
-
 #if defined __cplusplus
 }
 #endif

@@ -6,8 +6,7 @@ project (src_plastimatch_register)
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories (BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
-# GCS 2023-04-24.  Defeat CUDA.
-if (CUDA_FOUND_DEFEATED)
+if (CUDA_FOUND)
   add_subdirectory (cuda)
   include_directories (BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cuda")
 endif ()
@@ -109,7 +108,7 @@ set (PLMREGISTER_LIBRARY_DEPENDENCIES
   plmutil
   )
 
-if (CUDA_FOUND_DEFEATED)
+if (CUDA_FOUND)
   set (PLMREGISTER_LIBRARY_DEPENDENCIES 
     ${PLMREGISTER_LIBRARY_DEPENDENCIES}
     plmcuda
@@ -170,6 +169,6 @@ plm_add_library (
 # because plmregistercuda is dynamically loaded (not linked)
 # CMake needs to be told explicitly that plmregister
 # depends on it, so we tell it explicitly here
-if (CUDA_FOUND_DEFEATED)
+if (CUDA_FOUND)
   add_dependencies (plmregister plmregistercuda)
 endif ()

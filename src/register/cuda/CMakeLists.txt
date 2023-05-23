@@ -22,14 +22,16 @@ if (THRUST_INCLUDE_DIR)
 endif ()
 
 set (PLMREGISTERCUDA_SRC
-  bspline_cuda.cu
-  bspline_cuda_kernels.h
+  # GCS 2023-05-15 Defeat CUDA
+#  bspline_cuda.cu
+#  bspline_cuda_kernels.h
   demons_cuda.cu
 #  demons_cuda_kernel.cu
   )
 
 set (PLMREGISTERCUDA_IFACE_SRC
-  bspline_cuda.cxx
+  # GCS 2023-05-15 Defeat CUDA
+  # bspline_cuda.cxx
   )
 
 if (PLM_BUILD_VISCOUS)

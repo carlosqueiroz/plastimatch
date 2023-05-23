@@ -379,8 +379,7 @@ if (PLMLIB_CONFIG_ENABLE_REGISTER)
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
     )
-  # GCS 2023-04-24.  Defeat CUDA.
-  if (CUDA_FOUND_DEFEATED)
+  if (CUDA_FOUND)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/register/cuda>
       )

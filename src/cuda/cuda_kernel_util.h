@@ -32,7 +32,6 @@ struct cuda_timer_struct {
     cudaEvent_t stop;
 };
 
-
 template <typename T>
 __device__ inline void
 shared_memset (T* s, T c, int n);
@@ -44,7 +43,6 @@ atomic_add_float (
     float val
 );
 
-
 template <typename T>
 __device__ inline void
 stog_memcpy (
@@ -52,6 +50,17 @@ stog_memcpy (
     T* shared,
     int set_size
 );
+
+void CUDA_malloc_3d_array (
+    cudaArray_t *dev_array,
+    const plm_long *dim
+);
+
+void CUDA_clear_3d_array (
+    cudaSurfaceObject_t *surf,
+    const plm_long *dim
+);
+
 
 #if defined __cplusplus
 extern "C" {
@@ -94,6 +103,32 @@ extern "C" {
     plmcuda_EXPORT (
     float CUDA_timer_report,
         cuda_timer *timer
+    );
+
+    plmcuda_EXPORT (
+        void CUDA_memcpy_to_3d_array,
+        cudaArray_t *dev_array,
+        const plm_long *dim,
+        const float *source
+    );
+
+    plmcuda_EXPORT (
+        void CUDA_memcpy_from_3d_array,
+        float *dest, 
+        const plm_long *dim,
+        cudaArray_t *dev_array
+    );
+
+    plmcuda_EXPORT (
+        void CUDA_bind_texture,
+        cudaTextureObject_t *tex_obj,
+        cudaArray_t dev_array
+    );
+
+    plmcuda_EXPORT (
+        void CUDA_bind_surface,
+        cudaSurfaceObject_t *surf,
+        cudaArray_t dev_array
     );
 
 #if defined __cplusplus
