@@ -44,6 +44,7 @@ public:
     Cuda_texture ();
     ~Cuda_texture ();
     void make_and_bind (const plm_long *dim, const float *source);
+    float probe (int i, int j, int k, const plm_long *dim);
 };
 
 #endif

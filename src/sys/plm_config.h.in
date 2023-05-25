@@ -46,6 +46,7 @@
 
 /* User options */
 #cmakedefine PLM_BUILD_SHARED_LIBS 1
+#cmakedefine PLM_CONFIG_DEBUG_CUDA 1
 #cmakedefine PLM_CONFIG_ITKV4_REGISTRATION 1
 #cmakedefine PLM_CONFIG_VOL_LIST 1
 #cmakedefine PLM_CONFIG_HARDEN_XFORM_BY_DEFAULT 1

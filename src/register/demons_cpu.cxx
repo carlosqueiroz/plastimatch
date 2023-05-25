@@ -48,7 +48,9 @@ demons_c (
     float *vf_est_img, *vf_smooth_img;
     size_t inliers;
     float ssd;
-
+    plm_long dbx = 20, dby = 20, dbz = 20;
+    plm_long dbv = volume_index (fixed->dim, dbx, dby, dbz);
+        
     /* Allocate memory for vector fields */
     if (vf_init) {
 	/* If caller has an initial estimate, we copy it */
@@ -100,6 +102,18 @@ demons_c (
     timer->start ();
     it_timer->start ();
 
+#if PLM_CONFIG_DEBUG_CUDA
+    printf ("m/f (%d,%d,%d) = %f %f\n",
+        dbx, dby, dbz,
+        m_img[dbv], f_img[dbv]);
+    printf ("grad (%d,%d,%d) = %f %f %f %f\n",
+        dbx, dby, dbz,
+        m_grad_img[3*dbv + 0],
+        m_grad_img[3*dbv + 1],
+        m_grad_img[3*dbv + 2],
+        m_grad_mag_img[dbv]);
+#endif
+    
     /* Main loop through iterations */
     for (it = 0; it < parms->max_its; it++) {
 
@@ -146,6 +160,15 @@ demons_c (
 	    }
 	}
 	//vf_print_stats (vf_est);
+
+
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_est (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            vf_est_img[3*dbv + 0],
+            vf_est_img[3*dbv + 1],
+            vf_est_img[3*dbv + 2]);
+#endif
 
 	/* Smooth the estimate into vf_smooth.  The volumes are ping-ponged. */
 	vf_convolve_x (vf_smooth, vf_est, kerx, fw[0]);

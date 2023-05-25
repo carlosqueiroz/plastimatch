@@ -41,7 +41,7 @@ public:
 /*
 Constant Memory
 */
-__constant__ int c_dim[3];
+__constant__ int c_fixed_dim[3];
 __constant__ int c_moving_dim[3];
 __constant__ float c_spacing_div2[3];
 __constant__ float c_f2mo[3];
@@ -56,8 +56,7 @@ void
 setConstantDimension (plm_long *h_dim)
 {
     int i_dim[3] = { (int) h_dim[0], (int) h_dim[1], (int) h_dim[2] };
-    cudaMemcpyToSymbol (c_dim, i_dim, sizeof(int3));
-    //cudaMemcpyToSymbol(c_dim, h_dim, sizeof(int3));
+    cudaMemcpyToSymbol (c_fixed_dim, i_dim, sizeof(int3));
 }
 
 void 
@@ -87,17 +86,6 @@ void setConstantInvmps(float *h_invmps)
     cudaMemcpyToSymbol(c_invmps, h_invmps, sizeof(float3));
 }
 
-/*
-Device Functions
-*/
-__device__ int volume_index_cuda (int *dims, int i, int j, int k)
-{
-    return i + (dims[0] * (j + dims[1] * k));
-}
-
-/*
-Kernels
-*/
 __global__ void
 calculate_gradient_magnitude_image_kernel (
     cudaTextureObject_t grad_x,
@@ -110,11 +98,8 @@ calculate_gradient_magnitude_image_kernel (
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (x >= c_dim[0] || y >= c_dim[1] || z >= c_dim[2])
+    if (x >= c_fixed_dim[0] || y >= c_fixed_dim[1] || z >= c_fixed_dim[2])
         return;
-
-    long v = (z * c_dim[1] * c_dim[0]) + (y * c_dim[0]) + x;
-    long v3 = v * 3;
 
     float vox_grad_x = tex3D<float> (grad_x, x, y, z);
     float vox_grad_y = tex3D<float> (grad_y, x, y, z);
@@ -125,6 +110,7 @@ calculate_gradient_magnitude_image_kernel (
     surf3Dwrite (val, grad_mag, x * 4, y, z);
 }
 
+// New displacement estimates will be stored into vf_est
 __global__ void 
 estimate_displacements_kernel (
     cudaSurfaceObject_t vf_est_x,
@@ -153,18 +139,26 @@ estimate_displacements_kernel (
     unsigned int j = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (i >= c_dim[0] || j >= c_dim[1] || k >= c_dim[2])
+    if (i >= c_fixed_dim[0] || j >= c_fixed_dim[1] || k >= c_fixed_dim[2])
 	return;
 
-    long fv = (k * c_dim[1] * c_dim[0]) + (j * c_dim[0]) + i;
-    long f3v = 3 * fv;
-
+    // f2mo[i] = (fixed->origin[i] - moving->origin[i]) / moving->spacing[i];
+    // f2ms[i] = fixed->spacing[i] / moving->spacing[i];
+    // mi = (fo - mo) / ms + fi * fs / ms
+    //    = ((fo - mo) + (fi * fs)) / ms
     float mi = c_f2mo[0] + i * c_f2ms[0];
     float mj = c_f2mo[1] + j * c_f2ms[1];
     float mk = c_f2mo[2] + k * c_f2ms[2];
 
-    /* Find correspondence with nearest neighbor interpolation 
-       and boundary checking */
+    // mx = mi + disp / ms
+    //    = ((fo - mo) + (fi * fs)) + disp / ms
+    //    = ((fo + fi * fs) + disp - mo) / ms
+    // Thus, mx is the corresponding location in pixels.  Should have been
+    // called mi.  The mi defined above is more like a temporary variable.
+    //
+    // The more traditional way to arrange this calculation is like this:
+    // mx = (fo + fi * fs + disp)
+    // mi = (mx - mo) / ms
     int mz = __float2int_rn (mk + c_invmps[2] 
 	* tex3D<float> (vf_smooth_z, i, j, k));
     if (mz < 0 || mz >= c_moving_dim[2])
@@ -180,9 +174,6 @@ estimate_displacements_kernel (
     if (mx < 0 || mx >= c_moving_dim[0])
 	return;
 
-    int mv = (mz * c_moving_dim[1] + my) * c_moving_dim[0] + mx;
-    int m3v = 3 * mv;
-
     /* Find image difference at this correspondence */
     float diff = tex3D<float> (fixed, i, j, k)
         - tex3D<float> (moving, mx, my, mz);
@@ -191,6 +182,7 @@ estimate_displacements_kernel (
     float denom = tex3D<float> (grad_mag, mx, my, mz) + homog * diff * diff;
 
     /* Compute SSD for statistics */
+    long fv = (k * c_fixed_dim[1] * c_fixed_dim[0]) + (j * c_fixed_dim[0]) + i;
     inliers[fv] = 1;
     ssd[fv] = diff * diff;
 
@@ -311,27 +303,24 @@ vf_convolve_x_kernel (
     cudaTextureObject_t vf_in_z,
     float *ker, int half_width, int blockY, float invBlockY)
 {
-    int i, i1;		/* i is the offset in the vf */
-    int j, j1, j2;	/* j is the index of the kernel */
-    int d;			/* d is the vector field direction */
+    int i1;             /* i1 is the index in the vf */
+    int j1, j2;         /* j1, j2 is the index of the kernel */
 
     // calculate surface coordinates
     unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (x >= c_dim[0] || y >= c_dim[1] || z >= c_dim[2])
+    if (x >= c_fixed_dim[0] || y >= c_fixed_dim[1] || z >= c_fixed_dim[2])
         return;
-
-    long v3 = 3 * ((z * c_dim[1] * c_dim[0]) + (y * c_dim[0]) + x);
 
     j1 = x - half_width;
     j2 = x + half_width;
     if (j1 < 0) j1 = 0;
-    if (j2 >= c_dim[0]) {
-        j2 = c_dim[0] - 1;
+    if (j2 >= c_fixed_dim[0]) {
+        j2 = c_fixed_dim[0] - 1;
     }
-    i1 = j1 - x;
+    i1 = j1;
     j1 = j1 - x + half_width;
     j2 = j2 - x + half_width;
 
@@ -350,27 +339,24 @@ vf_convolve_y_kernel (
     cudaTextureObject_t vf_in_z,
     float *ker, int half_width, int blockY, float invBlockY)
 {
-    int i, i1;		/* i is the offset in the vf */
-    int j, j1, j2;	/* j is the index of the kernel */
-    int d;			/* d is the vector field direction */
+    int i1;             /* i1 is the index in the vf */
+    int j1, j2;         /* j1, j2 is the index of the kernel */
 
     // calculate surface coordinates
     unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (x >= c_dim[0] || y >= c_dim[1] || z >= c_dim[2])
+    if (x >= c_fixed_dim[0] || y >= c_fixed_dim[1] || z >= c_fixed_dim[2])
         return;
-
-    long v3 = 3 * ((z * c_dim[1] * c_dim[0]) + (y * c_dim[0]) + x);
 
     j1 = y - half_width;
     j2 = y + half_width;
     if (j1 < 0) j1 = 0;
-    if (j2 >= c_dim[1]) {
-        j2 = c_dim[1] - 1;
+    if (j2 >= c_fixed_dim[1]) {
+        j2 = c_fixed_dim[1] - 1;
     }
-    i1 = j1 - y;
+    i1 = j1;
     j1 = j1 - y + half_width;
     j2 = j2 - y + half_width;
 
@@ -389,27 +375,24 @@ vf_convolve_z_kernel (
     cudaTextureObject_t vf_in_z,
     float *ker, int half_width, int blockY, float invBlockY)
 {
-    int i, i1;		/* i is the offset in the vf */
-    int j, j1, j2;	/* j is the index of the kernel */
-    int d;			/* d is the vector field direction */
+    int i1;             /* i1 is the index in the vf */
+    int j1, j2;         /* j1, j2 is the index of the kernel */
 
     // calculate surface coordinates
     unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (x >= c_dim[0] || y >= c_dim[1] || z >= c_dim[2])
+    if (x >= c_fixed_dim[0] || y >= c_fixed_dim[1] || z >= c_fixed_dim[2])
         return;
-
-    long v3 = 3 * ((z * c_dim[1] * c_dim[0]) + (y * c_dim[0]) + x);
 
     j1 = z - half_width;
     j2 = z + half_width;
     if (j1 < 0) j1 = 0;
-    if (j2 >= c_dim[2]) {
-        j2 = c_dim[2] - 1;
+    if (j2 >= c_fixed_dim[2]) {
+        j2 = c_fixed_dim[2] - 1;
     }
-    i1 = j1 - z;
+    i1 = j1;
     j1 = j1 - z + half_width;
     j2 = j2 - z + half_width;
 
@@ -431,22 +414,16 @@ volume_calc_grad_kernel (
     unsigned int j = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (i >= c_dim[0] || j >= c_dim[1] || k >= c_dim[2])
+    if (i >= c_fixed_dim[0] || j >= c_fixed_dim[1] || k >= c_fixed_dim[2])
         return;
 
     /* p is prev, n is next */
     int i_p = (i == 0) ? 0 : i - 1;
-    int i_n = (i == c_dim[0] - 1) ? c_dim[0] - 1 : i + 1;
+    int i_n = (i == c_fixed_dim[0] - 1) ? c_fixed_dim[0] - 1 : i + 1;
     int j_p = (j == 0) ? 0 : j - 1;
-    int j_n = (j == c_dim[1] - 1) ? c_dim[1] - 1 : j + 1;
+    int j_n = (j == c_fixed_dim[1] - 1) ? c_fixed_dim[1] - 1 : j + 1;
     int k_p = (k == 0) ? 0 : k - 1;
-    int k_n = (k == c_dim[2] - 1) ? c_dim[2] - 1 : k + 1;
-
-    long v3 = 3 * ((k * c_dim[1] * c_dim[0]) + (j * c_dim[0]) + i);
-
-    long gi = v3;
-    long gj = v3 + 1;
-    long gk = v3 + 2;
+    int k_n = (k == c_fixed_dim[2] - 1) ? c_fixed_dim[2] - 1 : k + 1;
 
     float val = 0;
     val = c_spacing_div2[0] *
@@ -454,7 +431,7 @@ volume_calc_grad_kernel (
     surf3Dwrite (val, grad_x, i * 4, j, k);
 
     val = c_spacing_div2[1] * 
-        (tex3D<float>(moving, i, j_p, k) - tex3D<float>(moving, i, j_p, k));
+        (tex3D<float>(moving, i, j_p, k) - tex3D<float>(moving, i, j_n, k));
     surf3Dwrite (val, grad_y, i * 4, j, k);
 
     val = c_spacing_div2[2] *
@@ -489,13 +466,18 @@ demons_cuda (
     Plm_timer* kernel_timer = new Plm_timer;
 
     int num_elements, half_num_elements, reductionBlocks;
-    size_t vol_size, interleaved_vol_size, inlier_size;
+    size_t vol_size, inlier_size;
     int *d_inliers;
     float total_runtime, spacing_div2[3];
-    float *d_kerx, *d_kery, *d_kerz, *d_swap, *d_ssd;
-    dim3 reductionGrid;
+    float *d_kerx, *d_kery, *d_kerz, *d_ssd;
 
     Demons_cuda_state dcstate;
+
+    // Debug using probe
+    int dbx = 20, dby = 20, dbz = 20;
+    plm_long dbv = volume_index (fixed->dim, dbx, dby, dbz);
+    float *f_img = (float*) fixed->img;
+    float *m_img = (float*) moving->img;
     
     printf ("Hello from demons_cuda()\n");
 
@@ -521,7 +503,6 @@ demons_cuda (
 
     /* Determine size of device memory */
     vol_size = moving->dim[0] * moving->dim[1] * moving->dim[2] * sizeof(float);
-    interleaved_vol_size = 3 * fixed->dim[0] * fixed->dim[1] * fixed->dim[2] * sizeof(float);
     inlier_size = moving->dim[0] * moving->dim[1] * moving->dim[2] * sizeof(int);
 
     /* Allocate device memory */
@@ -618,15 +599,33 @@ demons_cuda (
     setConstantInvmps (invmps);
 
     /* Bind device texture memory */
-    printf ("Doing cudaBindTexture\n");
     gpu_time += gpu_timer->report ();
 
-    timer->start ();
-
+#if PLM_CONFIG_DEBUG_CUDA
+    printf ("m/f (%d,%d,%d) = %f %f\n",
+        dbx, dby, dbz,
+        m_img[dbv], f_img[dbv]);
+    printf ("vf_est (%d,%d,%d) = %f %f %f\n",
+        dbx, dby, dbz,
+        dcstate.vf_est_x.probe (dbx, dby, dbz, fixed->dim),
+        dcstate.vf_est_y.probe (dbx, dby, dbz, fixed->dim),
+        dcstate.vf_est_z.probe (dbx, dby, dbz, fixed->dim));
+    printf ("m/f (%d,%d,%d) = %f %f\n",
+        dbx, dby, dbz,
+        dcstate.moving.probe (dbx, dby, dbz, moving->dim),
+        dcstate.moving.probe (dbx, dby, dbz, fixed->dim));
+    printf ("grad (%d,%d,%d) = %f %f %f %f\n",
+        dbx, dby, dbz,
+        dcstate.grad_x.probe (dbx, dby, dbz, moving->dim),
+        dcstate.grad_y.probe (dbx, dby, dbz, moving->dim),
+        dcstate.grad_z.probe (dbx, dby, dbz, moving->dim),
+        dcstate.grad_mag.probe (dbx, dby, dbz, moving->dim));
+#endif
+    
     /* Main loop through iterations.  At the start of each iteration, 
        the current displacement field will be in vf_smooth. */
+    timer->start ();
     for (it = 0; it < parms->max_its; it++) {
-	printf ("Looping...\n");
 	inliers = 0; ssd = 0.0;
 
 	/* Check for any errors prekernel execution */
@@ -661,6 +660,14 @@ demons_cuda (
 	    1.0f / (float)blockY);
 	cudaDeviceSynchronize ();
 	kernel_time += kernel_timer->report ();
+
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_est (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            dcstate.vf_est_x.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_est_y.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_est_z.probe (dbx, dby, dbz, fixed->dim));
+#endif
 
 	/* Check for any errors postkernel execution */
 	CUDA_check_error ("Kernel execution failed");
@@ -713,6 +720,14 @@ demons_cuda (
 	/* Check for any errors postkernel execution */
 	CUDA_check_error("Kernel execution failed");
 
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_smooth (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            dcstate.vf_smooth_x.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_smooth_y.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_smooth_z.probe (dbx, dby, dbz, fixed->dim));
+#endif
+
 	/* Smooth vf_smooth into vf_est.  The volumes are ping-ponged. */
 	kernel_timer->start ();
 	vf_convolve_y_kernel<<< grid_dim, block_dim >>> (
@@ -729,6 +744,14 @@ demons_cuda (
 	/* Check for any errors postkernel execution */
 	CUDA_check_error("Kernel execution failed");
 
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_est (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            dcstate.vf_est_x.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_est_y.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_est_z.probe (dbx, dby, dbz, fixed->dim));
+#endif
+
 	/* Smooth vf_est into vf_smooth.  The volumes are ping-ponged. */
 	vf_convolve_z_kernel<<< grid_dim, block_dim >>> (
             dcstate.vf_smooth_x.surf,
@@ -743,6 +766,14 @@ demons_cuda (
 
 	/* Check for any errors postkernel execution */
 	CUDA_check_error("Kernel execution failed");
+
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_smooth (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            dcstate.vf_smooth_x.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_smooth_y.probe (dbx, dby, dbz, fixed->dim),
+            dcstate.vf_smooth_z.probe (dbx, dby, dbz, fixed->dim));
+#endif
     }
 
     /* Copy final output from device to host */

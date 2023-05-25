@@ -255,7 +255,7 @@ CUDA_memcpy_to_3d_array (
     cpy_params.dstArray = *dev_array;
 
     cpy_params.srcPtr = make_cudaPitchedPtr ((void*)source,
-        ca_extent.width * sizeof(float), ca_extent.width , ca_extent.height);
+        ca_extent.width * sizeof(float), ca_extent.width, ca_extent.height);
 
     cudaMemcpy3D (&cpy_params);
     CUDA_check_error ("cudaMemcpy3D (to) failed");
@@ -279,7 +279,7 @@ CUDA_memcpy_from_3d_array (
     cpy_params.srcArray = *dev_array;
 
     cpy_params.dstPtr = make_cudaPitchedPtr ((void*)dest,
-        ca_extent.width * sizeof(float), ca_extent.width , ca_extent.height);
+        ca_extent.width * sizeof(float), ca_extent.width, ca_extent.height);
 
     cudaMemcpy3D (&cpy_params);
     CUDA_check_error ("cudaMemcpy3D (from) failed");
@@ -294,11 +294,13 @@ CUDA_malloc_3d_array (
     cudaChannelFormatDesc ca_descriptor;
     cudaExtent ca_extent;
 
-    ca_descriptor = cudaCreateChannelDesc<float>();
+//    ca_descriptor = cudaCreateChannelDesc<float>();
+    ca_descriptor = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
+            
     ca_extent.width  = dim[0];
     ca_extent.height = dim[1];
     ca_extent.depth  = dim[2];
-    cudaMalloc3DArray (dev_array, &ca_descriptor, ca_extent);
+    cudaMalloc3DArray (dev_array, &ca_descriptor, ca_extent, cudaArraySurfaceLoadStore);
     CUDA_check_error ("cudaMalloc3DArray failed");
 }
 

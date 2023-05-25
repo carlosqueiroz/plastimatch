@@ -119,6 +119,8 @@ option (PLM_CONFIG_ENABLE_SUPERBUILD
   "Set to ON to allow src/plastimatch to be built using nested superbuild" OFF)
 
 # Plastimatch software configuration options
+sb_option (PLM_CONFIG_DEBUG_CUDA
+  "Set to ON to add debug statements for CUDA" OFF)
 option (PLM_CONFIG_CLANG_COMPLETE
   "Generate .clang_complete for hipster Vim-ers" OFF)
 sb_option (PLM_PREFER_NEW_ITK_DEMONS
