@@ -4,6 +4,7 @@
 project (src_plastimatch_test)
 
 include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories (BEFORE ${PLM_BINARY_DIR})
 
 if (CUDA_FOUND)
   add_subdirectory (cuda)
