@@ -61,7 +61,6 @@ void CUDA_clear_3d_array (
     const plm_long *dim
 );
 
-
 #if defined __cplusplus
 extern "C" {
 #endif

@@ -294,8 +294,7 @@ CUDA_malloc_3d_array (
     cudaChannelFormatDesc ca_descriptor;
     cudaExtent ca_extent;
 
-//    ca_descriptor = cudaCreateChannelDesc<float>();
-    ca_descriptor = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
+    ca_descriptor = cudaCreateChannelDesc<float>();
             
     ca_extent.width  = dim[0];
     ca_extent.height = dim[1];

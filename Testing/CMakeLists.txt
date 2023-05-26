@@ -870,10 +870,6 @@ set_tests_properties (plm-diff-b-check PROPERTIES DEPENDS plm-diff-b-stats)
 ## demons
 ##   demons-a          gauss-1.mha, gauss-2.mha
 ##   demons-cuda-a     gauss-1.mha, gauss-2.mha
-## *** 2011-10-30
-##    Debian ARM gives value of 2.02.  Normally the returned value 
-##    is about 2.15, which would be tested for a range of 2.1 to 2.2
-##    This has been changed to 1.95 to let ARM test pass.
 ## -------------------------------------------------------------------------
 plm_add_test (
   "demons-a"
@@ -885,8 +881,6 @@ plmtest_check_interval (demons-a-check
   "^Mean: *([0-9.]*)"
   "3.4"
   "3.5"
-#  "1.95"
-#  "2.2"
   )
 set_property (TEST demons-a APPEND PROPERTY DEPENDS gauss-1)
 set_property (TEST demons-a APPEND PROPERTY DEPENDS gauss-2)
@@ -900,8 +894,8 @@ plm_add_test (
 plmtest_check_interval (demons-cuda-a-check
   "${PLM_BUILD_TESTING_DIR}/demons-cuda-a.stdout.txt"
   "^Mean: *([0-9.]*)"
-  "2.1"
-  "2.2"
+  "3.3"
+  "3.4"
   )
 set_property (TEST demons-cuda-a APPEND PROPERTY DEPENDS gauss-1)
 set_property (TEST demons-cuda-a APPEND PROPERTY DEPENDS gauss-2)

@@ -87,6 +87,48 @@ void setConstantInvmps(float *h_invmps)
 }
 
 __global__ void
+volume_calc_grad_kernel (
+    cudaSurfaceObject_t moving,
+    cudaSurfaceObject_t grad_x,
+    cudaSurfaceObject_t grad_y,
+    cudaSurfaceObject_t grad_z
+)
+{
+    // calculate surface coordinates
+    unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y*blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z*blockDim.z + threadIdx.z;
+
+    if (i >= c_moving_dim[0] || j >= c_moving_dim[1] || k >= c_moving_dim[2])
+        return;
+
+    /* p is prev, n is next */
+    int i_p = (i == 0) ? 0 : i - 1;
+    int i_n = (i == c_moving_dim[0] - 1) ? c_moving_dim[0] - 1 : i + 1;
+    int j_p = (j == 0) ? 0 : j - 1;
+    int j_n = (j == c_moving_dim[1] - 1) ? c_moving_dim[1] - 1 : j + 1;
+    int k_p = (k == 0) ? 0 : k - 1;
+    int k_n = (k == c_moving_dim[2] - 1) ? c_moving_dim[2] - 1 : k + 1;
+
+    float v_p, v_n;
+    float val = 0;
+    surf3Dread (&v_p, moving, i_p * 4, j, k);
+    surf3Dread (&v_n, moving, i_n * 4, j, k);
+    val = c_spacing_div2[0] * (v_n - v_p);
+    surf3Dwrite (val, grad_x, i * 4, j, k);
+
+    surf3Dread (&v_p, moving, i * 4, j_p, k);
+    surf3Dread (&v_n, moving, i * 4, j_n, k);
+    val = c_spacing_div2[1] * (v_n - v_p);
+    surf3Dwrite (val, grad_y, i * 4, j, k);
+
+    surf3Dread (&v_p, moving, i * 4, j, k_p);
+    surf3Dread (&v_n, moving, i * 4, j, k_n);
+    val = c_spacing_div2[2] * (v_n - v_p);
+    surf3Dwrite (val, grad_z, i * 4, j, k);
+}
+
+__global__ void
 calculate_gradient_magnitude_image_kernel (
     cudaTextureObject_t grad_x,
     cudaTextureObject_t grad_y,
@@ -98,12 +140,12 @@ calculate_gradient_magnitude_image_kernel (
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
     unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
 
-    if (x >= c_fixed_dim[0] || y >= c_fixed_dim[1] || z >= c_fixed_dim[2])
+    if (x >= c_moving_dim[0] || y >= c_moving_dim[1] || z >= c_moving_dim[2])
         return;
 
-    float vox_grad_x = tex3D<float> (grad_x, x, y, z);
-    float vox_grad_y = tex3D<float> (grad_y, x, y, z);
-    float vox_grad_z = tex3D<float> (grad_z, x, y, z);
+    float vox_grad_x = tex3D<float> (grad_x, x+0.5, y+0.5, z+0.5);
+    float vox_grad_y = tex3D<float> (grad_y, x+0.5, y+0.5, z+0.5);
+    float vox_grad_z = tex3D<float> (grad_z, x+0.5, y+0.5, z+0.5);
     float val = vox_grad_x * vox_grad_x
         + vox_grad_y * vox_grad_y + vox_grad_z * vox_grad_z;
 
@@ -159,27 +201,28 @@ estimate_displacements_kernel (
     // The more traditional way to arrange this calculation is like this:
     // mx = (fo + fi * fs + disp)
     // mi = (mx - mo) / ms
-    int mz = __float2int_rn (mk + c_invmps[2] 
-	* tex3D<float> (vf_smooth_z, i, j, k));
+    float dz = tex3D<float> (vf_smooth_z, i+0.5, j+0.5, k+0.5);
+    int mz = __float2int_rn (mk + c_invmps[2] * dz);
     if (mz < 0 || mz >= c_moving_dim[2])
 	return;
 
-    int my = __float2int_rn (mj + c_invmps[1] 
-	* tex3D<float> (vf_smooth_y, i, j, k));
+    float dy = tex3D<float> (vf_smooth_y, i+0.5, j+0.5, k+0.5);
+    int my = __float2int_rn (mj + c_invmps[1] * dy);
     if (my < 0 || my >= c_moving_dim[1])
 	return;
 
-    int mx = __float2int_rn (mi + c_invmps[0] 
-	* tex3D<float> (vf_smooth_x, i, j, k));
+    float dx = tex3D<float> (vf_smooth_x, i+0.5, j+0.5, k+0.5);
+    int mx = __float2int_rn (mi + c_invmps[0] * dx);
     if (mx < 0 || mx >= c_moving_dim[0])
 	return;
 
     /* Find image difference at this correspondence */
-    float diff = tex3D<float> (fixed, i, j, k)
-        - tex3D<float> (moving, mx, my, mz);
+    /* GCS FIX: Use interpolation instead of rounding for the moving and grad */
+    float diff = tex3D<float> (fixed, i+0.5, j+0.5, k+0.5)
+        - tex3D<float> (moving, mx+0.5, my+0.5, mz+0.5);
 
     /* Compute denominator */
-    float denom = tex3D<float> (grad_mag, mx, my, mz) + homog * diff * diff;
+    float denom = tex3D<float> (grad_mag, mx+0.5, my+0.5, mz+0.5) + homog * diff * diff;
 
     /* Compute SSD for statistics */
     long fv = (k * c_fixed_dim[1] * c_fixed_dim[0]) + (j * c_fixed_dim[0]) + i;
@@ -193,15 +236,12 @@ estimate_displacements_kernel (
     /* Compute new estimate of displacement */
     float mult = accel * diff / denom;
     float data;
-    surf3Dread (&data, vf_est_x, mx * 4, my, mz);
-    data += mult * tex3D<float>(grad_x, mx, my, mz);
-    surf3Dwrite (data, vf_est_x, mx * 4, my, mz);
-    surf3Dread (&data, vf_est_y, mx * 4, my, mz);
-    data += mult * tex3D<float>(grad_y, mx, my, mz);
-    surf3Dwrite (data, vf_est_y, mx * 4, my, mz);
-    surf3Dread (&data, vf_est_z, mx * 4, my, mz);
-    data += mult * tex3D<float>(grad_z, mx, my, mz);
-    surf3Dwrite (data, vf_est_z, mx * 4, my, mz);
+    data = dx + mult * tex3D<float>(grad_x, mx+0.5, my+0.5, mz+0.5);
+    surf3Dwrite (data, vf_est_x, i * 4, j, k);
+    data = dy + mult * tex3D<float>(grad_y, mx+0.5, my+0.5, mz+0.5);
+    surf3Dwrite (data, vf_est_y, i * 4, j, k);
+    data = dz + mult * tex3D<float>(grad_z, mx+0.5, my+0.5, mz+0.5);
+    surf3Dwrite (data, vf_est_z, i * 4, j, k);
 }
 
 template <class T> __global__ void
@@ -244,11 +284,13 @@ vf_conv_x (
 )
 {
     float sum = 0.0;
+    float ksum = 0.0;
     for (int i = i1, j = j1; j <= j2; i++, j++) {
-        float data = tex3D<float> (vf_in, i, y, z);
+        float data = tex3D<float> (vf_in, i+0.5, y+0.5, z+0.5);
         sum += ker[j] * data;
+        ksum += ker[j];
     }
-    surf3Dwrite (sum, vf_out, x * 4, y, z);
+    surf3Dwrite (sum / ksum, vf_out, x * 4, y, z);
 }
 
 __device__ void
@@ -265,11 +307,13 @@ vf_conv_y (
 )
 {
     float sum = 0.0;
+    float ksum = 0.0;
     for (int i = i1, j = j1; j <= j2; i++, j++) {
-        float data = tex3D<float> (vf_in, x, i, z);
+        float data = tex3D<float> (vf_in, x+0.5, i+0.5, z+0.5);
         sum += ker[j] * data;
+        ksum += ker[j];
     }
-    surf3Dwrite (sum, vf_out, x * 4, y, z);
+    surf3Dwrite (sum / ksum, vf_out, x * 4, y, z);
 }
 
 __device__ void
@@ -286,11 +330,13 @@ vf_conv_z (
 )
 {
     float sum = 0.0;
+    float ksum = 0.0;
     for (int i = i1, j = j1; j <= j2; i++, j++) {
-        float data = tex3D<float> (vf_in, x, y, i);
+        float data = tex3D<float> (vf_in, x+0.5, y+0.5, i+0.5);
         sum += ker[j] * data;
+        ksum += ker[j];
     }
-    surf3Dwrite (sum, vf_out, x * 4, y, z);
+    surf3Dwrite (sum / ksum, vf_out, x * 4, y, z);
 }
 
 __global__ void
@@ -301,7 +347,7 @@ vf_convolve_x_kernel (
     cudaTextureObject_t vf_in_x,
     cudaTextureObject_t vf_in_y,
     cudaTextureObject_t vf_in_z,
-    float *ker, int half_width, int blockY, float invBlockY)
+    float *ker, int half_width)
 {
     int i1;             /* i1 is the index in the vf */
     int j1, j2;         /* j1, j2 is the index of the kernel */
@@ -337,7 +383,7 @@ vf_convolve_y_kernel (
     cudaTextureObject_t vf_in_x,
     cudaTextureObject_t vf_in_y,
     cudaTextureObject_t vf_in_z,
-    float *ker, int half_width, int blockY, float invBlockY)
+    float *ker, int half_width)
 {
     int i1;             /* i1 is the index in the vf */
     int j1, j2;         /* j1, j2 is the index of the kernel */
@@ -373,7 +419,7 @@ vf_convolve_z_kernel (
     cudaTextureObject_t vf_in_x,
     cudaTextureObject_t vf_in_y,
     cudaTextureObject_t vf_in_z,
-    float *ker, int half_width, int blockY, float invBlockY)
+    float *ker, int half_width)
 {
     int i1;             /* i1 is the index in the vf */
     int j1, j2;         /* j1, j2 is the index of the kernel */
@@ -399,44 +445,6 @@ vf_convolve_z_kernel (
     vf_conv_z (vf_out_x, vf_in_x, ker, x, y, z, i1, j1, j2);
     vf_conv_z (vf_out_y, vf_in_y, ker, x, y, z, i1, j1, j2);
     vf_conv_z (vf_out_z, vf_in_z, ker, x, y, z, i1, j1, j2);
-}
-
-__global__ void
-volume_calc_grad_kernel (
-    cudaTextureObject_t moving,
-    cudaSurfaceObject_t grad_x,
-    cudaSurfaceObject_t grad_y,
-    cudaSurfaceObject_t grad_z
-)
-{
-    // calculate surface coordinates
-    unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
-    unsigned int j = blockIdx.y*blockDim.y + threadIdx.y;
-    unsigned int k = blockIdx.z*blockDim.z + threadIdx.z;
-
-    if (i >= c_fixed_dim[0] || j >= c_fixed_dim[1] || k >= c_fixed_dim[2])
-        return;
-
-    /* p is prev, n is next */
-    int i_p = (i == 0) ? 0 : i - 1;
-    int i_n = (i == c_fixed_dim[0] - 1) ? c_fixed_dim[0] - 1 : i + 1;
-    int j_p = (j == 0) ? 0 : j - 1;
-    int j_n = (j == c_fixed_dim[1] - 1) ? c_fixed_dim[1] - 1 : j + 1;
-    int k_p = (k == 0) ? 0 : k - 1;
-    int k_n = (k == c_fixed_dim[2] - 1) ? c_fixed_dim[2] - 1 : k + 1;
-
-    float val = 0;
-    val = c_spacing_div2[0] *
-        (tex3D<float>(moving, i_p, j, k) - tex3D<float>(moving, i_n, j, k));
-    surf3Dwrite (val, grad_x, i * 4, j, k);
-
-    val = c_spacing_div2[1] * 
-        (tex3D<float>(moving, i, j_p, k) - tex3D<float>(moving, i, j_n, k));
-    surf3Dwrite (val, grad_y, i * 4, j, k);
-
-    val = c_spacing_div2[2] *
-        (tex3D<float>(moving, i, j, k_p) - tex3D<float>(moving, i, j, k_n));
-    surf3Dwrite (val, grad_z, i * 4, j, k);
 }
 
 void
@@ -474,10 +482,13 @@ demons_cuda (
     Demons_cuda_state dcstate;
 
     // Debug using probe
+//    int dbx = 0, dby = 0, dbz = 0;
+#if PLM_CONFIG_DEBUG_CUDA
     int dbx = 20, dby = 20, dbz = 20;
     plm_long dbv = volume_index (fixed->dim, dbx, dby, dbz);
     float *f_img = (float*) fixed->img;
     float *m_img = (float*) moving->img;
+#endif
     
     printf ("Hello from demons_cuda()\n");
 
@@ -500,7 +511,7 @@ demons_cuda (
 
     for (i = 0; i < 3; i++)
 	spacing_div2[i] = 0.5 / moving->spacing[i];
-
+    
     /* Determine size of device memory */
     vol_size = moving->dim[0] * moving->dim[1] * moving->dim[2] * sizeof(float);
     inlier_size = moving->dim[0] * moving->dim[1] * moving->dim[2] * sizeof(int);
@@ -544,7 +555,7 @@ demons_cuda (
     /* Call kernel */
     kernel_timer->start ();
     volume_calc_grad_kernel<<< grid_dim, block_dim >>>(
-        dcstate.moving.tex, dcstate.grad_x.surf,
+        dcstate.moving.surf, dcstate.grad_x.surf,
         dcstate.grad_y.surf, dcstate.grad_z.surf);
 
     cudaDeviceSynchronize();
@@ -582,13 +593,11 @@ demons_cuda (
 
     /* Allocate device memory */
     gpu_timer->start ();
-    printf ("Doing cudaMalloc\n");
     cudaMalloc ((void**)&d_kerx, fw[0] * sizeof(float));
     cudaMalloc ((void**)&d_kery, fw[1] * sizeof(float));
     cudaMalloc ((void**)&d_kerz, fw[2] * sizeof(float));
 
     /* Copy/Initialize device memory */
-    printf ("Doing cudaMemcpy\n");
     cudaMemcpy (d_kerx, kerx, fw[0] * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy (d_kery, kery, fw[1] * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy (d_kerz, kerz, fw[2] * sizeof(float), cudaMemcpyHostToDevice);
@@ -613,7 +622,7 @@ demons_cuda (
     printf ("m/f (%d,%d,%d) = %f %f\n",
         dbx, dby, dbz,
         dcstate.moving.probe (dbx, dby, dbz, moving->dim),
-        dcstate.moving.probe (dbx, dby, dbz, fixed->dim));
+        dcstate.fixed.probe (dbx, dby, dbz, fixed->dim));
     printf ("grad (%d,%d,%d) = %f %f %f %f\n",
         dbx, dby, dbz,
         dcstate.grad_x.probe (dbx, dby, dbz, moving->dim),
@@ -698,9 +707,6 @@ demons_cuda (
 	cudaMemcpy(&inliers, d_inliers, sizeof(int), cudaMemcpyDeviceToHost);
 	gpu_time += gpu_timer->report ();
 
-	/* Print statistics */
-	printf ("----- SSD = %.01f (%d/%d)\n", ssd/inliers, inliers, fixed->npix);
-
 	/* Check for any errors prekernel execution */
 	CUDA_check_error("Error before kernel execution");
 
@@ -713,7 +719,7 @@ demons_cuda (
             dcstate.vf_est_x.tex,
             dcstate.vf_est_y.tex,
             dcstate.vf_est_z.tex,
-            d_kerx, fw[0] / 2, blockY, 1.0f / (float)blockY);
+            d_kerx, fw[0] / 2);
 	cudaDeviceSynchronize();
 	kernel_time += kernel_timer->report ();
 
@@ -737,7 +743,7 @@ demons_cuda (
             dcstate.vf_smooth_x.tex,
             dcstate.vf_smooth_y.tex,
             dcstate.vf_smooth_z.tex,
-            d_kery, fw[1] / 2, blockY, 1.0f / (float)blockY);
+            d_kery, fw[1] / 2);
 	cudaDeviceSynchronize();
 	kernel_time += kernel_timer->report ();
 
@@ -760,7 +766,7 @@ demons_cuda (
             dcstate.vf_est_x.tex,
             dcstate.vf_est_y.tex,
             dcstate.vf_est_z.tex,
-            d_kerz, fw[2] / 2, blockY, 1.0f / (float)blockY);
+            d_kerz, fw[2] / 2);
 	cudaDeviceSynchronize();
 	kernel_time += kernel_timer->report ();
 
@@ -768,12 +774,24 @@ demons_cuda (
 	CUDA_check_error("Kernel execution failed");
 
 #if PLM_CONFIG_DEBUG_CUDA
+        float tot = 0.f, ktot = 0.f;
+        for (int i = 0; i < fw[2]; i++) {
+            int zz = dbz - fw[2] / 2 + i;
+            float val = dcstate.vf_est_x.probe (dbx, dby, zz, fixed->dim);
+            tot += val * kerz[i];
+            ktot += kerz[i];
+            printf ("  [%d] %f x %f = %f (%f, %f)\n", zz, kerz[i], val, val * kerz[i],
+                tot, ktot);
+        }
         printf ("vf_smooth (%d,%d,%d) = %f %f %f\n",
             dbx, dby, dbz,
             dcstate.vf_smooth_x.probe (dbx, dby, dbz, fixed->dim),
             dcstate.vf_smooth_y.probe (dbx, dby, dbz, fixed->dim),
             dcstate.vf_smooth_z.probe (dbx, dby, dbz, fixed->dim));
 #endif
+
+	/* Print statistics */
+	printf ("----- SSD = %.01f (%d/%d)\n", ssd/inliers, inliers, fixed->npix);
     }
 
     /* Copy final output from device to host */

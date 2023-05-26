@@ -172,8 +172,39 @@ demons_c (
 
 	/* Smooth the estimate into vf_smooth.  The volumes are ping-ponged. */
 	vf_convolve_x (vf_smooth, vf_est, kerx, fw[0]);
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_smooth (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            vf_smooth_img[3*dbv + 0],
+            vf_smooth_img[3*dbv + 1],
+            vf_smooth_img[3*dbv + 2]);
+#endif
 	vf_convolve_y (vf_est, vf_smooth, kery, fw[1]);
+#if PLM_CONFIG_DEBUG_CUDA
+        printf ("vf_est (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            vf_est_img[3*dbv + 0],
+            vf_est_img[3*dbv + 1],
+            vf_est_img[3*dbv + 2]);
+#endif
 	vf_convolve_z (vf_smooth, vf_est, kerz, fw[2]);
+#if PLM_CONFIG_DEBUG_CUDA
+        float tot = 0.f, ktot = 0.f;
+        for (int i = 0; i < fw[2]; i++) {
+            int zz = dbz - fw[2] / 2 + i;
+            plm_long idx = volume_index (fixed->dim, dbx, dby, zz);
+            float val = vf_est_img[3*idx];
+            tot += val * kerz[i];
+            ktot += kerz[i];
+            printf ("  [%d] %f x %f = %f (%f, %f)\n", zz, kerz[i], val, val * kerz[i],
+                tot, ktot);
+        }
+        printf ("vf_smooth (%d,%d,%d) = %f %f %f\n",
+            dbx, dby, dbz,
+            vf_smooth_img[3*dbv + 0],
+            vf_smooth_img[3*dbv + 1],
+            vf_smooth_img[3*dbv + 2]);
+#endif
 	//vf_print_stats (vf_smooth);
 
 	double duration = it_timer->report ();

@@ -43,8 +43,13 @@ probe_kernel (
 
     *value = 0.f;
     if (x < kdim.x && y < kdim.y && z < kdim.z) {
-        surf3Dread<float> (value, surf, x*4, y, z, cudaBoundaryModeTrap);
-        //*value = tex3D<float> (tex, x, y, z);
+
+        // N.b.
+        // When using textures, you need to add 0.5.  The following codes are equivalent
+        // surf3Dread<float> (&value, surf, x * 4, y , z)
+        // value = tex3D<float> (tex, idx.x+0.5, idx.y+0.5, idx.z+0.5)
+
+        surf3Dread<float> (value, surf, idx.x * 4, idx.y , idx.z, cudaBoundaryModeTrap);
     }
 }
 
