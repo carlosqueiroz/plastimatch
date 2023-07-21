@@ -2,6 +2,7 @@
    See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
    ----------------------------------------------------------------------- */
 #include "plmbase_config.h"
+#include <array>
 #include <climits>
 #include <stdlib.h>
 #include <stdio.h>
@@ -104,7 +105,7 @@ Dcmtk_rt_study::image_load ()
     }
 
     /* Check that every slice image in series have the same dimention */
-    std::vector< std::array< size_t, 3 > > dimParams; 
+    std::vector< std::array< size_t, 3 > > dimParams;
     for (Dcmtk_file_list::iterator it = flist->begin(); it != flist->end(); ++it) {
       const Dcmtk_file* df = (*it).get();
       DicomImage di (df->get_dataset(), EXS_Unknown);
@@ -112,7 +113,7 @@ Dcmtk_rt_study::image_load ()
       plm_long *dim = vh.get_dim();
     
       unsigned long length = di.getOutputDataSize(8);
-      dimParams.push_back({ size_t(length), size_t(dim[0]), size_t(dim[1])});
+      dimParams.push_back ({size_t(length), size_t(dim[0]), size_t(dim[1])});
     }
     for ( size_t i = 1; i < dimParams.size(); ++i) {
       std::array< size_t, 3 >& sliceDim = dimParams[i];
