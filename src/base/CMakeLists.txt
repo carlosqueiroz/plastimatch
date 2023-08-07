@@ -203,9 +203,15 @@ set (PLMBASE_LIBRARY_DEPENDENCIES
   plmsys
   )
 if (DCMTK_FOUND)
-  set (PLMBASE_LIBRARY_DEPENDENCIES
-    ${PLMBASE_LIBRARY_DEPENDENCIES}
-    ${DCMTK_LIBRARIES})
+  if (TARGET DCMTK::dcmdata)
+    set (PLMBASE_LIBRARY_DEPENDENCIES
+      ${PLMBASE_LIBRARY_DEPENDENCIES}
+      DCMTK::dcmdata)
+  else ()
+    set (PLMBASE_LIBRARY_DEPENDENCIES
+      ${PLMBASE_LIBRARY_DEPENDENCIES}
+      ${DCMTK_LIBRARIES})
+  endif ()
 endif ()
 
 ##-----------------------------------------------------------------------------
