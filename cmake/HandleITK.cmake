@@ -7,9 +7,15 @@
 ##-----------------------------------------------------------------------------
 include (CheckIncludeFileCXX)
 
+# 2023-08-07.  On Debian, ITK 5.3.1, ITK sets the CMAKE_CXX_STANDARD to 14
+# which conflicts with DCMTK requirement that CMAKE_CXX_STANDARD be 17
+push_var (CMAKE_CXX_STANDARD)
+
 # GCS 2017-12-14 On older ITK version, the use file sets variables such
 # as DCMTK_FOUND, DCMTK_DIR.  Needs more investigation.
 include (${ITK_USE_FILE})
+
+pop_var (CMAKE_CXX_STANDARD)
 
 if (NOT ITK_VERSION)
   set (ITK_VERSION
