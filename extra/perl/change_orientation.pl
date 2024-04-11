@@ -4,7 +4,7 @@ use File::Copy qw(copy move);
 use File::Find;
 
 $push_to_mim = 0;
-$overwrite_for = 1;
+$overwrite_for = 0;
 $overwrite_study = 1;
 $overwrite_series = 0;
 $dob_empty = 0;
@@ -12,8 +12,8 @@ $sex_empty = 0;
 
 # Set to 1 if you are only converting a plan object, to keep the
 # existing referenced structure set
-$keep_referenced_uid = 0;
-#$keep_referenced_uid = 1;
+#$keep_referenced_uid = 0;
+$keep_referenced_uid = 1;
 
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_H2Oart";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommis_mornqa";
@@ -33,7 +33,9 @@ $keep_referenced_uid = 0;
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/ce1";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/PLOGOS_PPS_VarG_50bms_0_5GP";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
-$dicom_dir = "/PHShome/gcs6/shared/ben-1/GBDAY_02";
+#$dicom_dir = "/PHShome/gcs6/shared/ben-1/GBDAY_02";
+#$dicom_dir = "/PHShome/gcs6/shared/ben-1/1";
+$dicom_dir = "/home/gcs6/shared/gb-ray/ANON24872";
 
 
 $new_name = "";
@@ -103,10 +105,10 @@ $new_series_description = "";
 # $new_id = "GBDAY_01";
 # $new_birth_date = "20200101";
 # $new_sex = "M";
-$new_name = "GBDAY_02^PBS";
-$new_id = "GBDAY_02";
-$new_birth_date = "20200101";
-$new_sex = "M";
+# $new_name = "GBDAY_02^PBS";
+# $new_id = "GBDAY_02";
+# $new_birth_date = "20200101";
+# $new_sex = "M";
 # $new_name = "LPcommis_tt_000_v2^PBS";
 # $new_id = "LPcom_tt000_v2";
 # $new_birth_date = "20190101";
@@ -131,6 +133,14 @@ $new_sex = "M";
 # $new_id = "GBMON_REF1";
 # $new_birth_date = "20200101";
 # $new_sex = "M";
+# $new_name = "LPaccept^Brain";
+# $new_id = "019-01-11";
+# $new_birth_date = "20190111";
+# $new_sex = "O";
+$new_name = "GBTEST_01^PBS";
+$new_id = "GBTEST_01";
+$new_birth_date = "20200101";
+$new_sex = "O";
 
 # $new_id = "PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
 
@@ -163,7 +173,10 @@ $new_sex = "M";
 #$new_series_description = "CE27 None";
 #$new_series_description = "C0-180 G180-G295";
 #$new_series_description = "PLOGOS_PPS_0";
-$new_series_description = "Script 2023-07-18";
+#$new_series_description = "Script 2023-07-18";
+#$new_series_description = "Two beams";
+#$new_series_description = "Five beams";
+$new_series_description = "Raystation test";
 
 $new_patient_position = "";
 $new_image_orientation = "";
