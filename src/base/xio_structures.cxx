@@ -15,6 +15,7 @@
 #include "itkRegularExpressionSeriesFileNames.h"
 
 #include "file_util.h"
+#include "logfile.h"
 #include "metadata.h"
 #include "plm_math.h"
 #include "print_and_exit.h"
@@ -74,16 +75,15 @@ add_cms_contournames (Rtss *rtss, const char *filename)
             break;
 	}
 
-	/* Xio structures can be zero.  This is possibly not tolerated 
-	   by dicom.  So we modify before inserting into the cxt. */
-	structure_id ++;
 	if (structure_id <= 0) {
 	    print_and_exit ("Error, structure_id was less than zero\n");
 	}
 
-	/* Add structure */
-	rtss->add_structure (structure_name, "", structure_id);
+	/* Xio structures can be zero.  This is possibly not tolerated 
+	   by some dicom implementations.  So we modify before inserting into the cxt. */
+	rtss->add_structure (structure_name, "", structure_id+1);
 
+        lprintf ("ID: %d, Name: %s\n", structure_id, structure_name.c_str());
 	/* Skip extra lines */
 	for (int i = 0; i < skip_lines; i++) {
             getline (ifs, line);
@@ -107,6 +107,8 @@ add_cms_structure (
 	exit (-1);
     }
 
+    lprintf ("Parsing %s\n", filename);
+    
     /* Skip first five lines */
     fgets (buf, 1024, fp);
     fgets (buf, 1024, fp);
@@ -135,31 +137,30 @@ add_cms_structure (
 	    print_and_exit ("Error parsing file %s (structure_id)\n", 
                 filename);
 	}
-            
+
 	/* Xio structures can be zero.  This is possibly not tolerated 
-	   by dicom.  So we modify before inserting into the cxt. */
-	structure_id ++;
-        /* GCS 2021-05-04.  Instead of crapping out, let's omit these. */
-#if defined (commentout)
-	if (structure_id <= 0) {
-	    print_and_exit ("Error, structure_id was less than zero\n");
-	}
-#endif
+	   by some dicom implementations.  So we modify before inserting into the cxt. */
+	int cxt_structure_id = structure_id + 1;
 
-	/* Can this happen? */
+	/* This happens at the end of the file where there is a contour number 0
+           and num_points 0 */
 	if (num_points == 0) {
-	    break;
+            break;
 	}
 
+        bool structure_missing = false;
 	/* Look up the cxt structure for this id */
-        if (structure_id > 0) {
-            curr_structure = rtss->find_structure_by_id (structure_id);
+        if (cxt_structure_id > 0) {
+            curr_structure = rtss->find_structure_by_id (cxt_structure_id);
             if (!curr_structure) {
-                print_and_exit ("Couldn't reference structure with id %d\n", 
+                /* We still need to parse the structure, even if it wasn't
+                   listed in the "contourfiles".  */
+                rtss->add_structure ("Unknown", "", cxt_structure_id);
+                curr_structure = rtss->find_structure_by_id (cxt_structure_id);
+                lprintf ("Warning: couldn't reference structure with id %d\n", 
                     structure_id);
             }
-
-            printf ("[%f %d %d]\n", z_loc, structure_id, num_points);
+            lprintf ("ZLoc %f, ID %d, Num points %d\n", z_loc, structure_id, num_points);
             curr_polyline = curr_structure->add_polyline ();
             curr_polyline->slice_no = -1;
             curr_polyline->num_vertices = num_points;
@@ -187,8 +188,8 @@ add_cms_structure (
 
 		rc = sscanf (&buf[line_loc], "%f, %f,%n", &x, &y, &this_loc);
 		if (rc != 2) {
-		    print_and_exit ("Error parsing file %s (points) %s\n", 
-                        filename, &buf[line_loc]);
+		    print_and_exit ("Error parsing file %s (points) %d %s\n", 
+                        filename, structure_id, &buf[line_loc]);
 		}
 
                 /* GCS 2014-10-16.  As reported by Thomas Botticello 
@@ -201,7 +202,7 @@ add_cms_structure (
                    to XiO's rounding of values at the time of import.
                 */
                 /* GCS 2021-05-04.  Only add structures with ID > 0 */
-                if (structure_id > 0) {
+                if (cxt_structure_id > 0) {
                     curr_polyline->x[point_idx] = x 
                         - 0.5 * studyset.ct_pixel_spacing[0];
                     curr_polyline->y[point_idx] = -y
