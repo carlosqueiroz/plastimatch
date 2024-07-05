@@ -457,23 +457,34 @@ Dcmtk_rt_study::rtss_save (const char *dicom_dir)
     /*     Part 5  -- More structure info                                */
     /* ----------------------------------------------------------------- */
     for (size_t i = 0; i < rtss->num_structures; i++) {
-	Rtss_roi *curr_structure = rtss->slist[i];
-        std::string tmp;
+		Rtss_roi *curr_structure = rtss->slist[i];
+			std::string tmp;
 
-        /* RTROIObservationsSequence */
-        DcmItem *rtroio_item = 0;
-        dataset->findOrCreateSequenceItem (
-            DCM_RTROIObservationsSequence, rtroio_item, -2);
+			/* RTROIObservationsSequence */
+			DcmItem *rtroio_item = 0;
+			dataset->findOrCreateSequenceItem (
+				DCM_RTROIObservationsSequence, rtroio_item, -2);
 
-	/* ObservationNumber */
-        tmp = string_format ("%d", (int) curr_structure->id);
-	rtroio_item->putAndInsertString (DCM_ObservationNumber, tmp.c_str());
-	/* ReferencedROINumber */
-	rtroio_item->putAndInsertString (DCM_ReferencedROINumber, tmp.c_str());
-	/* RTROIInterpretedType */
-	rtroio_item->putAndInsertString (DCM_RTROIInterpretedType, "");
-	/* ROIInterpreter */
-	rtroio_item->putAndInsertString (DCM_ROIInterpreter, "");
+		/* ObservationNumber */
+			tmp = string_format ("%d", (int) curr_structure->id);
+		rtroio_item->putAndInsertString (DCM_ObservationNumber, tmp.c_str());
+		/* ReferencedROINumber */
+		rtroio_item->putAndInsertString (DCM_ReferencedROINumber, tmp.c_str());
+		/* RTROIInterpretedType */
+		rtroio_item->putAndInsertString (DCM_RTROIInterpretedType, "");
+		/* ROIInterpreter */
+		rtroio_item->putAndInsertString (DCM_ROIInterpreter, "");
+		///* ROIPhysicalProperty */
+        if(rtss->slist[i]->rsp_value > -1.0)
+        {
+			DcmItem *rsp_item = NULL;
+			if (rtroio_item->findOrCreateSequenceItem(
+                DCM_ROIPhysicalPropertiesSequence, rsp_item, -2).good())
+                {
+					rsp_item->putAndInsertString(DCM_ROIPhysicalProperty, "REL_STOP_RATIO");
+					rsp_item->putAndInsertString(DCM_ROIPhysicalPropertyValue, std::to_string(rtss->slist[i]->rsp_value).c_str());
+				}
+		}
     }
 
     /* ----------------------------------------------------------------- */

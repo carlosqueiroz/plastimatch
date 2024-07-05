@@ -184,6 +184,13 @@ Rtss::set_structure_name (size_t index, const std::string& name)
     }
 }
 
+void
+Rtss::set_structure_override (int structure_id, float rsp_value)
+{
+	Rtss_roi* structure = find_structure_by_id(structure_id);
+	structure->rsp_value = rsp_value;
+}
+
 std::string
 Rtss::get_structure_name (size_t index)
 {

@@ -63,12 +63,14 @@ add_cms_contournames (Rtss *rtss, const char *filename)
 	/* Get structure name */
         std::string structure_name = string_trim (line);
 
-	/* Get structure number */
+	/* Get structure number, RSP override Boolean and value */
         getline (ifs, line);
         int structure_id;
-	rc = sscanf (line.c_str(), "%d,", &structure_id);
+        int rsp_override;
+        float rsp_value;
+	rc = sscanf (line.c_str(), "%d,%f,%d,", &structure_id, &rsp_value, &rsp_override);
 
-	if (rc != 1) {
+	if (rc != 3) {
 	    /* GCS 2010-12-27 / 2021-05-04: XiO leaves garbage at the end of the 
 	       file when editing files created in a previous version.
                Seems to be OK to simply stop. */
@@ -83,7 +85,13 @@ add_cms_contournames (Rtss *rtss, const char *filename)
 	   by some dicom implementations.  So we modify before inserting into the cxt. */
 	rtss->add_structure (structure_name, "", structure_id+1);
 
-        lprintf ("ID: %d, Name: %s\n", structure_id, structure_name.c_str());
+	/* add RSP override if present */
+	if(rsp_override)
+	{
+		rtss->set_structure_override(structure_id+1, rsp_value);
+	}
+
+        lprintf ("ID: %d, Name: %s, RSP Bool and value: %d %s\n", structure_id, structure_name.c_str(), rsp_override, std::to_string(rsp_value).c_str());
 	/* Skip extra lines */
 	for (int i = 0; i < skip_lines; i++) {
             getline (ifs, line);

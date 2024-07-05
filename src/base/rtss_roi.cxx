@@ -17,6 +17,7 @@ Rtss_roi::Rtss_roi ()
     this->bit = 0;
     this->num_contours = 0;
     this->pslist = 0;
+    this->rsp_value = -1.0;
 }
 
 Rtss_roi::~Rtss_roi ()
@@ -40,6 +41,7 @@ Rtss_roi::clear ()
     this->bit = 0;
     this->num_contours = 0;
     this->pslist = 0;
+    this->rsp_value = -1.0;
 }
 
 Rtss_contour*
@@ -127,4 +129,3 @@ Rtss_roi::get_rgb (int *r, int *g, int *b) const
     /* Ignore return code -- unparsed values will remain unassigned */
     sscanf (this->color.c_str(), "%d %d %d", r, g, b);
 }
-

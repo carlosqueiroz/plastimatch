@@ -17,6 +17,7 @@ public:
     int bit;                   /* Used for ss-img (-1 for no bit) */
     size_t num_contours;
     Rtss_contour** pslist;
+    float rsp_value;
 public:
     Rtss_roi ();
     ~Rtss_roi ();
