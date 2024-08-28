@@ -32,28 +32,8 @@ The following command will install all the needed prerequisites.::
    sudo apt-get install g++ make git cmake-curses-gui \
      libblas-dev liblapack-dev libsqlite3-dev \
      libdcmtk-dev libdlib-dev libfftw3-dev \
-     libgdcm2-dev libinsighttoolkit4-dev \
+     libinsighttoolkit5-dev \
      libpng-dev libtiff-dev uuid-dev zlib1g-dev 
-
-Centos 8
-^^^^^^^^
-
-Fedora install
-^^^^^^^^^^^^^^
-On fedora, you would normally do the following::
-
-
-   sudo dnf install \
-     make cmake gcc-c++ InsightToolkit-devel dcmtk-devel gdcm-devel \
-     libminc-devel vxl-devel fftw-devel
-
-However, ITK is broken in Fedora (tested with Fedora 33).  You will need to
-instead do the following::
-
-   sudo dnf install \
-     make cmake gcc-c++ dcmtk-devel fftw-devel
-
-And then download and compile ITK separately.
 
 Cmake (required)
 ^^^^^^^^^^^^^^^^
