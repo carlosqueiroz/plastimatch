@@ -4,17 +4,18 @@ use File::Copy qw(copy move);
 use File::Find;
 
 $push_to_mim = 0;
-$overwrite_for = 0;
+$overwrite_for = 1;
 $overwrite_study = 1;
-$overwrite_series = 0;
+$overwrite_series = 1;
 $dob_empty = 0;
-$sex_empty = 0;
+$sex_empty = 0;a
 
 # Set to 1 if you are only converting a plan object, to keep the
 # existing referenced structure set
 #$keep_referenced_uid = 0;
-$keep_referenced_uid = 1;
+$keep_referenced_uid = 0;
 
+#$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_H2Oart";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcom_H2Oart";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/LPcommis_mornqa";
 #$dicom_dir = "/PHShome/gcs6/conquest-1.4.17/data/GBDAY_01";
@@ -35,7 +36,6 @@ $keep_referenced_uid = 1;
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/GBDAY_02";
 #$dicom_dir = "/PHShome/gcs6/shared/ben-1/1";
-$dicom_dir = "/home/gcs6/shared/gb-ray/ANON24872";
 
 
 $new_name = "";
@@ -137,13 +137,10 @@ $new_series_description = "";
 # $new_id = "019-01-11";
 # $new_birth_date = "20190111";
 # $new_sex = "O";
-$new_name = "GBTEST_01^PBS";
-$new_id = "GBTEST_01";
-$new_birth_date = "20200101";
-$new_sex = "O";
-
-# $new_id = "PLOGOS_PPS_VarG_50bms_0_1GP_PPS_0";
-
+ $new_name = "GBTEST_01^PBS";
+ $new_id = "GBTEST_01";
+ $new_birth_date = "20200101";
+ $new_sex = "O";
 
 #$new_series_description = "Sex empty";
 #$new_series_description = "Control";
@@ -176,7 +173,7 @@ $new_sex = "O";
 #$new_series_description = "Script 2023-07-18";
 #$new_series_description = "Two beams";
 #$new_series_description = "Five beams";
-$new_series_description = "Raystation test";
+$new_series_description = "Off-axis W-L";
 
 $new_patient_position = "";
 $new_image_orientation = "";
@@ -197,6 +194,7 @@ if ($sex_empty) {
 #######################################################################################
 
 $dcmdir = "/PHShome/gcs6/shared/ben-1/out";
+#$dcmdir = "/home/gcs6/shared/gb-ray/out";
 $txtdir = "/PHShome/gcs6/shared/ben-1/txt";
 (not -d $dcmdir) and mkdir "$dcmdir";
 (not -d $txtdir) and mkdir "$txtdir";
