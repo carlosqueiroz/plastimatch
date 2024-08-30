@@ -11,52 +11,7 @@ Plastimatch can't be properly formatted automatically by GNU indent
 or astyle.  Uncrustify will do a decent job; an uncrustify configuration 
 file is included in the distribution.
 
-Conformance
------------
-Plastimatch <= 1.7 series must conform to the C++03 standard.
-
-Supported hosts:
-  Microsoft Windows 7 SP1           Visual Studio 2015 (for CUDA 8)
-  Ubuntu 12.04 LTS                  gcc 4.6.3
-  Debian 8 "Jessie"                 gcc 4.9.2
-  CentOS 6                          gcc 4.4.7
-  OSX 10.11 El Capitan              Xcode 8.2.1; clang-800; llvm 3.9.0svn
-
-Plastimatch >= 1.8 series must conform to a restricted
-subset of the C++11 standard.  This subset is restricted to 
-features available in the stock compilers provided on
-a fully-updated install of the supported platforms.
-
-Supported hosts:
-  Microsoft Windows 7 SP1           Visual Studio 2015 (for CUDA 8)
-  Ubuntu 14.04                      gcc 4.8.4; clang 3.4
-  Debian 9 "Stretch"                gcc 6.3.0; clang 3.8.1
-  OSX 10.11 El Capitan              Xcode 8.2.1; clang-800; llvm 3.9.0svn
-
-Unsupported:
-  CentOS 7                          CMake version too old: 2.8.12.2
-
-Plastimatch >= 1.9.3 may use all C++11 features.
-
-Plastimatch >= 1.9.3-483d43ee (2022-05-24) aims to support the following
-platforms:
-
-Supported hosts:
-  Microsoft Windows 7 SP1           Visual Studio ???
-  Ubuntu 16.04.7                    gcc 5.3.1; clang 3.8; cmake 3.5.1;
-  	 			    dcmtk 3.6.1; itk 4.9.0
-  Debian 11 "Stretch"               gcc 10.2.1; clang 11.0.1; cmake 3.18.4;
-  	    			    dcmtk 3.6.5; itk 4.13.3
-  OSX ???                           ???
-
-Plastimatch HEAD aims to support the following platforms:
-
-  Debian testing                    (varies)
-  Debian sid                        (varies)
-  Arch linux                        (varies)
-  (??) Add CentOS Stream
-
-Files
+iles
 -----
 Source code files should use Unix-style end-of-line characters.
 All source code should be written in 7-bit clean ASCII.
