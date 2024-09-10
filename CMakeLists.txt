@@ -3,6 +3,8 @@
 ##-----------------------------------------------------------------------------
 ##  See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
 ##-----------------------------------------------------------------------------
+# CMAKE_CXX_STANDARD was introduced in 3.1.3
+cmake_minimum_required (VERSION 3.1.3)
 project (plastimatch)
 
 # The version here should be equal to the "most recent release"
@@ -13,9 +15,6 @@ set (PLM_VERSION_PATCH "4")
 ##-----------------------------------------------------------------------------
 ##  Set up CMake defaults
 ##-----------------------------------------------------------------------------
-# CMAKE_CXX_STANDARD was introduced in 3.1.3
-cmake_minimum_required (VERSION 3.1.3)
-
 # CMP0003: Libraries linked via full path no longer produce linker search
 #  paths.
 if (POLICY CMP0003)

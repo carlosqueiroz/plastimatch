@@ -4,7 +4,7 @@ Plastimatch HEAD aims to support the following platforms:
 
   Windows latest                    
   Ubuntu latest LTS
-  Debian stable, testing, and sid
+  Debian oldstable, stable, testing, and sid
   Arch linux
   Fedora latest release
 
@@ -12,10 +12,14 @@ Plastimatch HEAD aims to support the following platforms:
 Plastimatch >= 1.10.0 (TBD) aims to support the following
 
   Supported hosts:
-  Microsoft Windows 10 V. 22H2      Visual Studio 2022
+  Microsoft Windows 10 V. 22H2      Visual Studio 2022; cmake 3.30.3
+                                    dcmtk 3.6.7 (to be upgraded)
+				    itk 5.3.0
   Ubuntu 24.0.4.1 LTS               ??
   Debian 12 "Bookworm"              gcc 12.2.0; clang ??; cmake 3.25.1
   	 			    dcmtk 3.6.8; itk 5.2.1
+  Debian 11 "Bullseye"              gcc 10.2.0; clang 11.0.1; cmake 3.18.4
+  	 			    dcmtk 3.6.5; itk 4.13
   OSX                               Not supported
 
 
