@@ -1,8 +1,5 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "PLASTIMATCH" "1" "Nov 03, 2022" "Plastimatch 1.9.4" "Plastimatch"
-.SH NAME
-plastimatch \- register, convert, warp, and manipulate 3D images
 .
 .nr rst2man-indent-level 0
 .
@@ -30,15 +27,16 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
+.TH "PLASTIMATCH" "1" "Sep 16, 2024" "Plastimatch 1.10.0" "Plastimatch"
+.SH NAME
+plastimatch \- register, convert, warp, and manipulate 3D images
 .SH SYNOPSIS
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch command [options]
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH DESCRIPTION
@@ -47,21 +45,20 @@ The plastimatch executable is used for
 a variety of operations on either 2D or 3D images, including image
 registration, warping, resampling, and file format conversion.
 The form of the options depends upon the command given.
-The list of possible commands can be seen by simply typing "plastimatch"
+The list of possible commands can be seen by simply typing \(dqplastimatch\(dq
 without any additional command line arguments:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 $ plastimatch
-plastimatch version 1.9.4
+plastimatch version 1.10.0
 Usage: plastimatch command [options]
 Commands:
  add           adjust        average       bbox          boundary
  crop          compare       compose       convert       dice
  diff          dmap          dose          drr           dvh
- fdk           fill          filter        gamma         header
+ fdk          fill          filter        gamma         header
  intersect     jacobian      lm\-warp       mabs          mask
  maximum       ml\-convert    multiply      probe         register
  resample      scale         segment       sift          stats
@@ -70,8 +67,7 @@ Commands:
 
 For detailed usage of a specific command, type:
   plastimatch command
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH ADD
@@ -84,8 +80,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch add [options] input_file [input_file ...]
 Options:
   \-\-average        produce an output file which is the average of the
@@ -95,8 +90,7 @@ Options:
   \-\-weight <arg>   specify a vector of weights; the images are
                     multiplied by the weight prior to adding their
                     values
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Examples
@@ -106,11 +100,9 @@ in the file output.mha, you can run the following command:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch add \-\-output output.mha 01.mha 02.mha 03.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -119,14 +111,12 @@ then you should do this:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch add \e
   \-\-output output.mha \e
-  \-\-weight "2 0.5 0.1" \e
+  \-\-weight \(dq2 0.5 0.1\(dq \e
   01.mha 02.mha 03.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH ADJUST
@@ -139,8 +129,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch adjust [options]
 Options:
   \-h, \-\-help                    display this help message
@@ -155,7 +144,7 @@ Options:
       \-\-input\-mask <arg>        input image mask, only affects \-\-linear\-match
                                  and \-\-local\-match
       \-\-linear <arg>            shift and scale image intensities, provide a
-                                 string with "<shift> <scale>"
+                                 string with \(dq<shift> <scale>\(dq
       \-\-linear\-match <arg>      reference image for linear matching with mean
                                  and std
       \-\-local\-match <arg>       reference image for patch\-wise shift and
@@ -165,16 +154,15 @@ Options:
       \-\-local\-scale\-out <arg>   filename to store pixel\-wise scales
       \-\-local\-shift\-out <arg>   filename to store pixel\-wise shifts
       \-\-output <arg>            output image
-      \-\-patch\-size <arg>        patch size for local matching; provide 1 "n"
-                                 or 3 values "nx ny nz"
+      \-\-patch\-size <arg>        patch size for local matching; provide 1 \(dqn\(dq
+                                 or 3 values \(dqnx ny nz\(dq
       \-\-pw\-linear <arg>         a string that forms a piecewise linear map
                                  from input values to output values, of the
-                                 form "in1,out1,in2,out2,..."
+                                 form \(dqin1,out1,in2,out2,...\(dq
       \-\-ref\-mask <arg>          reference image mask, only affects
                                  \-\-linear\-match and \-\-local\-match
       \-\-version                 display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -192,7 +180,7 @@ input values of \-inf and +inf.  In this case, the
 second number in the pair is the slope of the curve, not the
 output intensity.  You can do a simplified linear transformation of
 gray levels with the \-\-linear option.  For this, you need to
-provide a string with "<shift> <scale>".
+provide a string with \(dq<shift> <scale>\(dq.
 .sp
 In addition, you can adjust the image intensities based on a
 reference image. With \-\-linear\-match, a linear transformation
@@ -214,14 +202,12 @@ The following command will add 100 to all voxels in the image:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
-  \-\-pw\-linear "0,100"
-.ft P
-.fi
+  \-\-pw\-linear \(dq0,100\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -230,14 +216,12 @@ specification of the slope in the extrapolation area:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
-  \-\-pw\-linear "\-inf,1,0,100,inf,1"
-.ft P
-.fi
+  \-\-pw\-linear \(dq\-inf,1,0,100,inf,1\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -246,14 +230,12 @@ range of [\-1000,+1000]:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
-  \-\-pw\-linear "\-inf,0,\-1000,\-1000,+1000,+1000,inf,0"
-.ft P
-.fi
+  \-\-pw\-linear \(dq\-inf,0,\-1000,\-1000,+1000,+1000,inf,0\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -263,14 +245,12 @@ the values):
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
-  \-\-linear "1000,2.5"
-.ft P
-.fi
+  \-\-linear \(dq1000,2.5\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -279,15 +259,13 @@ similar to that of reference.nrrd:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-hist\-match reference.nrrd \e
   \-\-hist\-levels 1000 \-\-hist\-points 12
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -296,14 +274,12 @@ intensities in the input image to equal those of the reference image:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-linear\-match reference.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -314,15 +290,13 @@ you would need to use plastimatch mask to reset outside values):
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-linear\-match reference.nrrd \e
   \-\-input\-mask inmask.nrrd \-\-ref\-mask refmask.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -331,15 +305,13 @@ following command:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-local\-match reference.nrrd \e
-  \-\-patch\-size "20 20 10"
-.ft P
-.fi
+  \-\-patch\-size \(dq20 20 10\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -350,17 +322,15 @@ pixels at the border, you can provide foreground masks for both images
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch adjust \e
   \-\-input infile.nrrd
   \-\-output outfile.nrrd \e
   \-\-local\-match reference.nrrd \e
-  \-\-patch\-size "20 20 10" \e
+  \-\-patch\-size \(dq20 20 10\(dq \e
   \-\-input\-mask inmask.nrrd \e
   \-\-ref\-mask refmask.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH AVERAGE
@@ -376,13 +346,11 @@ The following command will compute the average of three input images:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch average \e
   \-\-output outfile.nrrd \e
   01.mha 02.mha 03.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH AUTOLABEL
@@ -394,16 +362,14 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch autolabel [options]
 Options:
   \-h, \-\-help            Display this help message
       \-\-input <arg>     Input image filename (required)
       \-\-network <arg>   Input trained network filename (required)
       \-\-output <arg>    Output csv filename (required)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH BOUNDARY
@@ -417,13 +383,11 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch boundary [options] input_file
 Required:
   \-\-output <arg>   filename for output image
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH CROP
@@ -434,15 +398,13 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch crop [options]
 Required:
     \-\-input=image_in
     \-\-output=image_out
-    \-\-voxels="x\-min x\-max y\-min y\-max z\-min z\-max" (integers)
-.ft P
-.fi
+    \-\-voxels=\(dqx\-min x\-max y\-min y\-max z\-min z\-max\(dq (integers)
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -458,14 +420,12 @@ image being at location (5,8,12) of the input image:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch crop \e
   \-\-input in.mha \e
   \-\-output out.mha \e
-  \-\-voxels "5 14 8 17 12 21"
-.ft P
-.fi
+  \-\-voxels \(dq5 14 8 17 12 21\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH COMPARE
@@ -479,11 +439,9 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch compare image_in_1 image_in_2
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -493,14 +451,12 @@ reports the statistics:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 $ plastimatch compare synth_1.mha synth_2.mha
 MIN \-558.201904 AVE 7.769664 MAX 558.680847
 MAE 85.100204 MSE 18945.892578
 DIF 54872 NUM 54872
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -508,8 +464,7 @@ The reported statistics are interpreted as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 MIN      Minimum value of difference image
 AVE      Average value of difference image
 MAX      Maximum value of difference image
@@ -517,8 +472,7 @@ MAE      Mean average value of difference image
 MSE      Mean squared difference between images
 DIF      Number of pixels with different intensities
 NUM      Total number of voxels in the difference image
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH COMPOSE
@@ -528,15 +482,13 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch compose file_1 file_2 outfile
 
 Note:  file_1 is applied first, and then file_2.
           outfile = file_2 o file_1
           x \-> x + file_2(x + file_1(x))
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -556,11 +508,9 @@ the rigid transform first, and the vector field second.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch compose rigid.tfm vf.mha composed_vf.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH CONVERT
@@ -575,24 +525,23 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch convert [options]
 Options:
  \-\-algorithm <arg>         algorithm to use for warping, either
-                            "itk" or "native", default is native
+                            \(dqitk\(dq or \(dqnative\(dq, default is native
  \-\-ctatts <arg>            ct attributes file (used by dij warper)
  \-\-default\-value <arg>     value to set for pixels with unknown
                             value, default is 0
  \-\-dicom\-with\-uids <arg>   set to false to remove uids from created
                             dicom filenames, default is true
  \-\-dif <arg>               dif file (used by dij warper)
- \-\-dim <arg>               size of output image in voxels "x [y z]"
+ \-\-dim <arg>               size of output image in voxels \(dqx [y z]\(dq
  \-\-direction\-cosines <arg>
                            oriention of x, y, and z axes; Specify
                             either preset value,
                             {identity,rotated\-{1,2,3},sheared}, or 9
-                            digit matrix string "a b c d e f g h i"
+                            digit matrix string \(dqa b c d e f g h i\(dq
  \-\-dose\-scale <arg>        scale the dose by this value
  \-\-fixed <arg>             fixed image (match output size to this
                             image)
@@ -612,16 +561,16 @@ Options:
  \-\-input\-ss\-list <arg>     input a structure set list file
                             containing names and colors
  \-\-interpolation <arg>     interpolation to use when resampling,
-                            either "nn" for nearest neighbors or
-                            "linear" for tri\-linear, default is
+                            either \(dqnn\(dq for nearest neighbors or
+                            \(dqlinear\(dq for tri\-linear, default is
                             linear
  \-\-metadata <arg>          patient metadata (you may use this
                             option multiple times), option written
-                            as "XXXX,YYYY=string"
+                            as \(dqXXXX,YYYY=string\(dq
  \-\-modality <arg>          modality metadata: such as {CT, MR, PT},
                             default is CT
- \-\-origin <arg>            location of first image voxel in mm "x y
-                            z"
+ \-\-origin <arg>            location of first image voxel in mm \(dqx y
+                            z\(dq
  \-\-output\-colormap <arg>   create a colormap file that can be used
                             with 3d slicer
  \-\-output\-cxt <arg>        output a cxt\-format structure set file
@@ -654,7 +603,7 @@ Options:
  \-\-patient\-pos <arg>       patient position metadata: one of
                             {hfs,hfp,ffs,ffp}
  \-\-prefix\-format <arg>     file format of rasterized structures,
-                            either "mha" or "nrrd"
+                            either \(dqmha\(dq or \(dqnrrd\(dq
  \-\-prune\-empty             delete empty structures from output
  \-\-referenced\-ct <arg>     dicom directory used to set UIDs and
                             metadata
@@ -662,13 +611,12 @@ Options:
                            series description metadata: string
  \-\-simplify\-perc <arg>     delete <arg> percent of the vertices
                             from output polylines
- \-\-spacing <arg>           voxel spacing in mm "x [y z]"
+ \-\-spacing <arg>           voxel spacing in mm \(dqx [y z]\(dq
  \-\-version                 display the program version
  \-\-xf <arg>                input transform used to warp image(s)
  \-\-xor\-contours            overlapping contours should be xor\(aqd
                             instead of or\(aqd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS About referenced\-ct
@@ -709,7 +657,7 @@ The first example demonstrates how to convert
 a DICOM volume to NRRD.  The DICOM images
 that comprise the volume must be
 stored in a single directory, which for this example
-is called "dicom\-in\-dir".  Because the \-\-output\-type option was
+is called \(dqdicom\-in\-dir\(dq.  Because the \-\-output\-type option was
 not specified,
 the output type will be matched to the type of the input DICOM volume.
 The format of the output file (NRRD) is determined from the filename
@@ -717,13 +665,11 @@ extension.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input dicom\-in\-dir \e
   \-\-output\-img outfile.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -731,14 +677,12 @@ This example further converts the type of the image intensities to float.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input dicom\-in\-dir \e
   \-\-output\-img outfile.nrrd \e
   \-\-output\-type float
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -751,16 +695,14 @@ assumed to be millimeters.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input dicom\-in\-dir \e
   \-\-output\-img outfile.nrrd \e
-  \-\-origin "\-200 \-200 \-165" \e
-  \-\-dim "250 250 110" \e
-  \-\-spacing "2 2 2.5"
-.ft P
-.fi
+  \-\-origin \(dq\-200 \-200 \-165\(dq \e
+  \-\-dim \(dq250 250 110\(dq \e
+  \-\-spacing \(dq2 2 2.5\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -770,14 +712,12 @@ file with an existing file, you can do this using the \-\-fixed option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input dicom\-in\-dir \e
   \-\-output\-img outfile.nrrd \e
   \-\-fixed reference.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -792,14 +732,12 @@ the \-\-output\-ss\-list option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input structures.dcm \e
   \-\-output\-ss\-img outfile.nrrd \e
   \-\-output\-ss\-list outfile.txt
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -813,15 +751,13 @@ have to tell plastimatch where it is located with the \-\-referenced\-ct option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch convert \e
   \-\-input structures.dcm \e
   \-\-output\-ss\-img outfile.nrrd \e
   \-\-output\-ss\-list outfile.txt \e
   \-\-referenced\-ct ../image\-directory
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH DICE
@@ -836,8 +772,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch dice [options] reference\-image test\-image
 Options:
  \-\-all            Compute Dice, Hausdorff, and contour mean
@@ -847,8 +782,7 @@ Options:
  \-\-dice           Compute Dice coefficient (default)
  \-\-hausdorff      Compute Hausdorff distance and average Hausdorff
                    distance
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -858,11 +792,9 @@ and mask2.mha:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch dice \-\-all mask1.mha mask2.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH DIFF
@@ -876,11 +808,9 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch diff image_in_1 image_in_2 image_out
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -890,11 +820,9 @@ the result in outfile.nrrd:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch diff file1.nrrd file2.nrrd outfile.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH DMAP
@@ -909,8 +837,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch dmap [options]
 Required:
  \-\-input <arg>        input directory or filename
@@ -918,8 +845,8 @@ Required:
 Optional:
  \-\-algorithm <arg>    a string that specifies the algorithm used
                        for distance map calculation, either
-                       "maurer", "danielsson", or "itk\-danielsson"
-                       (default is "danielsson")
+                       \(dqmaurer\(dq, \(dqdanielsson\(dq, or \(dqitk\-danielsson\(dq
+                       (default is \(dqdanielsson\(dq)
  \-\-inside\-positive    voxels inside the structure should be
                        positive (by default they are negative)
  \-\-maximum\-distance <arg>
@@ -928,8 +855,7 @@ Optional:
                        this number
  \-\-squared\-distance   return the squared distance instead of
                        distance
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -939,11 +865,9 @@ from a binary labelmap image label.nrrd.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch dmap \-\-input label.nrrd \-\-output dmap.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH DRR
@@ -953,25 +877,24 @@ which can be generated from a computed tomography (CT) scan.
 It is used as a reference image for verifying the correct setup
 position of a patient prior to radiation treatment.
 .sp
-The drr program that comes with plastimatch takes a CT image
+The plastimatch drr command takes a CT image
 as input, and generates one or more output images.
 The output images can be either pgm, pfm, or raw
 format.  The command line usage is:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch drr [options] [infile]
 Options:
  \-i, \-\-algorithm <arg>         Choose algorithm {exact,uniform}
      \-\-autoscale               Automatically rescale intensity
-     \-\-autoscale\-range <arg>   Range used for autoscale in form "min
-                                max" (default: "0 255")
+     \-\-autoscale\-range <arg>   Range used for autoscale in form \(dqmin
+                                max\(dq (default: \(dq0 255\(dq)
  \-z, \-\-detector\-size <arg>     The physical size of the detector in
-                                format "row col", in mm
- \-r, \-\-dim <arg>               The output resolution in format "row
-                                col" (in mm)
+                                format \(dqrow col\(dq, in mm
+ \-r, \-\-dim <arg>               The output resolution in format \(dqrow
+                                col\(dq (in mm)
  \-e, \-\-exponential             Do exponential mapping of output values
  \-y, \-\-gantry\-angle <arg>      Gantry angle for image source in degrees
  \-N, \-\-gantry\-angle\-spacing <arg>
@@ -981,15 +904,15 @@ Options:
  \-h, \-\-help                    display this help message
  \-P, \-\-hu\-conversion <arg>     Choose HU conversion type
                                 {preprocess,inline,none}
- \-c, \-\-image\-center <arg>      The image center in the format "row
-                                col", in pixels
+ \-c, \-\-image\-center <arg>      The image center in the format \(dqrow
+                                col\(dq, in pixels
  \-I, \-\-input <arg>             Input file
  \-s, \-\-intensity\-scale <arg>   Scaling factor for output image
                                 intensity
- \-o, \-\-isocenter <arg>         Isocenter position "x y z" in DICOM
+ \-o, \-\-isocenter <arg>         Isocenter position \(dqx y z\(dq in DICOM
                                 coordinates (mm)
- \-n, \-\-nrm <arg>               Normal vector of detector in format "x y
-                                z"
+ \-n, \-\-nrm <arg>               Normal vector of detector in format \(dqx y
+                                z\(dq
  \-a, \-\-num\-angles <arg>        Generate this many images at equal
                                 gantry spacing
  \-O, \-\-output <arg>            Prefix for output file(s)
@@ -1002,20 +925,19 @@ Options:
      \-\-sid <arg>               The SID (source\-image\-distance) in mm
                                 (default: 1500)
  \-w, \-\-subwindow <arg>         Limit DRR output to a subwindow in
-                                format "r1 r2 c1 c2",in pixels
+                                format \(dqr1 r2 c1 c2\(dq,in pixels
  \-A, \-\-threading <arg>         Threading option {cpu,cuda,opencl}
                                 (default: cpu)
      \-\-version                 display the program version
      \-\-vup <arg>               The vector pointing from the detector
                                 center to the top row of the detector in
-                                format "x y z"
-.ft P
-.fi
+                                format \(dqx y z\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
 An input file is required.
-The drr program can be used in either
+The drr command can be used in either
 \fIsingle image mode\fP or \fIrotational mode\fP\&.  In single image mode,
 you specify the complete geometry of the x\-ray source and imaging
 panel for a single image.  In rotational mode, the imaging geometry
@@ -1028,18 +950,16 @@ The following example illustrates the use of single image mode:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
-drr \-nrm "1 0 0" \e
-    \-vup "0 0 1" \e
-    \-g "1000 1500" \e
-    \-r "1024 768" \e
-    \-z "400 300" \e
-    \-c "383.5 511.5" \e
-    \-o "0 \-20 \-50" \e
+.EX
+plastimatch drr \-nrm \(dq1 0 0\(dq \e
+    \-vup \(dq0 0 1\(dq \e
+    \-g \(dq1000 1500\(dq \e
+    \-r \(dq1024 768\(dq \e
+    \-z \(dq400 300\(dq \e
+    \-c \(dq383.5 511.5\(dq \e
+    \-o \(dq0 \-20 \-50\(dq \e
     input_file.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1074,17 +994,15 @@ using the following example:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
-drr \-N 20 \e
+.EX
+plastimatch drr \-N 20 \e
     \-a 18 \e
-    \-g "1000 1500" \e
-    \-r "1024 768" \e
-    \-z "400 300" \e
-    \-o "0 \-20 \-50" \e
+    \-g \(dq1000 1500\(dq \e
+    \-r \(dq1024 768\(dq \e
+    \-z \(dq400 300\(dq \e
+    \-o \(dq0 \-20 \-50\(dq \e
     input_file.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1099,8 +1017,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch dvh [options]
 Options:
      \-\-bin\-width <arg>       specify bin width in the histogram in
@@ -1110,22 +1027,21 @@ Options:
      \-\-differential          create a differential DVH instead of a
                               cumulative DVH
      \-\-dose\-units <arg>      specify units of dose in input file as
-                              either cGy as "cgy" or Gy as "gy"
-                              (default="gy")
+                              either cGy as \(dqcgy\(dq or Gy as \(dqgy\(dq
+                              (default=\(dqgy\(dq)
  \-h, \-\-help                  display this help message
      \-\-input\-dose <arg>      dose image file
      \-\-input\-ss\-img <arg>    structure set image file
      \-\-input\-ss\-list <arg>   structure set list file containing names
                               and colors
      \-\-normalization <arg>   specify histogram values as either voxels
-                              "vox" or percent "pct" (default="pct")
+                              \(dqvox\(dq or percent \(dqpct\(dq (default=\(dqpct\(dq)
      \-\-num\-bins <arg>        specify number of bins in the histogram
                               (default=256)
      \-\-output\-csv <arg>      file to save dose volume histogram data in
                               csv format
      \-\-version               display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1152,8 +1068,7 @@ use the following command:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch dvh \e
   \-\-input\-ss\-img structures.mha \e
   \-\-input\-ss\-list structures.txt \e
@@ -1162,17 +1077,16 @@ plastimatch dvh \e
   \-\-input\-units cgy \e
   \-\-num\-bins 250 \e
   \-\-bin\-width 1
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH FDK
 .sp
 The term FDK refers to the authors
 Feldkamp, Davis, and Kress who wrote the seminal paper
-"Practical cone\-beam algorithm" in 1984.  Their paper
+\(dqPractical cone\-beam algorithm\(dq in 1984.  Their paper
 describes a filtered back\-projection reconstruction algorithm
-for cone\-beam geometries.  The fdk program in plastimatch is
+for cone\-beam geometries.  The plastimatch fdk command is
 an implmenetation of the FDK algorithm.
 It takes a directory of 2D projection images as input, and
 generates a single 3D volume as output.
@@ -1181,21 +1095,20 @@ The command line usage is:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch fdk [options]
 Options:
  \-x, \-\-detector\-offset <arg>   The translational offset of the detector
-                                "x0 y0", in pixels
+                                \(dqx0 y0\(dq, in pixels
  \-r, \-\-dim <arg>               The output image resolution in voxels
-                                "num (num num)" (default: 256 256 100
+                                \(dqnum (num num)\(dq (default: 256 256 100
  \-f, \-\-filter <arg>            Choice of filter {none,ramp} (default:
                                 ramp)
  \-X, \-\-flavor <arg>            Implementation flavor {0,a,b,c,d}
                                 (default: c)
  \-h, \-\-help                    display this help message
  \-a, \-\-image\-range <arg>       Use a sub\-range of available images
-                                "first ((skip) last)"
+                                \(dqfirst ((skip) last)\(dq
  \-I, \-\-input <arg>             Input file
  \-s, \-\-intensity\-scale <arg>   Scaling factor for output image
                                 intensity
@@ -1204,14 +1117,13 @@ Options:
                                 (default: cpu)
      \-\-version                 display the program version
  \-z, \-\-volume\-size <arg>       Physical size of reconstruction volume
-                                "s1 s2 s3", in mm (default: 300 300 150)
-.ft P
-.fi
+                                \(dqs1 s2 s3\(dq, in mm (default: 300 300 150)
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-The usage of the fdk program is best understood by following along
-with the tutorials: fdk_tutorial_i and fdk_tutorial_ii\&.
+The usage of the fdk command is best understood by following along
+with the tutorials: \fI\%FDK tutorial (part 1)\fP and \fI\%FDK tutorial (part 2)\fP\&.
 .sp
 Three different formats of input files are supported.  These are:
 .INDENT 0.0
@@ -1233,7 +1145,7 @@ with the .txt extension.  For example, if you want to use image_0000.pfm
 in a reconstruction, you should supply another file image_0000.txt
 which contains the geometry.
 A brief description of the geometry file format is given in
-proj_mat_file_format\&.
+\fI\%Projection matrix file format\fP\&.
 .sp
 The sequence of files should be stored with the pattern:
 .INDENT 0.0
@@ -1249,15 +1161,13 @@ For example the following would be a good directory layout for pfm files:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Files/image_00.pfm
 Files/image_00.txt
 Files/image_01.pfm
 Files/image_01.txt
 etc...
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1265,14 +1175,12 @@ The Varian hnd files should be stored in the original layout.  For example:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Files/ProjectionInfo.xml
 Files/Scan0/Proj_0000.hnd
 Files/Scan0/Proj_0001.hnd
 etc...
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1300,22 +1208,20 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch fill [options]
 Options:
   \-\-input <arg>         input directory or filename; can be an image
                          or dicom directory
   \-\-mask <arg>          input filename for mask image
   \-\-mask\-value <arg>    value to set for pixels within mask (for
-                         "fill"), or outside of mask (for "mask"
+                         \(dqfill\(dq), or outside of mask (for \(dqmask\(dq
   \-\-output <arg>        output filename (for image file) or directory
                          (for dicom)
-  \-\-output\-format <arg> arg should be "dicom" for dicom output
+  \-\-output\-format <arg> arg should be \(dqdicom\(dq for dicom output
   \-\-output\-type <arg>   type of output image, one of {uchar, short,
                          float, ...}
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Examples
@@ -1328,15 +1234,13 @@ the following command.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch fill \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-mask\-value 1000 \e
   \-\-mask prostate.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH FILTER
@@ -1349,13 +1253,12 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch filter [options] input_image
 Options:
  \-\-gabor\-k\-fib <arg>     choose gabor direction at index i within
                           fibonacci spiral of length n; specified as
-                          "i n" where i and n are integers, and i is
+                          \(dqi n\(dq where i and n are integers, and i is
                           between 0 and n\-1
  \-\-gauss\-width <arg>     the width (in mm) of a uniform Gaussian
                           smoothing filter
@@ -1364,12 +1267,11 @@ Options:
  \-\-output\-kernel <arg>   output kernel filename
  \-\-pattern <arg>         filter type: {gabor, gauss, kernel},
                           default is gauss
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-The built\-in filters supported are "gabor" and "gauss".
+The built\-in filters supported are \(dqgabor\(dq and \(dqgauss\(dq.
 For a Gaussian, the width of the Gaussian can be controlled
 using the \-\-gauss\-width option.
 The Gabor filter is currently limited to automatic selection of
@@ -1384,12 +1286,10 @@ first gabor filter within a bank of 10 filters.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch filter \-\-pattern gabor Testing/rect\-1.mha \e
-  \-\-gabor\-k\-fib "0 5" \-\-output g\-05.mha
-.ft P
-.fi
+  \-\-gabor\-k\-fib \(dq0 5\(dq \-\-output g\-05.mha
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH GAMMA
@@ -1406,8 +1306,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch gamma [options] image_1 image_2
 Options:
  \-\-analysis\-threshold <arg>
@@ -1464,8 +1363,7 @@ Options:
       in resampling the compare\-image to the
       reference image. Not recommended for
       better results.
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -1476,12 +1374,10 @@ of the reference image as the gamma normalization value.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch gamma \-\-output gamma.mha \e
   reference\-image.mha compare\-image.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH HEADER
@@ -1493,14 +1389,12 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch header [options] input_file [input_file ...]
 Options:
  \-h, \-\-help      display this help message
      \-\-version   display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -1511,8 +1405,7 @@ or dicom.  We can run the command as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 $ plastimatch header input.mha
 Type = float
 Planes = 1
@@ -1520,8 +1413,7 @@ Origin = \-180 \-180 \-167.75
 Size = 512 512 120
 Spacing = 0.7031 0.7031 2.5
 Direction = 1 0 0 0 1 0 0 0 1
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1538,16 +1430,14 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch jacobian [options]
 Options:
   \-\-input <arg>          input directory or filename of image
   \-\-output\-img <arg>     output image; can be mha, mhd, nii, nrrd,
                           or other format supported by ITK
   \-\-output\-stats <arg>   output stats file; .txt format
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -1557,17 +1447,15 @@ file vf.mha, run the following:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch jacobian \e
   \-\-input vf.mha \-\-output\-img vf_jac.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH LM-WARP
 .sp
-The landmark_warp executable performs landmark\-based
+The plastimatch lm\-warp command performs
 deformable registration by matching corresponding point landmarks
 on the fixed and moving images.
 .sp
@@ -1575,15 +1463,14 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch lm\-warp [options]
 Options:
  \-a, \-\-algorithm <arg>         RBF warping algorithm
                                 {tps,gauss,wendland}
  \-d, \-\-default\-value <arg>     Value to set for pixels with unknown
                                 value
-     \-\-dim <arg>               Size of output image in voxels "x [y z]"
+     \-\-dim <arg>               Size of output image in voxels \(dqx [y z]\(dq
  \-F, \-\-fixed <arg>             Fixed image (match output size to this
                                 image)
  \-f, \-\-fixed\-landmarks <arg>   Input fixed landmarks
@@ -1594,33 +1481,30 @@ Options:
  \-m, \-\-moving\-landmarks <arg>
                                Output moving landmarks
  \-N, \-\-numclusters <arg>       Number of clusters of landmarks
-     \-\-origin <arg>            Location of first image voxel in mm "x y
-                                z"
+     \-\-origin <arg>            Location of first image voxel in mm \(dqx y
+                                z\(dq
  \-O, \-\-output\-image <arg>      Output warped image
  \-L, \-\-output\-landmarks <arg>
                                Output warped landmarks
  \-V, \-\-output\-vf <arg>         Output vector field
  \-r, \-\-radius <arg>            Radius of radial basis function (in mm)
-     \-\-spacing <arg>           Voxel spacing in mm "x [y z]"
+     \-\-spacing <arg>           Voxel spacing in mm \(dqx [y z]\(dq
  \-Y, \-\-stiffness <arg>         Young modulus (default = 0.0)
      \-\-version                 display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-Options "\-a", "\-r", "\-Y", "\-d" are set by default to:
+Options \(dq\-a\(dq, \(dq\-r\(dq, \(dq\-Y\(dq, \(dq\-d\(dq are set by default to:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 \-a=gauss          Gaussian RBFs with infinite support
 \-r=50.0           Gaussian width 50 mm
 \-Y=0.0            No regularization of vector field
 \-d=\-1000          Air
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1628,21 +1512,19 @@ You may want to choose different algorithm:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 \-a=tps            Thin\-plate splines (for global registration)
 \-a=wendland       Wendland RBFs with compact support (for
                    local registration)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-In the case of Wendland RBFs "\-r" option sets the radius of support.
+In the case of Wendland RBFs \(dq\-r\(dq option sets the radius of support.
 .sp
-Regularization of vector field is available for "gauss" and "wendland"
+Regularization of vector field is available for \(dqgauss\(dq and \(dqwendland\(dq
 algorithms. To regularize the output vector field increase
-"\-Y" to \(aq0.1\(aq and up with increment \(aq0.1\(aq.
+\(dq\-Y\(dq to \(aq0.1\(aq and up with increment \(aq0.1\(aq.
 .SS Example
 .sp
 To create a vector field from coresponding landmarks in fixed.fcsv
@@ -1651,13 +1533,11 @@ do the following:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch lm\-warp \e
     \-\-output\-vf vf.nrrd \e
     \-\-fixed\-landmarks fixed.fcsv \-\-moving\-landmarks moving.fcsv
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH MABS
@@ -1670,8 +1550,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch mabs [options] command_file
 Options:
   \-\-atlas\-selection         run just atlas selection
@@ -1688,8 +1567,7 @@ Options:
   \-\-train\-atlas\-selection   run just train atlas selection
   \-\-train\-registration      perform limited training to find the
                              best registration parameters only
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1697,8 +1575,8 @@ Prior to running the mabs command, you must create a configuration
 file, and you must arrange your training data into the proper
 directory format.
 For a complete description of the command file syntax and
-usage examples, please refer to the mabs_guidebook
-and the segmentation_command_file_reference\&.
+usage examples, please refer to the \fI\%Image segmentation (MABS) guidebook\fP
+and the \fI\%Image segmentation (MABS) command file reference\fP\&.
 .SH PLASTIMATCH MASK
 .sp
 The \fImask\fP command is used to fill an image region with a constant
@@ -1710,22 +1588,20 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch mask [options]
 Options:
   \-\-input <arg>           input directory or filename; can be an
                            image or dicom directory
   \-\-mask <arg>            input filename for mask image
   \-\-mask\-value <arg>      value to set for pixels within mask (for
-                           "fill"), or outside of mask (for "mask"
+                           \(dqfill\(dq), or outside of mask (for \(dqmask\(dq
   \-\-output <arg>          output filename (for image file) or
                            directory (for dicom)
-  \-\-output\-format <arg>   arg should be "dicom" for dicom output
+  \-\-output\-format <arg>   arg should be \(dqdicom\(dq for dicom output
   \-\-output\-type <arg>     type of output image, one of {uchar, short,
                            float, ...}
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Examples
@@ -1738,16 +1614,14 @@ outside of the patient with value \-1000, we use the following command.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch mask \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
   \-\-negate\-mask \e
   \-\-mask\-value \-1000 \e
   \-\-mask patient.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH ML-CONVERT
@@ -1766,16 +1640,14 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch probe [options] file
 Options:
  \-i, \-\-index <arg>      List of voxel indices, such as
-                         "i j k;i j k;..."
+                         \(dqi j k;i j k;...\(dq
  \-l, \-\-location <arg>   List of spatial locations, such as
-                         "i j k;i j k;..."
-.ft P
-.fi
+                         \(dqi j k;i j k;...\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1784,15 +1656,13 @@ Each output line includes the following fields.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 PROBE#        The probe number, starting with zero
 INDEX         The (fractional) position of the probe as a voxel index
 LOC           The position of the probe in world coordinates
 VALUE         The intensity (for volumes) or displacement
                (for vector fields)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -1803,14 +1673,12 @@ locations:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch probe \e
-   \-\-index "2 3 4" \e
-   \-\-location "0 0 0; 0.5 0.5 0.5" \e
+   \-\-index \(dq2 3 4\(dq \e
+   \-\-location \(dq0 0 0; 0.5 0.5 0.5\(dq \e
    infile.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1819,13 +1687,11 @@ probe index, voxel index, voxel location, and intensity.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 0:    2.00,    3.00,    4.00;  \-22.37,  \-21.05,  \-19.74; \-998.725891
 1:   19.00,   19.00,   19.00;    0.00,    0.00,    0.00; \-0.000197
 2:   19.38,   19.38,   19.38;    0.50,    0.50,    0.50; \-9.793450
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH REGISTER
@@ -1836,23 +1702,21 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch register command_file
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
 The command file is an ordinary text file, which contains a single
 global section and one or more stages sections.
-The global section begins with a line containing only the string "[GLOBAL]",
-and each stage begins with a line containing the string "[STAGE]".
+The global section begins with a line containing only the string \(dq[GLOBAL]\(dq,
+and each stage begins with a line containing the string \(dq[STAGE]\(dq.
 .sp
 The global section is used to set input files, output files, and
 global parameters, while the each stage section defines a sequential
 stage of processing.  For a complete description of the command file
-syntax, please refer to the registration_command_file_reference\&.
+syntax, please refer to the \fI\%Image registration command file reference\fP\&.
 .SS Examples
 .sp
 If you want to register image_2.mha to match image_1.mha using
@@ -1860,8 +1724,7 @@ B\-spline registration, create a command file like this:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 # command_file.txt
 [GLOBAL]
 fixed=image_1.mha
@@ -1877,8 +1740,7 @@ max_its=30
 regularization_lambda=0.005
 grid_spac=100 100 100
 res=4 4 2
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1886,11 +1748,9 @@ Then, run the registration like this:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch register command_file.txt
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -1900,8 +1760,7 @@ Like this:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 # command_file.txt
 [GLOBAL]
 fixed=image_1.mha
@@ -1927,12 +1786,11 @@ res=2 2 1
 max_its=30
 grid_spac=60 60 60
 res=1 1 1
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-For more examples, please refer to the image_registration_guidebook\&.
+For more examples, please refer to the \fI\%Image registration guidebook\fP\&.
 .SH PLASTIMATCH RESAMPLE
 .sp
 The \fIresample\fP command can be used to change the geometry of an image.
@@ -1941,34 +1799,32 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch resample [options]
 Options:
     \-\-default\-value <arg>   value to set for pixels with unknown value,
                              default is 0
-    \-\-dim <arg>             size of output image in voxels "x [y z]"
+    \-\-dim <arg>             size of output image in voxels \(dqx [y z]\(dq
     \-\-direction\-cosines <arg>
                             oriention of x, y, and z axes; Specify either
                              preset value,
                              {identity,rotated\-{1,2,3},sheared}, or 9 digit
-                             matrix string "a b c d e f g h i"
+                             matrix string \(dqa b c d e f g h i\(dq
 \-F, \-\-fixed <arg>           fixed image (match output size to this image)
 \-h, \-\-help                  display this help message
     \-\-input <arg>           input directory or filename; can be an image or
                              vector field
-    \-\-interpolation <arg>   interpolation type, either "nn" or "linear",
+    \-\-interpolation <arg>   interpolation type, either \(dqnn\(dq or \(dqlinear\(dq,
                              default is linear
-    \-\-origin <arg>          location of first image voxel in mm "x y z"
+    \-\-origin <arg>          location of first image voxel in mm \(dqx y z\(dq
     \-\-output <arg>          output image or vector field
     \-\-output\-type <arg>     type of output image, one of {uchar, short,
                              float, ...}
-    \-\-spacing <arg>         voxel spacing in mm "x [y z]"
+    \-\-spacing <arg>         voxel spacing in mm \(dqx [y z]\(dq
     \-\-subsample <arg>       bin voxels together at integer subsampling rate
-                             "x [y z]"
+                             \(dqx [y z]\(dq
     \-\-version               display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -1979,14 +1835,12 @@ to a single voxel.  So for example, if we want to bin a cube of size
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch resample \e
   \-\-input infile.nrrd \e
   \-\-output outfile.nrrd \e
-  \-\-subsample "3 3 1"
-.ft P
-.fi
+  \-\-subsample \(dq3 3 1\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH SCALE
@@ -1998,15 +1852,13 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch scale [options] input_file
 Options:
   \-\-output <arg>   filename for output image or vector field
   \-\-weight <arg>   scale the input image or vector field by this
                     value (float)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2016,11 +1868,9 @@ length) twice as large as the input values:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch scale \-\-output output.mha \-\-weight 2.0 input.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH SEGMENT
@@ -2030,8 +1880,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch segment [options]
 Options:
   \-h, \-\-help                    Display this help message
@@ -2042,8 +1891,7 @@ Options:
       \-\-output\-img <arg>        Output image filename
       \-\-upper\-threshold <arg>   Upper threshold (include voxels
                                  below this value)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2054,32 +1902,28 @@ Then we could do this:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch segment \e
   \-\-input water.mha \e
   \-\-output\-img water\-label.mha \e
   \-\-lower\-threshold \-500
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
 If we wanted instead to create a DICOM\-RT structure set, we should
 specify a DICOM image as the input.  This will allow plastimatch to
 create the DICOM\-RT with the correct patient name, patient id, and UIDs.
-The output file will be called "ss.dcm".
+The output file will be called \(dqss.dcm\(dq.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch segment \e
   \-\-input water_dicom \e
   \-\-output\-dicom water_dicom \e
   \-\-lower\-threshold \-500
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH STATS
@@ -2091,11 +1935,9 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch stats file [file ...]
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2107,12 +1949,10 @@ The following command displays statistics for the 3D volume synth_1.mha.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 $ plastimatch stats synth_1.mha
 MIN \-999.915161 AVE \-878.686035 MAX 0.000000 NUM 54872
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2120,14 +1960,12 @@ The reported statistics are interpreted as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 MIN      Minimum intensity in image
 AVE      Average intensity in image
 MAX      Maximum intensity in image
 NUM      Number of voxels in image
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2136,8 +1974,7 @@ The following command displays statistics for the 3D vector field vf.mha:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 $ plastimatch stats vf.mha
 Min:            0.000     \-0.119     \-0.119
 Mean:          13.200      0.593      0.593
@@ -2150,12 +1987,11 @@ Min abs jacobian at: (28 36 36)
 Second derivatives: MINSECDER 0 MAXSECDER 388.82 TOTSECDER 669219
   INTSECDER 1.524e+06
 Max second derivative: (29 36 36)
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
-The rows corresponding to "Min, Mean, Max, and Mean abs" each
+The rows corresponding to \(dqMin, Mean, Max, and Mean abs\(dq each
 have three numbers, which correspond to the x, y, and z coordinates.
 Therefore, they compute these statistics for each vector direction
 separately.
@@ -2164,8 +2000,7 @@ The remaining statistics are described as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 MINDIL        Minimum dilation
 MAXDIL        Maximum dilation
 MAXSTRAIN     Maximum strain
@@ -2177,8 +2012,7 @@ MINSECDER     Minimum second derivative
 MAXSECDER     Maximum second derivative
 TOTSECDER     Total second derivative
 INTSECDER     Integral second derivative
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH SYNTH
@@ -2212,50 +2046,49 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch synth [options]
 Options:
  \-\-background <arg>        intensity of background region
- \-\-cylinder\-center <arg>   location of cylinder center in mm "x [y
-                            z]"
- \-\-cylinder\-radius <arg>   size of cylinder in mm "x [y z]"
+ \-\-cylinder\-center <arg>   location of cylinder center in mm \(dqx [y
+                            z]\(dq
+ \-\-cylinder\-radius <arg>   size of cylinder in mm \(dqx [y z]\(dq
  \-\-dicom\-with\-uids <arg>   set to false to remove uids from created
                             dicom filenames, default is true
- \-\-dim <arg>               size of output image in voxels "x [y z]"
+ \-\-dim <arg>               size of output image in voxels \(dqx [y z]\(dq
  \-\-direction\-cosines <arg>
                            oriention of x, y, and z axes; Specify
                             either preset value,
                             {identity,rotated\-{1,2,3},sheared}, or 9
-                            digit matrix string "a b c d e f g h i"
- \-\-donut\-center <arg>      location of donut center in mm "x [y z]"
- \-\-donut\-radius <arg>      size of donut in mm "x [y z]"
+                            digit matrix string \(dqa b c d e f g h i\(dq
+ \-\-donut\-center <arg>      location of donut center in mm \(dqx [y z]\(dq
+ \-\-donut\-radius <arg>      size of donut in mm \(dqx [y z]\(dq
  \-\-donut\-rings <arg>       number of donut rings (2 rings for
                             traditional donut)
- \-\-dose\-center <arg>       location of dose center in mm "x y z"
- \-\-dose\-size <arg>         dimensions of dose aperture in mm "x [y
-                            z]", or locations of rectangle corners
-                            in mm "x1 x2 y1 y2 z1 z2"
+ \-\-dose\-center <arg>       location of dose center in mm \(dqx y z\(dq
+ \-\-dose\-size <arg>         dimensions of dose aperture in mm \(dqx [y
+                            z]\(dq, or locations of rectangle corners
+                            in mm \(dqx1 x2 y1 y2 z1 z2\(dq
  \-\-fixed <arg>             fixed image (match output size to this
                             image)
  \-\-foreground <arg>        intensity of foreground region
  \-\-gabor\-k\-fib <arg>       choose gabor direction at index i within
                             fibonacci spiral of length n; specified
-                            as "i n" where i and n are integers, and
+                            as \(dqi n\(dq where i and n are integers, and
                             i is between 0 and n\-1
- \-\-gauss\-center <arg>      location of Gaussian center in mm "x [y
-                            z]"
- \-\-gauss\-std <arg>         width of Gaussian in mm "x [y z]"
- \-\-grid\-pattern <arg>      grid pattern spacing in voxels "x [y z]"
+ \-\-gauss\-center <arg>      location of Gaussian center in mm \(dqx [y
+                            z]\(dq
+ \-\-gauss\-std <arg>         width of Gaussian in mm \(dqx [y z]\(dq
+ \-\-grid\-pattern <arg>      grid pattern spacing in voxels \(dqx [y z]\(dq
  \-\-input <arg>             input image (add synthetic pattern onto
                             existing image)
- \-\-lung\-tumor\-pos <arg>    position of tumor in mm "z" or "x y z"
+ \-\-lung\-tumor\-pos <arg>    position of tumor in mm \(dqz\(dq or \(dqx y z\(dq
  \-\-metadata <arg>          patient metadata (you may use this
                             option multiple times)
  \-\-noise\-mean <arg>        mean intensity of gaussian noise
  \-\-noise\-std <arg>         standard deviation of gaussian noise
- \-\-origin <arg>            location of first image voxel in mm "x y
-                            z"
+ \-\-origin <arg>            location of first image voxel in mm \(dqx y
+                            z\(dq
  \-\-output <arg>            output filename
  \-\-output\-dicom <arg>      output dicom directory
  \-\-output\-dose\-img <arg>   filename for output dose image
@@ -2274,15 +2107,14 @@ Options:
                             noise, rect, sphere, xramp, yramp,
                             zramp}, default is gauss
  \-\-penumbra <arg>          width of dose penumbra in mm
- \-\-rect\-size <arg>         width of rectangle in mm "x [y z]", or
-                            locations of rectangle corners in mm "x1
-                            x2 y1 y2 z1 z2"
- \-\-spacing <arg>           voxel spacing in mm "x [y z]"
- \-\-sphere\-center <arg>     location of sphere center in mm "x y z"
- \-\-sphere\-radius <arg>     radius of sphere in mm "x [y z]"
- \-\-volume\-size <arg>       size of output image in mm "x [y z]"
-.ft P
-.fi
+ \-\-rect\-size <arg>         width of rectangle in mm \(dqx [y z]\(dq, or
+                            locations of rectangle corners in mm \(dqx1
+                            x2 y1 y2 z1 z2\(dq
+ \-\-spacing <arg>           voxel spacing in mm \(dqx [y z]\(dq
+ \-\-sphere\-center <arg>     location of sphere center in mm \(dqx y z\(dq
+ \-\-sphere\-radius <arg>     radius of sphere in mm \(dqx [y z]\(dq
+ \-\-volume\-size <arg>       size of output image in mm \(dqx [y z]\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SS Examples
@@ -2292,17 +2124,15 @@ the center of the water surface:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch synth \e
   \-\-pattern rect \e
   \-\-output water_tank.mha \e
-  \-\-rect\-size "\-150 150 0 400 \-150 150" \e
-  \-\-origin "\-245.5 245.5 \-49.5 449.5 \-149.5 149.5" \e
-  \-\-spacing "1 1 1" \e
-  \-\-dim "500 500 300"
-.ft P
-.fi
+  \-\-rect\-size \(dq\-150 150 0 400 \-150 150\(dq \e
+  \-\-origin \(dq\-245.5 245.5 \-49.5 449.5 \-149.5 149.5\(dq \e
+  \-\-spacing \(dq1 1 1\(dq \e
+  \-\-dim \(dq500 500 300\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2311,18 +2141,16 @@ output to dicom:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch synth \e
   \-\-pattern lung \e
   \-\-output\-dicom lung_inhale \e
-  \-\-lung\-tumor\-pos "0 0 10"
+  \-\-lung\-tumor\-pos \(dq0 0 10\(dq
 plastimatch synth \e
   \-\-pattern lung \e
   \-\-output\-dicom lung_exhale \e
-  \-\-lung\-tumor\-pos "0 0 \-10"
-.ft P
-.fi
+  \-\-lung\-tumor\-pos \(dq0 0 \-10\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH SYNTH-VF
@@ -2345,38 +2173,36 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch synth\-vf [options]
 Options:
- \-\-dim <arg>             size of output image in voxels "x [y z]"
+ \-\-dim <arg>             size of output image in voxels \(dqx [y z]\(dq
  \-\-direction\-cosines <arg>
                          oriention of x, y, and z axes; Specify
                           either preset value, {identity,
                           rotated\-{1,2,3}, sheared}, or 9 digit
-                          matrix string "a b c d e f g h i"
+                          matrix string \(dqa b c d e f g h i\(dq
  \-\-fixed <arg>           An input image used to set the size of the
                           output
- \-\-gauss\-center <arg>    location of center of gaussian warp "x [y
-                          z]"
+ \-\-gauss\-center <arg>    location of center of gaussian warp \(dqx [y
+                          z]\(dq
  \-\-gauss\-mag <arg>       displacment magnitude for gaussian warp in
-                          mm "x [y z]"
- \-\-gauss\-std <arg>       width of gaussian std in mm "x [y z]"
- \-\-origin <arg>          location of first image voxel in mm "x y
-                          z"
+                          mm \(dqx [y z]\(dq
+ \-\-gauss\-std <arg>       width of gaussian std in mm \(dqx [y z]\(dq
+ \-\-origin <arg>          location of first image voxel in mm \(dqx y
+                          z\(dq
  \-\-output <arg>          output filename
- \-\-radial\-center <arg>   location of center of radial warp "x [y
-                          z]"
+ \-\-radial\-center <arg>   location of center of radial warp \(dqx [y
+                          z]\(dq
  \-\-radial\-mag <arg>      displacement magnitude for radial warp in
-                          mm "x [y z]"
- \-\-spacing <arg>         voxel spacing in mm "x [y z]"
- \-\-volume\-size <arg>     size of output image in mm "x [y z]"
+                          mm \(dqx [y z]\(dq
+ \-\-spacing <arg>         voxel spacing in mm \(dqx [y z]\(dq
+ \-\-volume\-size <arg>     size of output image in mm \(dqx [y z]\(dq
  \-\-xf\-gauss              gaussian warp
  \-\-xf\-radial             radial expansion (or contraction)
- \-\-xf\-trans <arg>        uniform translation in mm "x y z"
+ \-\-xf\-trans <arg>        uniform translation in mm \(dqx y z\(dq
  \-\-xf\-zero               Null transform
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH THRESHOLD
@@ -2388,8 +2214,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch threshold [options]
 Options:
     \-\-above <arg>    value above which output has value high
@@ -2398,13 +2223,12 @@ Options:
     \-\-input <arg>    input directory or filename
     \-\-output <arg>   output image
     \-\-range <arg>    a string that forms a list of threshold ranges of the
-                      form "r1\-lo,r1\-hi,r2\-lo,r2\-hi,...", such that voxels
+                      form \(dqr1\-lo,r1\-hi,r2\-lo,r2\-hi,...\(dq, such that voxels
                       with intensities within any of the ranges
                       ([r1\-lo,r1\-hi], [r2\-lo,r2\-hi], ...) have output value
                       high
     \-\-version        display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2415,14 +2239,12 @@ and value 0 otherwise.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch threshold \e
   \-\-input input_image.nrrd \e
   \-\-output output_labe.nrrd \e
-  \-\-range "100,200"
-.ft P
-.fi
+  \-\-range \(dq100,200\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH THUMBNAIL
@@ -2436,8 +2258,7 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch thumbnail [options] input\-file
 Options:
   \-\-input file
@@ -2445,8 +2266,7 @@ Options:
   \-\-thumbnail\-dim size
   \-\-thumbnail\-spacing size
   \-\-slice\-loc location
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2456,15 +2276,13 @@ at axial location 0, and of size 20 x 20 mm:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch thumbnail \e
   \-\-input in.mha \-\-output out.mha \e
   \-\-thumbnail\-dim 10 \e
   \-\-thumbnail\-spacing 2 \e
   \-\-slice\-loc 0
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH UNION
@@ -2479,15 +2297,13 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch union [options] input_1 input_2
 Options:
  \-h, \-\-help           display this help message
      \-\-output <arg>   filename for output image
      \-\-version        display the program version
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2497,13 +2313,11 @@ union of two input images:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch union \e
   \-\-output itv.mha \e
   phase_1.mha phase_2.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH WARP
@@ -2519,14 +2333,12 @@ following:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input infile.nrrd \e
   \-\-output\-img outfile.nrrd \e
   \-\-xf bspline.txt
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2536,15 +2348,13 @@ to a different geometry using \-\-fixed, or \-\-origin, \-\-dim, and \-\-spacing
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input infile.nrrd \e
   \-\-output\-img outfile.nrrd \e
   \-\-xf bspline.txt \e
   \-\-fixed reference.nrrd
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2554,34 +2364,30 @@ rather than linear interpolation.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input structures\-in.nrrd \e
   \-\-output\-img structures\-out.nrrd \e
   \-\-xf bspline.txt \e
   \-\-interpolation nn
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
 Sometimes, voxels located outside of the geometry of the input image
 will be warped into the geometry of the output image.  By default, these
-areas are "filled in" with an intensity of zero.  You can choose a different
+areas are \(dqfilled in\(dq with an intensity of zero.  You can choose a different
 value for these areas using the \-\-default\-value option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input infile.nrrd \e
   \-\-output\-img outfile.nrrd \e
   \-\-xf bspline.txt \e
   \-\-default\-value \-1000
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2590,14 +2396,12 @@ also be warped.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input fixed_landmarks.fcsv \e
   \-\-output\-pointset warped_landmarks.fcsv \e
   \-\-xf bspline.txt
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2608,14 +2412,12 @@ would become.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch warp \e
   \-\-input fixed_landmarks.fcsv \e
   \-\-output\-pointset warped_landmarks.fcsv \e
   \-\-xf vf.mha
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH PLASTIMATCH XF-CONVERT
@@ -2631,21 +2433,19 @@ The command line usage is given as follows:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 Usage: plastimatch xf\-convert [options]
 Options:
-  \-\-dim <arg>            Size of output image in voxels "x [y z]"
-  \-\-grid\-spacing <arg>   B\-spline grid spacing in mm "x [y z]"
+  \-\-dim <arg>            Size of output image in voxels \(dqx [y z]\(dq
+  \-\-grid\-spacing <arg>   B\-spline grid spacing in mm \(dqx [y z]\(dq
   \-\-input <arg>          Input xform filename (required)
   \-\-nobulk               Omit bulk transform for itk_bspline
-  \-\-origin <arg>         Location of first image voxel in mm "x y z"
+  \-\-origin <arg>         Location of first image voxel in mm \(dqx y z\(dq
   \-\-output <arg>         Output xform filename (required)
   \-\-output\-type <arg>    Type of xform to create (required), choose
                           from {bspline, itk_bspline, vf}
-  \-\-spacing <arg>        Voxel spacing in mm "x [y z]"
-.ft P
-.fi
+  \-\-spacing <arg>        Voxel spacing in mm \(dqx [y z]\(dq
+.EE
 .UNINDENT
 .UNINDENT
 .SS Example
@@ -2656,14 +2456,12 @@ geometry is defined by the values found in the transform header.:
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch xf\-convert \e
   \-\-input bspline.txt \e
   \-\-output vf.mha \e
   \-\-output\-type vf
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .sp
@@ -2672,20 +2470,18 @@ coefficients with a control\-point spacing of 30 mm in each direction.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-.nf
-.ft C
+.EX
 plastimatch xf\-convert \e
   \-\-input vf.mha \e
   \-\-output bspline.txt \e
   \-\-output\-type bspline \e
   \-\-grid\-spacing 30
-.ft P
-.fi
+.EE
 .UNINDENT
 .UNINDENT
 .SH AUTHOR
 Plastimatch is a collaborative project.  For additional documentation, please visit http://plastimatch.org.  For questions, comments, and bug reports, please visit http://groups.google.com/group/plastimatch.
 .SH COPYRIGHT
-Plastimatch development team (C) 2010-2022.  You are free to use, modify, and distribute plastimatch according to a BSD-style license.  Please see LICENSE.TXT for details.
+Plastimatch development team (C) 2010-2024.  You are free to use, modify, and distribute plastimatch according to a BSD-style license.  Please see LICENSE.TXT for details.
 .\" Generated by docutils manpage writer.
 .

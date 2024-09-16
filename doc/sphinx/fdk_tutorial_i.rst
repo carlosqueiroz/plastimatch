@@ -3,12 +3,15 @@
 FDK tutorial (part 1)
 =====================
 The FDK tutorial has two parts.  In Part I, you will learn the basic 
-command line options of the drr and fdk programs.  In Part II, you will 
-learn how to adapt these programs to a real CT scanner.
+command line options of the plastimatch drr and fdk
+commands.  In Part II, you will 
+learn how to use these commands to reconstruct data from
+a real CT scanner.
 
 This is Part I of the FDK tutorial.  You will download sample data, 
-use the drr program to generate synthetic X-ray projections of the data, 
-and then reconstruct them using the fdk program.  
+use the drr command to generate synthetic
+X-ray projections of the data, 
+and then reconstruct them using the fdk command.
 
 Download the sample data
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -24,7 +27,7 @@ Make DRRs (first try)
 ^^^^^^^^^^^^^^^^^^^^^
 Run the following command to create drr images::
 
-  drr \
+  plastimatch drr \
       -t pfm \
       -a 60 \
       -N 3 \
@@ -49,17 +52,18 @@ Reconstruct the image (first try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Run the following command to reconstruct the image::
 
-  fdk -f none -r "100 100 100" -I head -O out.mha
+  plastimatch fdk -f none -r "100 100 100" -I head -O out.mha
 
 You should get an image like this:
 
 .. image:: ../figures/fdk_tutorial_2.png
    :width: 50 %
 
-The image is kind of blurry, which is because we didn't use the ramp filter.
+The image is kind of blurry,
+which is because we didn't use the ramp filter.
 Try again with the ramp filter::
 
-  fdk -f ramp -r "100 100 100" -I head -O out.mha
+  plastimatch fdk -f ramp -r "100 100 100" -I head -O out.mha
 
 You should get an image like this:
 
@@ -80,7 +84,7 @@ we are satisfied with the results, we can make them in pfm.
 
 Run the following command to create drr images in pgm format::
 
-  drr \
+  plastimatch drr \
       -t pgm \
       -a 60 \
       -N 3 \
@@ -111,7 +115,7 @@ but the DRR generates as floating point and doesn't
 auto-scale the output.  You need to manually scale it in order to 
 see something interesting.  Like this::
 
-  drr \
+  plastimatch drr \
       -t pgm \
       -a 60 \
       -N 3 \
@@ -152,7 +156,7 @@ and width of 40 cm.
 We'll also increase the number of pixels a little to keep the pixels square.
 ::
 
-  drr \
+  plastimatch drr \
       -t pfm \
       -a 60 \
       -N 3 \
@@ -171,7 +175,7 @@ Reconstruct the image (second try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Run the following command to reconstruct the image::
 
-  fdk -f ramp -r "100 100 100" -I head -O out.mha
+  plastimatch fdk -f ramp -r "100 100 100" -I head -O out.mha
 
 You should get an image like this:
 
@@ -190,7 +194,7 @@ by a clinical radiotherapy scanner.  Each image will be
 we'll acquire 630 images per rotation.
 ::
 
-  drr \
+  plastimatch drr \
       -t pfm \
       -a 630 \
       -N 0.5714286 \
@@ -210,7 +214,8 @@ This is equivalent to 1.25 mm slices, with an in-plane pixel size
 of 0.586 x 0.586 mm.
 ::
 
-  fdk -f ramp -r "512 512 120" -z "300 300 150" -I head -O out.mha
+  plastimatch fdk -f ramp -r "512 512 120" \
+       -z "300 300 150" -I head -O out.mha
 
 You should get an image like this:
 

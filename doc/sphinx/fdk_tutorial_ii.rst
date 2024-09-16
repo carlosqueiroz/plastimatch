@@ -4,7 +4,7 @@ FDK tutorial (part 2)
 =====================
 This is Part II of the FDK tutorial.  You will download sample projection 
 data from a real CT scanner, convert the data format to something that 
-the fdk program can use, generate geometry files that match the projection 
+the fdk command can use, generate geometry files that match the projection 
 data, and reconstruct a 3D volume from projections.
 
 IMPORTANT: This tutorial requires the use of either Matlab or Octave to 
@@ -32,7 +32,7 @@ You can see representative samples of the original images below.
 Converting the image files (First try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The sample data is stored in pgm format, in the pgm subdirectory.  
-However, the recommended format for use with the fdk program is
+However, the recommended format for use with the fdk command is
 the pfm format.  So our first step is to convert the file format to pfm 
 format.
 
@@ -105,11 +105,11 @@ but we will be using again soon.
 
 Creating the geometry files (First try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-As you learned in Part I of the tutorial, the fdk program expects each image 
+As you learned in Part I of the tutorial, the fdk command expects each image 
 to have an associated geometry file, which describes the location and 
 orientation of the imaging system in room coordinates.  In this section, 
 we will first describe the geometry of the real scanner, and then use 
-the drr program to create the geometry files.
+the drr command to create the geometry files.
 
 The University of Arkansas scanner consists of a fixed X-ray tube and 
 detector, and uses a turntable to rotate the sample.  The X-ray system 
@@ -130,12 +130,12 @@ pixel subwindow the image center is located at pixel (154,154).
    :width: 70 %
 
 We now have enough information to create the geometry files.  The drr 
-program can create geometry files for images that lie on a circular orbit, 
+command can create geometry files for images that lie on a circular orbit, 
 such as the turntable system.
 
 Run the following from within the pfm directory::
 
-  drr \
+  plastimatch drr \
     -G \
     -a 360 -N 1 \
     -g "425 560" \
@@ -145,20 +145,20 @@ Run the following from within the pfm directory::
     -O Tnew_
 
 Most of the command parameters should be pretty clear (you can refer to 
-:ref:`drr` for details).  But just to point out a few comments:
+:ref:`the plastimatch man page<plastimatch>` for details).  But just to point out a few comments:
 
 * The -G parameter means to make geometry files without creating a drr
 * All parameters are assumed to be in millimeters
 * The "-z" parameter is for the subwindow, so 256 pix x 0.4 mm = 102.4 mm
 * We are lucky that the image filenames have 4 digit numbers, which 
-  match the filename pattern created by the drr program
+  match the filename pattern created by the drr command
 
 Reconstructing the image (First try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 We are now ready to reconstruct the image.  Run the following from within 
 the pfm directory::
 
-  fdk .
+  plastimatch fdk .
 
 This should create a file "output.mha".  You can view this file in 
 a software such as `3D Slicer <http://slicer.org/>`_.
@@ -176,10 +176,10 @@ we can use the "-z" option.
 
 Converting the image files (Second try)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The reason the background is not black is that the fdk program expects 
+The reason the background is not black is that the fdk command expects 
 the input files to be zero for no attenuation, and 
 non-zero values represent increasing amount of attenuation.
-We will fix this problem by modifying the input files to the fdk program.
+We will fix this problem by modifying the input files to the fdk command.
 
 Go back to the file pgm_to_pfm.m, and change this line::
 
@@ -213,7 +213,7 @@ Reconstructing the image (Second try)
 We are now ready to reconstruct the image (again).  
 Run the following from within the pfm directory::
 
-  fdk \
+  plastimatch fdk \
     -z "80 80 120" \
     -r "80 80 120"
 
@@ -239,7 +239,7 @@ we will try out two different values for the image center:
 (154,138) and (154,132.3).  The commands for these two cases 
 are::
 
-  drr \
+  plastimatch drr \
     -G \
     -a 360 -N 1 \
     -g "425 560" \
@@ -250,7 +250,7 @@ are::
 
 and::
 
-  drr \
+  plastimatch drr \
     -G \
     -a 360 -N 1 \
     -g "425 560" \
@@ -264,7 +264,7 @@ Reconstructing the image (Last try)
 For each of the above geometry settings, run the fdk command to 
 reconstruct the CT volume.::
 
-  fdk \
+  plastimatch fdk \
     -z "80 80 120" \
     -r "80 80 120"
 
@@ -282,7 +282,7 @@ As you can see, setting the image center to (154,132.3) gives a good
 overall reconstruction of the object.  As a final test, let's make a 
 high resolution reconstruction of the phantom::
 
-  fdk \
+  plastimatch fdk \
     -z "50 50 85" \
     -r "512 512 85"
 

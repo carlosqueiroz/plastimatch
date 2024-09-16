@@ -1,3 +1,5 @@
+.. _plastimatch:
+
 plastimatch
 ===========
 
@@ -18,13 +20,13 @@ The list of possible commands can be seen by simply typing "plastimatch"
 without any additional command line arguments::
 
  $ plastimatch
- plastimatch version 1.9.4
+ plastimatch version 1.10.0
  Usage: plastimatch command [options]
  Commands:
   add           adjust        average       bbox          boundary    
   crop          compare       compose       convert       dice        
   diff          dmap          dose          drr           dvh         
-  fdk           fill          filter        gamma         header      
+  fdk          fill          filter        gamma         header      
   intersect     jacobian      lm-warp       mabs          mask        
   maximum       ml-convert    multiply      probe         register    
   resample      scale         segment       sift          stats       
@@ -656,7 +658,7 @@ which can be generated from a computed tomography (CT) scan.
 It is used as a reference image for verifying the correct setup 
 position of a patient prior to radiation treatment.  
 
-The drr program that comes with plastimatch takes a CT image 
+The plastimatch drr command takes a CT image 
 as input, and generates one or more output images.  
 The output images can be either pgm, pfm, or raw 
 format.  The command line usage is::
@@ -711,7 +713,7 @@ format.  The command line usage is::
                                  format "x y z" 
 
 An input file is required.  
-The drr program can be used in either 
+The drr command can be used in either 
 *single image mode* or *rotational mode*.  In single image mode, 
 you specify the complete geometry of the x-ray source and imaging 
 panel for a single image.  In rotational mode, the imaging geometry 
@@ -724,7 +726,7 @@ Examples
 ^^^^^^^^
 The following example illustrates the use of single image mode::
 
-  drr -nrm "1 0 0" \
+  plastimatch drr -nrm "1 0 0" \
       -vup "0 0 1" \
       -g "1000 1500" \
       -r "1024 768" \
@@ -769,7 +771,7 @@ The circular orbit is performed around the Z axis, and the images
 are generated every **-N ang** degrees of the orbit.  This is illustrated 
 using the following example::
 
-  drr -N 20 \
+  plastimatch drr -N 20 \
       -a 18 \
       -g "1000 1500" \
       -r "1024 768" \
@@ -852,7 +854,7 @@ The term FDK refers to the authors
 Feldkamp, Davis, and Kress who wrote the seminal paper 
 "Practical cone-beam algorithm" in 1984.  Their paper 
 describes a filtered back-projection reconstruction algorithm 
-for cone-beam geometries.  The fdk program in plastimatch is 
+for cone-beam geometries.  The plastimatch fdk command is 
 an implmenetation of the FDK algorithm.
 It takes a directory of 2D projection images as input, and 
 generates a single 3D volume as output.  
@@ -882,7 +884,7 @@ The command line usage is::
   -z, --volume-size <arg>       Physical size of reconstruction volume 
                                  "s1 s2 s3", in mm (default: 300 300 150) 
 
-The usage of the fdk program is best understood by following along 
+The usage of the fdk command is best understood by following along 
 with the tutorials: :ref:`fdk_tutorial_i` and :ref:`fdk_tutorial_ii`.
 
 Three different formats of input files are supported.  These are:
@@ -1150,7 +1152,7 @@ file vf.mha, run the following::
 
 plastimatch lm-warp
 -------------------
-The landmark_warp executable performs landmark-based
+The plastimatch lm-warp command performs
 deformable registration by matching corresponding point landmarks 
 on the fixed and moving images.
 

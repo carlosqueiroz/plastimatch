@@ -1,3 +1,13 @@
+Version 1.10.0 (tag 1.10.0)
+Mon Sep 16 06:28:13 PM EDT 2024
+* Support for CUDA 12.1 textures in demons, drr, and fdk
+* Support for ITK 5.3, DCMTK 3.6.8
+* Fix bugs in image cropping
+* Fix bugs in DICOM export
+* Fix bugs in XiO import
+* Remove Mondoshot from the repository
+* Experimental wrapping for C# and python
+
 Version 1.9.4 (tag 1.9.4)
 Thu 03 Nov 2022 01:30:56 PM EDT
 * Bug fixes for ITK 5.X

@@ -63,9 +63,7 @@ Acknowledgments:
   A collaboration between MIT and Politecnico di Milano 
 * The National Alliance for Medical Image
   Computing (NAMIC), funded by the National Institutes of Health
-  through the NIH Roadmap for Medical Research, Grant 2-U54-EB005149;
-  information on the National Centers for Biomedical Computing
-  can be obtained from http://nihroadmap.nih.gov/bioinformatics
+  through the NIH Roadmap for Medical Research, Grant 2-U54-EB005149
 * NSF ERC Innovation Award EEC-0946463
 * NSF / CISE 1642345
 * NSF / SMOR 1662852
