@@ -45,7 +45,7 @@ The plastimatch executable is used for
 a variety of operations on either 2D or 3D images, including image
 registration, warping, resampling, and file format conversion.
 The form of the options depends upon the command given.
-The list of possible commands can be seen by simply typing \(dqplastimatch\(dq
+The list of possible commands can be seen by simply typing “plastimatch”
 without any additional command line arguments:
 .INDENT 0.0
 .INDENT 3.5
@@ -168,7 +168,7 @@ Options:
 .sp
 The adjust command can be used to make a piecewise
 linear adjustment of
-the image intensities.  The \-\-pw\-linear option is used to create
+the image intensities.  The –pw\-linear option is used to create
 the mapping from input intensities to output intensities.
 The input intensities in the curve must increase from left to right
 in the string, but output intensities are arbitrary.
@@ -179,22 +179,22 @@ positive or negative infinity by specifying the special
 input values of \-inf and +inf.  In this case, the
 second number in the pair is the slope of the curve, not the
 output intensity.  You can do a simplified linear transformation of
-gray levels with the \-\-linear option.  For this, you need to
-provide a string with \(dq<shift> <scale>\(dq.
+gray levels with the –linear option.  For this, you need to
+provide a string with “<shift> <scale>”.
 .sp
 In addition, you can adjust the image intensities based on a
-reference image. With \-\-linear\-match, a linear transformation
+reference image. With –linear\-match, a linear transformation
 (shift and scale) is determined from mean and standard deviation
 of pixel values in reference and input image. If the input image feaures
 local intensity inconsistencies, you can choose a patch\-based intensity
-correction using the \-\-local\-match option.  Similar to \-\-linear\-match,
+correction using the –local\-match option.  Similar to –linear\-match,
 shift and scale are computed patch\-wise from mean and standard
 deviation.  For both options, you can provide masks that specify the
-regions taken into account.  Finally, choose \-\-hist\-match to perform
+regions taken into account.  Finally, choose –hist\-match to perform
 histogram matching.
 .sp
-You can only choose one of \-\-linear, \-\-pw\-linear, \-\-linear\-match,
-\-\-local\-match and \-\-hist\-match. Beware that a reference filename has to
+You can only choose one of –linear, –pw\-linear, –linear\-match,
+–local\-match and –hist\-match. Beware that a reference filename has to
 be added for matching options.
 .SS Examples
 .sp
@@ -315,7 +315,7 @@ plastimatch adjust \e
 .UNINDENT
 .UNINDENT
 .sp
-The \-\-local\-match option requires the input and reference to be
+The –local\-match option requires the input and reference to be
 spatially aligned.  In order to reduce the influence of background
 pixels at the border, you can provide foreground masks for both images
 (if only one mask is given, it as also used for the second image):
@@ -337,7 +337,7 @@ plastimatch adjust \e
 .sp
 The \fIaverage\fP command is used to compute the (weighted) average
 of multiple input images.  It is the same as the plastimatch \fIadd\fP
-command, with the \-\-average option specified.
+command, with the –average option specified.
 Please refer to \fI\%plastimatch add\fP for the list of command line
 arguments.
 .SS Example
@@ -657,7 +657,7 @@ The first example demonstrates how to convert
 a DICOM volume to NRRD.  The DICOM images
 that comprise the volume must be
 stored in a single directory, which for this example
-is called \(dqdicom\-in\-dir\(dq.  Because the \-\-output\-type option was
+is called “dicom\-in\-dir”.  Because the –output\-type option was
 not specified,
 the output type will be matched to the type of the input DICOM volume.
 The format of the output file (NRRD) is determined from the filename
@@ -687,9 +687,9 @@ plastimatch convert \e
 .UNINDENT
 .sp
 The next example shows how to resample the output image to a different
-geometry.  The \-\-origin option sets the position of the
-(center of) the first voxel of the image, the \-\-dim option sets the
-number of voxels, and the \-\-spacing option sets the
+geometry.  The –origin option sets the position of the
+(center of) the first voxel of the image, the –dim option sets the
+number of voxels, and the –spacing option sets the
 distance between voxels.  The units for origin and spacing are
 assumed to be millimeters.
 .INDENT 0.0
@@ -708,7 +708,7 @@ plastimatch convert \e
 .sp
 Generally speaking, it is tedious to manually specify the geometry of
 the output file.  If you want to match the geometry of the output
-file with an existing file, you can do this using the \-\-fixed option.
+file with an existing file, you can do this using the –fixed option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -722,13 +722,13 @@ plastimatch convert \e
 .UNINDENT
 .sp
 This next example shows how to convert a DICOM RT structure set file
-into an image using the \-\-output\-ss\-img option.
+into an image using the –output\-ss\-img option.
 Because structures in DICOM RT are polylines, they are rasterized to
 create the image.  The voxels of the output image are 32\-bit integers,
 where the i^th bit of each integer has value one if the voxel lies with
 in the corresponding structure, and value zero if the voxel lies outside the
 structure.  The structure names are stored in separate file using
-the \-\-output\-ss\-list option.
+the –output\-ss\-list option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -741,13 +741,13 @@ plastimatch convert \e
 .UNINDENT
 .UNINDENT
 .sp
-In the previous example, the geometry of the output file wasn\(aqt specified.
-When the geometry of a DICOM RT structure set isn\(aqt specified, it is
+In the previous example, the geometry of the output file wasn’t specified.
+When the geometry of a DICOM RT structure set isn’t specified, it is
 assumed to match the geometry of the DICOM (CT, MR, etc)
 image associated with the
 contours.  If the associated DICOM image is in the same directory as
 the structure set file, it will be found automatically.  Otherwise, we
-have to tell plastimatch where it is located with the \-\-referenced\-ct option.
+have to tell plastimatch where it is located with the –referenced\-ct option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -983,7 +983,7 @@ of the panel is oriented toward the positive z direction in world
 coordinates.  If we wanted to rotate the panel by 45 degrees
 counter\-clockwise on our AP view, we would set \fBvup\fP to
 the (1, 0, 1) direction, as shown in the image below.
-Note that \fBvup\fP doesn\(aqt have to be normalized.
+Note that \fBvup\fP doesn’t have to be normalized.
 [image]
 .sp
 In rotional mode, multiple images are created.  The source and imaging
@@ -1046,9 +1046,9 @@ Options:
 .UNINDENT
 .sp
 The required inputs are
-\-\-input\-dose,
-\-\-input\-ss\-img, \-\-input\-ss\-list,
-and \-\-output\-csv.
+–input\-dose,
+–input\-ss\-img, –input\-ss\-list,
+and –output\-csv.
 The units of the input dose must be either Gy or cGy.
 DVH bin values will be generated for all structures found in the
 structure set files.  The output will be generated as an ASCII
@@ -1056,10 +1056,10 @@ csv\-format spreadsheet file, readable by OpenOffice.org or Microsoft Excel.
 .sp
 The default is a differential (standard) histogram, rather than the
 cumulative DVH which is most common in radiotherapy.  To create a cumulative
-DVH, use the \-\-cumulative option.
+DVH, use the –cumulative option.
 .sp
 The default is to create 256 bins, each with a width of 1 Gy.
-You can adjust these values using the \-\-num\-bins and \-\-bin\-width option.
+You can adjust these values using the –num\-bins and –bin\-width option.
 .SS Example
 .sp
 To generate a DVH for a single 2 Gy fraction, we might choose 250 bins each of
@@ -1084,7 +1084,7 @@ plastimatch dvh \e
 .sp
 The term FDK refers to the authors
 Feldkamp, Davis, and Kress who wrote the seminal paper
-\(dqPractical cone\-beam algorithm\(dq in 1984.  Their paper
+“Practical cone\-beam algorithm” in 1984.  Their paper
 describes a filtered back\-projection reconstruction algorithm
 for cone\-beam geometries.  The plastimatch fdk command is
 an implmenetation of the FDK algorithm.
@@ -1271,9 +1271,9 @@ Options:
 .UNINDENT
 .UNINDENT
 .sp
-The built\-in filters supported are \(dqgabor\(dq and \(dqgauss\(dq.
+The built\-in filters supported are “gabor” and “gauss”.
 For a Gaussian, the width of the Gaussian can be controlled
-using the \-\-gauss\-width option.
+using the –gauss\-width option.
 The Gabor filter is currently limited to automatic selection of
 filter directions, which are spaced quasi\-uniformly on the
 unit sphere.
@@ -1495,7 +1495,7 @@ Options:
 .UNINDENT
 .UNINDENT
 .sp
-Options \(dq\-a\(dq, \(dq\-r\(dq, \(dq\-Y\(dq, \(dq\-d\(dq are set by default to:
+Options “\-a”, “\-r”, “\-Y”, “\-d” are set by default to:
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -1520,11 +1520,11 @@ You may want to choose different algorithm:
 .UNINDENT
 .UNINDENT
 .sp
-In the case of Wendland RBFs \(dq\-r\(dq option sets the radius of support.
+In the case of Wendland RBFs “\-r” option sets the radius of support.
 .sp
-Regularization of vector field is available for \(dqgauss\(dq and \(dqwendland\(dq
+Regularization of vector field is available for “gauss” and “wendland”
 algorithms. To regularize the output vector field increase
-\(dq\-Y\(dq to \(aq0.1\(aq and up with increment \(aq0.1\(aq.
+“\-Y” to ‘0.1’ and up with increment ‘0.1’.
 .SS Example
 .sp
 To create a vector field from coresponding landmarks in fixed.fcsv
@@ -1632,7 +1632,7 @@ To be written.
 The plastimatch \fIprobe\fP command is used to examine the image intensity
 or vector field displacement at one or more positions within a volume.
 The probe positions can be specified in world coordinates (in mm), using
-the \-\-location option, or as image indices using the \-\-index option.
+the –location option, or as image indices using the –index option.
 The locations or indices are linearly interpolated if they lie between
 voxels.
 .sp
@@ -1710,8 +1710,8 @@ Usage: plastimatch register command_file
 .sp
 The command file is an ordinary text file, which contains a single
 global section and one or more stages sections.
-The global section begins with a line containing only the string \(dq[GLOBAL]\(dq,
-and each stage begins with a line containing the string \(dq[STAGE]\(dq.
+The global section begins with a line containing only the string “[GLOBAL]”,
+and each stage begins with a line containing the string “[STAGE]”.
 .sp
 The global section is used to set input files, output files, and
 global parameters, while the each stage section defines a sequential
@@ -1829,7 +1829,7 @@ Options:
 .UNINDENT
 .SS Example
 .sp
-We can use the \-\-subsample option to bin an integer number of voxels
+We can use the –subsample option to bin an integer number of voxels
 to a single voxel.  So for example, if we want to bin a cube of size
 3x3x1 voxels to a single voxel, we would do the following.
 .INDENT 0.0
@@ -1914,7 +1914,7 @@ plastimatch segment \e
 If we wanted instead to create a DICOM\-RT structure set, we should
 specify a DICOM image as the input.  This will allow plastimatch to
 create the DICOM\-RT with the correct patient name, patient id, and UIDs.
-The output file will be called \(dqss.dcm\(dq.
+The output file will be called “ss.dcm”.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -1991,7 +1991,7 @@ Max second derivative: (29 36 36)
 .UNINDENT
 .UNINDENT
 .sp
-The rows corresponding to \(dqMin, Mean, Max, and Mean abs\(dq each
+The rows corresponding to “Min, Mean, Max, and Mean abs” each
 have three numbers, which correspond to the x, y, and z coordinates.
 Therefore, they compute these statistics for each vector direction
 separately.
@@ -2018,28 +2018,28 @@ INTSECDER     Integral second derivative
 .SH PLASTIMATCH SYNTH
 .sp
 The \fIsynth\fP command creates a synthetic image.  The following kinds
-of images can be created, by specifying the appropriate \-\-pattern option.
+of images can be created, by specifying the appropriate –pattern option.
 Each of these patterns come with a synthetic structure set and
 synthetic dose which can be used for testing.
 .INDENT 0.0
 .IP \(bu 2
-donut \-\- a donut shaped structure
+donut – a donut shaped structure
 .IP \(bu 2
-gauss \-\- a Gaussian blur
+gauss – a Gaussian blur
 .IP \(bu 2
-grid \-\- a 3D grid
+grid – a 3D grid
 .IP \(bu 2
-lung \-\- a synthetic lung with a tumor
+lung – a synthetic lung with a tumor
 .IP \(bu 2
-rect \-\- a uniform rectangle within a uniform background
+rect – a uniform rectangle within a uniform background
 .IP \(bu 2
-sphere \-\- a uniform sphere within a uniform background
+sphere – a uniform sphere within a uniform background
 .IP \(bu 2
-xramp \-\- an image that linearly varies intensities in the x direction
+xramp – an image that linearly varies intensities in the x direction
 .IP \(bu 2
-yramp \-\- an image that linearly varies intensities in the y direction
+yramp – an image that linearly varies intensities in the y direction
 .IP \(bu 2
-zramp \-\- an image that linearly varies intensities in the z direction
+zramp – an image that linearly varies intensities in the z direction
 .UNINDENT
 .sp
 The command line usage is given as follows:
@@ -2160,13 +2160,13 @@ The following kinds of vector fields can be created,
 by specifying the appropriate option.
 .INDENT 0.0
 .IP \(bu 2
-gauss \-\- a gaussian warp
+gauss – a gaussian warp
 .IP \(bu 2
-radial \-\- a radial expansion or contraction
+radial – a radial expansion or contraction
 .IP \(bu 2
-translation \-\- a uniform translation
+translation – a uniform translation
 .IP \(bu 2
-zero \-\- a vector field that is zero everywhere
+zero – a vector field that is zero everywhere
 .UNINDENT
 .sp
 The command line usage is given as follows:
@@ -2344,7 +2344,7 @@ plastimatch warp \e
 .sp
 In the previous example, the output file geometry was determined by the
 geometry information in the bspline coefficient file.  You can resample
-to a different geometry using \-\-fixed, or \-\-origin, \-\-dim, and \-\-spacing.
+to a different geometry using –fixed, or –origin, –dim, and –spacing.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -2376,8 +2376,8 @@ plastimatch warp \e
 .sp
 Sometimes, voxels located outside of the geometry of the input image
 will be warped into the geometry of the output image.  By default, these
-areas are \(dqfilled in\(dq with an intensity of zero.  You can choose a different
-value for these areas using the \-\-default\-value option.
+areas are “filled in” with an intensity of zero.  You can choose a different
+value for these areas using the –default\-value option.
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -2406,7 +2406,7 @@ plastimatch warp \e
 .UNINDENT
 .sp
 Sometimes, it may be desirable to apply a transform explicitly defined by a
-vector field instead of using B\-spline coefficients.  To allow this, the \-\-xf
+vector field instead of using B\-spline coefficients.  To allow this, the –xf
 option also accepts vector field volumes.  For example, the previous example
 would become.
 .INDENT 0.0
