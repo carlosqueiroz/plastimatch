@@ -4,7 +4,7 @@
 #ifndef _cuda_texture_h_
 #define _cuda_texture_h_
 
-#include "plm_config.h"
+#include "plmcuda_config.h"
 #include "cuda_kernel_util.h"
 
 /* From https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html
@@ -36,7 +36,7 @@ by the same thread or another thread within the same kernel call."
 
 */
 
-class Cuda_texture {
+PLMCUDA_API class Cuda_texture {
 public:
     cudaArray_t dev;
     cudaTextureObject_t tex;
