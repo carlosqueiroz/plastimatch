@@ -3,8 +3,8 @@
 ##-----------------------------------------------------------------------------
 ##  See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
 ##-----------------------------------------------------------------------------
-# CMAKE_CXX_STANDARD was introduced in 3.1.3
-cmake_minimum_required (VERSION 3.1.3)
+# Needed for VERSION_GREATER_EQUAL
+cmake_minimum_required (VERSION 3.7)
 project (plastimatch)
 
 # The version here should be equal to the "most recent release"
@@ -698,8 +698,9 @@ if (ITK_FOUND)
 endif ()
 
 if (DCMTK_FOUND)
-  set (DLL_PATTERNS "oflog.dll" "ofstd.dll" "dcmdata.dll" "dcmjpeg.dll"
-    "dcmimgle.dll" "ijg8.dll" "ijg12.dll" "ijg16.dll")
+  set (DLL_PATTERNS "oflog.dll" "ofstd.dll" "oficonv.dll"
+    "dcmdata.dll" "dcmjpeg.dll" "dcmimgle.dll"
+    "ijg8.dll" "ijg12.dll" "ijg16.dll")
   foreach (p ${DLL_PATTERNS})
     # .../bin/release/*.dll for build tree, .../bin/*.dll for install tree
     file (GLOB DLLFILES "${DCMTK_DIR}/bin/release/${p}")
