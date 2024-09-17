@@ -143,8 +143,8 @@ macro (set_compute_capabilities)
 	-gencode arch=compute_80,code=sm_80
 	-gencode arch=compute_86,code=sm_86
 	-gencode arch=compute_87,code=sm_87
-	-gencode arch=compute_88,code=sm_88
-	-gencode arch=compute_88,code=compute_88
+	-gencode arch=compute_89,code=sm_89
+	-gencode arch=compute_89,code=compute_89
       )
     endif()
 
@@ -164,7 +164,7 @@ macro (set_compute_capabilities)
 	-gencode arch=compute_80,code=sm_80
 	-gencode arch=compute_86,code=sm_86
 	-gencode arch=compute_87,code=sm_87
-	-gencode arch=compute_88,code=sm_88
+	-gencode arch=compute_89,code=sm_89
 	-gencode arch=compute_90,code=sm_90
 	-gencode arch=compute_90,code=compute_90
       )
