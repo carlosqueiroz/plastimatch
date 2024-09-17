@@ -4,71 +4,170 @@ macro (set_compute_capabilities)
   # JAS 2010.12.09
   #   Build code for all known compute capabilities by default.
   #   When developing, it is sometimes nice to turn this off in order
-  #   to speed up the build processes (since you only have 1 GPU in your machine).
+  #   to speed up the build processes (since you only have 1 GPU in your
+  #   machine).
+  # GCS 2024-09-17
+  #   Remove support for compute capabilities less than 5.
   if (PLM_CUDA_ALL_DEVICES)
     message (STATUS "CUDA Build Level: ALL Compute Capabilities")
 
-    if (CUDA_VERSION_MAJOR LESS "7")
-      message (STATUS " Compute Cap 1: [X]")
-      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-	-gencode arch=compute_11,code=sm_11
-	-gencode arch=compute_12,code=sm_12
-	-gencode arch=compute_13,code=sm_13
-	)
-      if (CUDA_VERSION_MINOR LESS "5")
-	set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-	  -gencode arch=compute_10,code=sm_10)
-      endif ()
-    else()
-      message (STATUS " Compute Cap 1: [ ]")
-    endif()
+    if (CUDA_VERSION VERSION_LESS "6.5")
+      message (FATAL "CUDA version is too old")
+    endif ()
 
-    if (CUDA_VERSION_MAJOR GREATER "2" AND CUDA_VERSION_MAJOR LESS "9")
-      message (STATUS " Compute Cap 2: [X]")
-      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-	-gencode arch=compute_20,code=sm_20
-	)
-    else()
-      message (STATUS " Compute Cap 2: [ ]")
-    endif()
-
-    if (CUDA_VERSION_MAJOR GREATER "4")
-      message (STATUS " Compute Cap 3: [X]")
-      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-	-gencode arch=compute_30,code=sm_30
-	)
-    else()
-      message (STATUS " Compute Cap 3: [ ]")
-    endif()
-
-    if (CUDA_VERSION_MAJOR GREATER "5")
+    if (CUDA_VERSION VERSION_EQUAL "6.5" OR CUDA_MAJOR_VERSION EQUAL "7")
       message (STATUS " Compute Cap 5: [X]")
       set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
 	-gencode arch=compute_50,code=sm_50
-	-gencode arch=compute_50,code=compute_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_53,code=compute_53
 	)
-    else()
-      message (STATUS " Compute Cap 5: [ ]")
     endif()
 
-    if (CUDA_VERSION_MAJOR GREATER "7")
+    if (CUDA_VERSION_MAJOR EQUAL "8")
+      message (STATUS " Compute Cap 5: [X]")
       message (STATUS " Compute Cap 6: [X]")
       set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
 	-gencode arch=compute_60,code=sm_60
 	-gencode arch=compute_60,code=compute_60
 	)
-    else()
-      message (STATUS " Compute Cap 6: [ ]")
     endif()
 
-    if (CUDA_VERSION_MAJOR GREATER "8")
+    if (CUDA_VERSION_MAJOR EQUAL "9")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
       message (STATUS " Compute Cap 7: [X]")
       set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
 	-gencode arch=compute_70,code=sm_70
-	-gencode arch=compute_70,code=compute_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_72,code=compute_72
 	)
-    else()
-      message (STATUS " Compute Cap 7: [ ]")
+    endif()
+
+    if (CUDA_VERSION_MAJOR EQUAL "10")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_75,code=compute_75
+      )
+    endif()
+
+    if (CUDA_VERSION VERSION_EQUAL "11.0")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      message (STATUS " Compute Cap 8: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_80,code=sm_80
+	-gencode arch=compute_80,code=compute_80
+      )
+    endif()
+
+    if (CUDA_VERSION VERSION_GREATER "11.0"
+	AND CUDA_VERSION VERSION_LESS_EQUAL "11.4")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      message (STATUS " Compute Cap 8: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_80,code=sm_80
+	-gencode arch=compute_86,code=sm_86
+	-gencode arch=compute_86,code=compute_86
+      )
+    endif()
+
+    if (CUDA_VERSION VERSION_GREATER "11.4"
+	AND CUDA_VERSION VERSION_LESS_EQUAL "11.7.1")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      message (STATUS " Compute Cap 8: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_80,code=sm_80
+	-gencode arch=compute_86,code=sm_86
+	-gencode arch=compute_87,code=sm_87
+	-gencode arch=compute_87,code=compute_87
+      )
+    endif()
+
+    if (CUDA_VERSION VERSION_EQUAL "11.8")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      message (STATUS " Compute Cap 8: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_80,code=sm_80
+	-gencode arch=compute_86,code=sm_86
+	-gencode arch=compute_87,code=sm_87
+	-gencode arch=compute_88,code=sm_88
+	-gencode arch=compute_88,code=compute_88
+      )
+    endif()
+
+    if (CUDA_VERSION VERSION_GREATER_EQUAL "12.0")
+      message (STATUS " Compute Cap 5: [X]")
+      message (STATUS " Compute Cap 6: [X]")
+      message (STATUS " Compute Cap 7: [X]")
+      message (STATUS " Compute Cap 8: [X]")
+      set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+	-gencode arch=compute_50,code=sm_50
+	-gencode arch=compute_52,code=sm_52
+	-gencode arch=compute_53,code=sm_53
+	-gencode arch=compute_60,code=sm_60
+	-gencode arch=compute_70,code=sm_70
+	-gencode arch=compute_72,code=sm_72
+	-gencode arch=compute_75,code=sm_75
+	-gencode arch=compute_80,code=sm_80
+	-gencode arch=compute_86,code=sm_86
+	-gencode arch=compute_87,code=sm_87
+	-gencode arch=compute_88,code=sm_88
+	-gencode arch=compute_90,code=sm_90
+	-gencode arch=compute_90,code=compute_90
+      )
     endif()
   else ()
     message (STATUS "CUDA Build Level: Build system Compute Capability ONLY!")
@@ -110,40 +209,43 @@ else ()
   endif ()
 endif ()
 
-# 14-5-2016 PAOLO: WORKAROUND GCC 6.1 AND CUDA 7.5 INCOMPATIBILITY
-if (CMAKE_COMPILER_IS_GNUCC
-    AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
-    AND (NOT CUDA_VERSION_MAJOR VERSION_GREATER 7))
-  set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-std=c++98")
-endif ()
 
-# ITK headers cannot be processed by nvcc, so we define
-# PLM_CUDA_COMPILE for the purpose of guarding
-# (see base/plmbase.h)
-if (CUDA_CXX_FLAGS)
-  set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-DPLM_CUDA_COMPILE=1")
+
+if (CUDA_FOUND AND CUDA_VERSION VERSION_GREATER_EQUAL "6.5")
+  message (STATUS "CUDA version ${CUDA_VERSION}")
+elseif (CUDA_FOUND)
+  message (STATUS "CUDA version ${CUDA_VERSION} is too old.")
+  set (CUDA_FOUND OFF)
 else ()
-  set (CUDA_CXX_FLAGS "-DPLM_CUDA_COMPILE=1")
-endif ()
-
-# GCS 2012-09-25 - Seems this is needed too
-if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
-  set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-fPIC")
-endif ()
-
-if (CUDA_CXX_FLAGS)
-  list (APPEND CUDA_NVCC_FLAGS --compiler-options ${CUDA_CXX_FLAGS})
-endif ()
-
-#set (CUDA_FOUND ${CUDA_FOUND} CACHE BOOL "Did we find cuda?")
-
-if (CUDA_FOUND)
-  message (STATUS "CUDA Version ${CUDA_VERSION}")
-else ()
-  message (STATUS "CUDA Not found")
+  message (STATUS "CUDA not found")
 endif ()
 
 if (CUDA_FOUND)
+  # 14-5-2016 PAOLO: WORKAROUND GCC 6.1 AND CUDA 7.5 INCOMPATIBILITY
+  if (CMAKE_COMPILER_IS_GNUCC
+      AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+      AND (NOT CUDA_VERSION_MAJOR VERSION_GREATER 7))
+    set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-std=c++98")
+  endif ()
+
+  # ITK headers cannot be processed by nvcc, so we define
+  # PLM_CUDA_COMPILE for the purpose of guarding
+  # (see base/plmbase.h)
+  if (CUDA_CXX_FLAGS)
+    set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-DPLM_CUDA_COMPILE=1")
+  else ()
+    set (CUDA_CXX_FLAGS "-DPLM_CUDA_COMPILE=1")
+  endif ()
+
+  # GCS 2012-09-25 - Seems this is needed too
+  if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+    set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-fPIC")
+  endif ()
+
+  if (CUDA_CXX_FLAGS)
+    list (APPEND CUDA_NVCC_FLAGS --compiler-options ${CUDA_CXX_FLAGS})
+  endif ()
+
   cuda_include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
