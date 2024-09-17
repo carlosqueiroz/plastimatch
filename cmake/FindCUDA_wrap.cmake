@@ -278,14 +278,24 @@ if (CUDA_FOUND)
   #   This script will modify CUDA_NVCC_FLAGS if system default is not gcc-4.3
   include (nvcc-check)
 
+
   # Make nvcc less whiny
   if (CUDA_VERSION_MAJOR GREATER "5")
     set (CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
       --Wno-deprecated-gpu-targets)
   endif ()
 
-  # Let CUDA work with unsupported (too new) gcc versions
-  # Note: CUDA 10 cannot be used with gcc 10 or greater.
+  # Let CUDA work with unsupported (too old or new) MSVC or gcc versions
+
+  # This option works well for newer CUDA versions.  It is not present 
+  # in 10.1 and is present in 11.8, not sure about intermediate versions.
+  if (CUDA_VERSION VERSION_GREATER_EQUAL "11.8")
+    list (APPEND CUDA_NVCC_FLAGS -allow-unsupported-compiler)
+  endif ()
+
+  # Older CUDA versions check the __GNUC__ define, we can defeat the
+  # version check by adding another definition.  This causes lots of gcc
+  # warnings but it still works.
   if (CUDA_VERSION_MAJOR EQUAL "8"
       AND CMAKE_COMPILER_IS_GNUCC
       AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
