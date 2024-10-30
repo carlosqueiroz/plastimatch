@@ -83,6 +83,7 @@ Dcmtk_rt_study::rtss_load (void)
             = d_ptr->rt_study_metadata->get_study_metadata ();
         dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientName);
         dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientID);
+        dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientBirthDate);
         dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientSex);
         dcmtk_copy_into_metadata (study_metadata, df, DCM_PatientPosition);
         dcmtk_copy_into_metadata (study_metadata, df, DCM_StudyID);
