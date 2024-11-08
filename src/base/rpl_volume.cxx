@@ -1468,7 +1468,7 @@ Rpl_volume::apply_beam_modifiers ()
     /* For each ray in aperture */
     const plm_long *ires = d_ptr->proj_vol->get_image_dim();
 
-    printf ("ires = %d %d\n", ires[0], ires[1]);
+    printf ("ires = %ld %ld\n", ires[0], ires[1]);
     printf ("proj_vol dim = %d %d %d\n", (int) proj_vol->dim[0], 
         (int) proj_vol->dim[1], (int) proj_vol->dim[2]);
 
@@ -1625,7 +1625,7 @@ float compute_PrSTPR_from_HU(float CT_HU)
 }
 
 float 
-compute_PrSTPR_Schneider_weq_from_HU (float CT_HU) // From Schneider's paper: Phys. Med. Biol.41 (1996) 111–124
+compute_PrSTPR_Schneider_weq_from_HU (float CT_HU) // From Schneider's paper: Phys. Med. Biol.41 (1996) 111-124
 {
     if (CT_HU <= -1000)
     {
@@ -1698,7 +1698,7 @@ float compute_PrWER_from_HU(float CT_HU)
     return compute_PrSTPR_from_HU(CT_HU) / compute_density_from_HU(CT_HU);
 }
 
-float compute_density_from_HU (float CT_HU) // from Schneider's paper: Phys. Med. Biol.41 (1996) 111–124
+float compute_density_from_HU (float CT_HU) // from Schneider's paper: Phys. Med. Biol.41 (1996) 111-124
 {
     if(CT_HU <= -1000)
     {

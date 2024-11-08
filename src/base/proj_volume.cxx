@@ -296,9 +296,9 @@ Proj_volume::save_header (const char *filename)
     }
 
     std::string s = d_ptr->pmat->get ();
-    fprintf (fp, "num_steps=%d\n", d_ptr->num_steps);
+    fprintf (fp, "num_steps=%ld\n", d_ptr->num_steps);
     fprintf (fp, "step_length=%g\n", d_ptr->step_length);
-    fprintf (fp, "image_dim=%d %d\n", 
+    fprintf (fp, "image_dim=%ld %ld\n",
         d_ptr->image_dim[0], d_ptr->image_dim[1]);
     fprintf (fp, "image_spacing=%g %g\n", 
         d_ptr->image_spacing[0], d_ptr->image_spacing[1]);

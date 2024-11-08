@@ -227,7 +227,7 @@ xform_legacy_save_itk_bsp (
 	    fprintf (fp, "\n");
 	} else if (strcmp("IdentityTransform", transform->GetBulkTransform()->GetNameOfClass())) {
 	    printf ("Warning!!! BulkTransform exists. Type=%s\n", transform->GetBulkTransform()->GetNameOfClass());
-	    printf (" # of parameters=%d\n", transform->GetBulkTransform()->GetNumberOfParameters());
+	    printf (" # of parameters=%lu\n", transform->GetBulkTransform()->GetNumberOfParameters());
 	    printf (" The code currently does not know how to handle this type and will not write the parameters out!\n");
 	}
     }

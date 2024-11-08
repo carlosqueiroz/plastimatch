@@ -421,7 +421,7 @@ Plan_calc::normalize_beam_dose (Beam_calc *beam)
                 {
                     printf("%lg x 100%%.\n", beam->get_beam_weight());
                 }
-                printf("Primary PB num. x, y: %d, %d, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
+                printf("Primary PB num. x, y: %ld, %ld, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
             }
             else
             {
@@ -435,7 +435,7 @@ Plan_calc::normalize_beam_dose (Beam_calc *beam)
                 {
                     printf("%lg x 100%%.\n", beam->get_beam_weight());
                 }
-                printf("Primary PB num. x, y: %d, %d, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
+                printf("Primary PB num. x, y: %ld, %ld, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
             }
         }
         else // case 2: no red dose point defined
@@ -449,7 +449,7 @@ Plan_calc::normalize_beam_dose (Beam_calc *beam)
             {
                 printf("%lg x 100%%.\n", beam->get_beam_weight());
             }
-            printf("Primary PB num. x, y: %d, %d, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
+            printf("Primary PB num. x, y: %ld, %ld, primary PB res. x, y: %lg PB/mm, %lg PB/mm\n", beam->get_aperture()->get_dim(0), beam->get_aperture()->get_dim(1), 1.0 / (double) beam->get_aperture()->get_spacing(0), 1.0 / (double) beam->get_aperture()->get_spacing(1));
         }
     }
     else // raw dose, dose not normalized
@@ -756,7 +756,7 @@ Plan_calc::print_verif ()
     printf("\n vup: "); for (int i = 0; i < num_beams; i++) {printf("%lg %lg %lg ** ", d_ptr->beam_storage[i]->get_aperture()->vup[0], d_ptr->beam_storage[i]->get_aperture()->vup[1], d_ptr->beam_storage[i]->get_aperture()->vup[2]);}
     printf("\n offset: "); for (int i = 0; i < num_beams; i++) {printf("%lg ** ", d_ptr->beam_storage[i]->get_aperture()->get_distance());}
     printf("\n ap_center in pixels: "); for (int i = 0; i < num_beams; i++) {printf("%lg %lg ** ", d_ptr->beam_storage[i]->get_aperture()->get_center()[0], d_ptr->beam_storage[i]->get_aperture()->get_center()[1]);}
-    printf("\n i_res: "); for (int i = 0; i < num_beams; i++) {printf("%d %d ** ", d_ptr->beam_storage[i]->get_aperture()->get_dim()[0], d_ptr->beam_storage[i]->get_aperture()->get_dim()[1]);}
+    printf("\n i_res: "); for (int i = 0; i < num_beams; i++) {printf("%ld %ld ** ", d_ptr->beam_storage[i]->get_aperture()->get_dim()[0], d_ptr->beam_storage[i]->get_aperture()->get_dim()[1]);}
     printf("\n spacing: "); for (int i = 0; i < num_beams; i++) {printf("%lg %lg ** ", d_ptr->beam_storage[i]->get_aperture()->get_spacing()[0], d_ptr->beam_storage[i]->get_aperture()->get_spacing()[1]);}
     printf("\n source_size: "); for (int i = 0; i < num_beams; i++) {printf("%lg ** ", d_ptr->beam_storage[i]->get_source_size());}
     printf("\n ap_file_in: "); for (int i = 0; i < num_beams; i++) {printf("%s ** ", d_ptr->beam_storage[i]->get_aperture_in().c_str());}

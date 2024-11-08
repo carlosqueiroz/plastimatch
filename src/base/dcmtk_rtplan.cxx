@@ -98,7 +98,7 @@ Dcmtk_rt_study::rt_ion_plan_load (void)
         return;
     }
     unsigned long num_beams = seq->card();
-    printf (">> Num beams = %d\n", num_beams);
+    printf (">> Num beams = %lu\n", num_beams);
     for (unsigned long i = 0; i < num_beams; i++) {
         OFCondition orc;
         unsigned long count;
@@ -139,7 +139,7 @@ Dcmtk_rt_study::rt_ion_plan_load (void)
             break;
         }
         unsigned long num_cp = cp_seq->card();
-        printf (">> Adding beam (%d cp)\n", num_cp);
+        printf (">> Adding beam (%lu cp)\n", num_cp);
         for (unsigned long j = 0; j <num_cp; j++) {
             DcmItem *c_item = cp_seq->getItem(j);
             Rtplan_control_pt* curr_cp = curr_beam->add_control_pt ();
@@ -205,7 +205,7 @@ Dcmtk_rt_study::rt_ion_plan_load (void)
             if (count != num_spots) {
                 print_and_exit ("Mismatch in spot meterset weight size\n");
             }
-            printf (">> Adding cp (%d spots)\n", num_spots);
+            printf (">> Adding cp (%ld spots)\n", num_spots);
             curr_cp->scan_spot_position_map.assign (spot_positions, spot_positions + 2*num_spots);
             curr_cp->scan_spot_meterset_weights.assign (spot_weights, spot_weights + num_spots);
         }
