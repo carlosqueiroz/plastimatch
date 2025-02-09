@@ -153,7 +153,7 @@ sb_option (PLM_CONFIG_LEGACY_RAY_TRACE_EXACT
 # Compile and link options
 sb_option (PLM_CUDA_ALL_DEVICES
   "Generate GPU code for all compute capabilities?" OFF)
-sb_option (BUILD_SHARED_LIBS "Build plastimatch as shared library" OFF)
+sb_option (BUILD_SHARED_LIBS "Build plastimatch as shared library" ON)
 
 # Choose whether to build against included and/or superbuild libraries
 # instead of system libraries
