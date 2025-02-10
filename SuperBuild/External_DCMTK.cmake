@@ -3,7 +3,7 @@
 #-----------------------------------------------------------------------------
 
 set(proj DCMTK)
-set(dcmtk_url "https://dicom.offis.de/download/dcmtk/dcmtk369/dcmtk-3.6.9.tar.gz")
+set(dcmtk_url "https://dicom.offis.de/download/dcmtk/dcmtk361/dcmtk-3.6.1_20170228.tar.gz")
 
 ExternalProject_Add(${proj}
   DOWNLOAD_DIR ${proj}-download
