@@ -12,16 +12,16 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/ccache
       
     steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v4  # Atualizado para v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Configurar ccache
-        uses: actions/cache@v4  # Atualizado para v4
+      - name: Set up ccache
+        uses: actions/cache@v4
         with:
           path: ccache
           key: ccache-${{ runner.os }}-plastimatch
 
-      - name: Instalar dependências
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -35,15 +35,18 @@ jobs:
       - name: Build ITK
         run: |
           git clone --depth 1 --branch v5.3.0 https://github.com/InsightSoftwareConsortium/ITK.git
+          # Patch the header to include <cstdint>
+          sed -i '/#include "ITKMathematicalMorphologyExport.h"/a #include <cstdint>' ITK/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h
           mkdir itk-build && cd itk-build
           cmake ../ITK \
             -DBUILD_SHARED_LIBS=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DBUILD_TESTING=OFF
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_CXX_STANDARD=11  # Ensure C++11 is enabled
           make -j$(nproc)
           sudo make install
 
-      - name: Configurar build
+      - name: Configure build
         run: mkdir -p build && cd build && cmake .. \
           -DCMAKE_BUILD_TYPE=Release \
           -DITK_DIR=/usr/local/lib/cmake/ITK-5.3/ \
@@ -51,18 +54,18 @@ jobs:
           -DBUILD_SHARED_LIBS=ON \
           -DBUILD_APPS=OFF
 
-      - name: Compilar
+      - name: Compile
         run: |
           cd build
           make -j$(nproc) VERBOSE=1
 
-      - name: Validar artefatos
+      - name: Validate artifacts
         run: |
           file build/lib/libplastimatch.so
           ldd build/lib/libplastimatch.so
 
-      - name: Upload artefatos
-        uses: actions/upload-artifact@v4  # Versão corrigida
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: plastimatch-artifacts
           path: |
