@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CCACHE_DIR: ${{ github.workspace }}/ccache
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,33 +26,49 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential cmake git \
-            libdcmtk-dev libgdcm-dev \
             libboost-all-dev libeigen3-dev \
             libsqlite3-dev libhdf5-dev
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
 
+      - name: Build DCMTK
+        run: |
+          git clone --branch DCMTK-3.6.7 https://github.com/DCMTK/dcmtk.git
+          mkdir dcmtk-build && cd dcmtk-build
+          cmake ../dcmtk \
+            -DDCMTK_FORCE_FPIC=ON \
+            -DDCMTK_ENABLE_CXX11=ON \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DDCMTK_WITH_OPENSSL=OFF \
+            -DDCMTK_WITH_PNG=OFF \
+            -DDCMTK_WITH_TIFF=OFF \
+            -DDCMTK_WITH_ZLIB=OFF \
+            -DDCMTK_WITH_ICONV=OFF
+          make -j$(nproc)
+          sudo make install
+
       - name: Build ITK
         run: |
-          git clone --depth 1 --branch v5.3.0 https://github.com/InsightSoftwareConsortium/ITK.git
-          # Patch the header to include <cstdint>
-          sed -i '/#include "ITKMathematicalMorphologyExport.h"/a #include <cstdint>' ITK/Modules/Filtering/MathematicalMorphology/include/itkMathematicalMorphologyEnums.h
+          git clone -c advice.detachedHead=false --depth 1 --branch v5.3.0 https://github.com/InsightSoftwareConsortium/ITK.git
           mkdir itk-build && cd itk-build
           cmake ../ITK \
             -DBUILD_SHARED_LIBS=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_TESTING=OFF \
-            -DCMAKE_CXX_STANDARD=11  # Ensure C++11 is enabled
+            -DModule_ITKReview=ON \
+            -DCMAKE_CXX_STANDARD=11
           make -j$(nproc)
           sudo make install
 
       - name: Configure build
-        run: mkdir -p build && cd build && cmake .. \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DITK_DIR=/usr/local/lib/cmake/ITK-5.3/ \
-          -DUSE_DCMTK=ON \
-          -DBUILD_SHARED_LIBS=ON \
-          -DBUILD_APPS=OFF
+        run: |
+          mkdir -p build && cd build && cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DITK_DIR=/usr/local/lib/cmake/ITK-5.3/ \
+            -DDCMTK_DIR=/usr/local/lib/cmake/dcmtk-3.6.7/ \
+            -DUSE_DCMTK=ON \
+            -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_APPS=OFF
 
       - name: Compile
         run: |
