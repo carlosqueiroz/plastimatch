@@ -56,7 +56,6 @@ jobs:
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_TESTING=OFF \
             -DModule_ITKReview=ON \
-            -DCMAKE_CXX_STANDARD=11
           make -j$(nproc)
           sudo make install
 
