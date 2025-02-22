@@ -55,7 +55,7 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_TESTING=OFF \
-            -DModule_ITKReview=ON \
+            -DModule_ITKReview=ON 
           make -j$(nproc)
           sudo make install
 
