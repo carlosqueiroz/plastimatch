@@ -39,9 +39,14 @@ jobs:
           cd build
           make -j$(nproc)
 
+      - name: Listar arquivos gerados (para confirmar o local do .so)
+        run: |
+          echo "Conteúdo de build/lib:"
+          ls -R build/lib
+
       - name: Upload da biblioteca compartilhada como artefato
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: plastimatch-shared-library
-          # Ajuste o caminho abaixo se o .so for gerado em outra pasta.
+          # Ajuste o caminho conforme a listagem acima.
           path: build/lib/libplastimatch.so
