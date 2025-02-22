@@ -1,1 +1,70 @@
+name: Build Plastimatch as Shared Library (DCMTK Only)
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/ccache
+      
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4  # Atualizado para v4
+
+      - name: Configurar ccache
+        uses: actions/cache@v4  # Atualizado para v4
+        with:
+          path: ccache
+          key: ccache-${{ runner.os }}-plastimatch
+
+      - name: Instalar dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake git \
+            libdcmtk-dev libgdcm-dev \
+            libboost-all-dev libeigen3-dev \
+            libsqlite3-dev libhdf5-dev
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Build ITK
+        run: |
+          git clone --depth 1 --branch v5.3.0 https://github.com/InsightSoftwareConsortium/ITK.git
+          mkdir itk-build && cd itk-build
+          cmake ../ITK \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DBUILD_TESTING=OFF
+          make -j$(nproc)
+          sudo make install
+
+      - name: Configurar build
+        run: mkdir -p build && cd build && cmake .. \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DITK_DIR=/usr/local/lib/cmake/ITK-5.3/ \
+          -DUSE_DCMTK=ON \
+          -DBUILD_SHARED_LIBS=ON \
+          -DBUILD_APPS=OFF
+
+      - name: Compilar
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+
+      - name: Validar artefatos
+        run: |
+          file build/lib/libplastimatch.so
+          ldd build/lib/libplastimatch.so
+
+      - name: Upload artefatos
+        uses: actions/upload-artifact@v4  # Versão corrigida
+        with:
+          name: plastimatch-artifacts
+          path: |
+            build/lib/libplastimatch.so*
             build/include/plastimatch/*.h
