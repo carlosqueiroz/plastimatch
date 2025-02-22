@@ -1,4 +1,4 @@
-name: Build Plastimatch Master (DCMTK Only)
+name: Build Plastimatch as Shared Library (DCMTK Only)
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
           sudo apt-get install -y \
             g++ make git cmake \
             libblas-dev liblapack-dev libsqlite3-dev \
-            libdcmtk-dev
+            libdcmtk-dev libinsighttoolkit5-dev
 
       - name: Criar diretório de build
         run: mkdir -p build
@@ -29,9 +29,19 @@ jobs:
           cmake .. \
             -DUSE_DCMTK=ON \
             -DUSE_CUDA=OFF \
-            -DUSE_FFTW=OFF
+            -DUSE_FFTW=OFF \
+            -DDCMTK_FORCE_FPIC_ON_UNIX=ON \
+            -DBUILD_SHARED_LIBS=ON \
+            -DUSE_SYSTEM_ITK=ON
 
       - name: Compilar o Plastimatch
         run: |
           cd build
           make -j$(nproc)
+
+      - name: Upload da biblioteca compartilhada como artefato
+        uses: actions/upload-artifact@v3
+        with:
+          name: plastimatch-shared-library
+          # Ajuste o caminho abaixo se o .so for gerado em outra pasta.
+          path: build/lib/libplastimatch.so
