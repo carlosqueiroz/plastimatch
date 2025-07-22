@@ -2,60 +2,100 @@ name: Build Plastimatch
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
 
 jobs:
   build:
+    timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        arch: [x64, arm64]
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: arm64
       fail-fast: false
+
     runs-on: ${{ matrix.os }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    env:
+      ARCH: ${{ matrix.arch }}
 
-      - name: Setup packaging variables
-        run: |
-          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
-            export CMAKE_ARCH="-DCMAKE_OSX_ARCHITECTURES=arm64"
-          else
-            export CMAKE_ARCH="-DCMAKE_OSX_ARCHITECTURES=x86_64"
-          fi
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ make cmake git \
+          sudo apt-get install -y build-essential cmake git \
             libblas-dev liblapack-dev libsqlite3-dev \
             libdcmtk-dev libdlib-dev libfftw3-dev \
-            libinsighttoolkit5-dev libpng-dev libtiff-dev uuid-dev zlib1g-dev
+            libinsighttoolkit5-dev libpng-dev libtiff-dev \
+            uuid-dev zlib1g-dev
 
-      - name: Install dependencies (macOS)
+      - name: Install dependencies (macOS + build ITK)
         if: matrix.os == 'macos-latest'
         run: |
           brew update
-          brew install cmake git dcmtk fftw itk libpng libtiff zlib
+          brew install cmake git dcmtk fftw libpng libtiff zlib
+          # Build ITK with ITKReview ON
+          git clone https://github.com/InsightSoftwareConsortium/ITK.git itk-src
+          mkdir itk-src/build && cd itk-src/build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DITKModule_ITKReview=ON
+          make -j$(sysctl -n hw.ncpu)
+          sudo make install
+
+      - name: Install dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install -y cmake git
+          choco install -y visualstudio2022buildtools
+          if "%ARCH%"=="arm64" (
+            echo "✅ ARM64 on Windows: runner includes Visual Studio ARM64 toolchain"
+          )
 
       - name: Configure CMake
+        shell: bash
         run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            $CMAKE_ARCH
+          mkdir build
+          CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS='-Wno-unused-result'"
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            CMAKE_FLAGS+=" -DCMAKE_OSX_ARCHITECTURES=${ARCH}"
+            CMAKE_FLAGS+=" -DITK_DIR=/usr/local/lib/cmake/ITK"
+          fi
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # uppercase ARCH for CMake generator
+            ARCHU=${ARCH^^}
+            CMAKE_FLAGS+=" -A ${ARCHU}"
+          fi
+          cmake -S . -B build $CMAKE_FLAGS
 
       - name: Build
-        run: cmake --build build --config Release --parallel
+        run: cmake --build build --config Release --parallel 2
 
-      - name: Package binary
+      - name: Package artifact
         run: |
-          mkdir -p artifact
-          BIN_DIR=build/bin
-          cp $BIN_DIR/plastimatch* artifact/ || true
+          mkdir artifact
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cp build/Release/plastimatch.exe artifact/ || true
+          else
+            cp build/bin/plastimatch* artifact/ || true
+          fi
           cd artifact
           zip -r plastimatch-${{ matrix.os }}-${{ matrix.arch }}.zip .
 
