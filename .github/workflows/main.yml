@@ -1,91 +1,66 @@
-name: Build Plastimatch as Shared Library (DCMTK Only)
+name: Build Plastimatch
 
 on:
   push:
-    branches: [ master ]
-  workflow_dispatch:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    env:
-      CCACHE_DIR: ${{ github.workspace }}/ccache
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [x64, arm64]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up ccache
-        uses: actions/cache@v4
-        with:
-          path: ccache
-          key: ccache-${{ runner.os }}-plastimatch
+      - name: Setup packaging variables
+        run: |
+          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            export CMAKE_ARCH="-DCMAKE_OSX_ARCHITECTURES=arm64"
+          else
+            export CMAKE_ARCH="-DCMAKE_OSX_ARCHITECTURES=x86_64"
+          fi
 
-      - name: Install dependencies
+      - name: Install dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential cmake git \
-            libboost-all-dev libeigen3-dev \
-            libsqlite3-dev libhdf5-dev
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get install -y g++ make cmake git \
+            libblas-dev liblapack-dev libsqlite3-dev \
+            libdcmtk-dev libdlib-dev libfftw3-dev \
+            libinsighttoolkit5-dev libpng-dev libtiff-dev uuid-dev zlib1g-dev
 
-      - name: Build DCMTK
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
-          git clone --branch DCMTK-3.6.7 https://github.com/DCMTK/dcmtk.git
-          mkdir dcmtk-build && cd dcmtk-build
-          cmake ../dcmtk \
-            -DDCMTK_FORCE_FPIC=ON \
-            -DDCMTK_ENABLE_CXX11=ON \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DDCMTK_WITH_OPENSSL=OFF \
-            -DDCMTK_WITH_PNG=OFF \
-            -DDCMTK_WITH_TIFF=OFF \
-            -DDCMTK_WITH_ZLIB=OFF \
-            -DDCMTK_WITH_ICONV=OFF
-          make -j$(nproc)
-          sudo make install
+          brew update
+          brew install cmake git dcmtk fftw itk libpng libtiff zlib
 
-      - name: Build ITK
+      - name: Configure CMake
         run: |
-          git clone --depth 1 --branch v5.4.2 https://github.com/InsightSoftwareConsortium/ITK.git
-          mkdir itk-build && cd itk-build
-          cmake ../ITK \
-            -DCMAKE_CXX_STANDARD=17 \
-            -DCMAKE_INSTALL_PREFIX=$ITK_DIR/install \
-            -DBUILD_TESTING=OFF \
-            -DITK_MINIMUM_COMPLIANCE_LEVEL=3 \
-            -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DModule_ITKReview=ON 
-          make -j$(nproc)
-          sudo make install
-
-      - name: Configure build
-        run: |
-          mkdir -p build && cd build && cmake .. \
+          cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
-            -DITK_DIR=/usr/local/lib/cmake/ITK-5.4.2/ \
-            -DDCMTK_DIR=/usr/local/lib/cmake/dcmtk-3.6.7/ \
-            -DUSE_DCMTK=ON \
-            -DBUILD_SHARED_LIBS=ON \
-            -DBUILD_APPS=OFF
+            $CMAKE_ARCH
 
-      - name: Compile
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package binary
         run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+          mkdir -p artifact
+          BIN_DIR=build/bin
+          cp $BIN_DIR/plastimatch* artifact/ || true
+          cd artifact
+          zip -r plastimatch-${{ matrix.os }}-${{ matrix.arch }}.zip .
 
-      - name: Validate artifacts
-        run: |
-          file build/lib/libplastimatch.so
-          ldd build/lib/libplastimatch.so
-
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: plastimatch-artifacts
-          path: |
-            build/lib/libplastimatch.so*
-            build/include/plastimatch/*.h
+          name: plastimatch-${{ matrix.os }}-${{ matrix.arch }}
+          path: artifact/plastimatch-*.zip
